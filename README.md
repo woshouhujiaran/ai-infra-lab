@@ -15,6 +15,10 @@ Rules:
 |----|----------|-----------|--------|--------|
 | [0001](experiments/0001-nanovllm-prefix-cache) | nano-vllm | BlockManager prefix cache | CPU | Burst arrival drops prefix-cache hit rate from 92.7% to 83.8% (2048-token shared prefix) |
 
+## Daily automation
+
+A Windows scheduled task ("ai-infra-lab daily experiment", every day at 12:00) runs `scripts/daily_run.ps1`, which starts the Cursor CLI agent with [automation/daily_prompt.md](automation/daily_prompt.md). The agent picks a new topic from [experiments/BACKLOG.md](experiments/BACKLOG.md) that is not in the registry, runs it locally, commits step by step and pushes here. Logs go to `logs/` (not committed).
+
 ## Setup
 
 ```powershell
