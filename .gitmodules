@@ -1,0 +1,3 @@
+[submodule "upstream/nano-vllm"]
+	path = upstream/nano-vllm
+	url = https://github.com/GeeeekExplorer/nano-vllm.git

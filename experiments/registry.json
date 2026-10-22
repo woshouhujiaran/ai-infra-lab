@@ -1,0 +1,14 @@
+{
+  "experiments": [
+    {
+      "id": "0001",
+      "slug": "nanovllm-prefix-cache",
+      "upstream": "GeeeekExplorer/nano-vllm",
+      "component": "engine/block_manager.py",
+      "topic": "prefix cache hit rate vs prefix length, block size, arrival pattern, KV memory pressure",
+      "device": "cpu",
+      "date": "2026-10-22",
+      "status": "done"
+    }
+  ]
+}
