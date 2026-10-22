@@ -2,6 +2,8 @@
 
 你在 `ai-infra-lab` 仓库根目录工作。目标：今天完成 **1 个** 新的、可在本机复现的 AI infra 小组件实验，按步骤 commit，并推送到 `origin`（公开仓库 woshouhujiaran/ai-infra-lab）。
 
+**每天只做 1 个实验。** 如果 registry 里今天的日期已经有一条记录，直接结束，什么都不做。
+
 ## 硬性约束
 
 1. **只针对单个组件**：一个上游项目里的一个模块/算子/数据结构（KV cache、调度器、采样器、量化层、通信原语、tokenizer、kernel 等），不做端到端大模型训练/推理。
@@ -13,8 +15,8 @@
 ## 步骤
 
 1. `git pull --ff-only origin main`，读 `README.md`、`experiments/registry.json`、`experiments/BACKLOG.md`。
-2. 从 BACKLOG 里挑第一个未完成且依赖可在 Windows 上安装的条目；都不合适时，自行提出一个满足约束的新实验，并把它加进 BACKLOG。
-3. 编号 = registry 中最大 id + 1（4 位数字），目录为 `experiments/<id>-<slug>/`。
+2. 如果 `experiments/` 下有已存在但不在 registry 里的实验目录（例如只有 `run.py`、标着 `in progress`），今天就把它做完：沿用它的编号和目录，从下面第 4 步的“实际运行”开始。否则，从 BACKLOG 里挑第一个未完成且依赖可在 Windows 上安装的条目；都不合适时，自行提出一个满足约束的新实验，并把它加进 BACKLOG。
+3. 新实验的编号 = registry 中最大 id 和已有实验目录编号中的较大者 + 1（4 位数字），目录为 `experiments/<id>-<slug>/`。
 4. 按以下顺序分步 commit（每步一个 commit，message 用英文祈使句）：
    - 如果用到了新上游：添加 submodule 并禁用推送 → commit。
    - 写 `run.py`（固定随机种子，结果写入 `results.json` 和 `results.md`）→ commit。
