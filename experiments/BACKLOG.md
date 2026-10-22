@@ -3,8 +3,7 @@
 Candidates for the daily run. Pick the first unchecked item that installs on Windows; check it off when done (or note why it was skipped).
 
 - [x] nano-vllm `BlockManager`: prefix-cache hit rate vs prefix length / block size / arrival pattern (0001)
-- [x] nano-vllm `Sampler`: exponential-race sampling vs `torch.multinomial` — distribution + throughput (0002)
-- [ ] nano-vllm `Sampler` under `torch.compile` (install `triton-windows`): does fusion remove the extra fp32 noise tensor and the large-batch slowdown seen in 0002?
+- [ ] nano-vllm `Sampler`: exponential-race sampling vs `torch.multinomial` — distribution + throughput (0002, in progress)
 - [ ] nano-vllm `RMSNorm` with fused residual add vs separate ops — numerics (bf16) and speed
 - [ ] nano-vllm `RotaryEmbedding` cached cos/sin vs on-the-fly — error vs fp32 reference, speed
 - [ ] nano-vllm `Scheduler`: chunked prefill — time-to-first-token proxy vs `max_num_batched_tokens` (simulation)

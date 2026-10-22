@@ -9,16 +9,6 @@
       "device": "cpu",
       "date": "2026-10-22",
       "status": "done"
-    },
-    {
-      "id": "0002",
-      "slug": "nanovllm-sampler",
-      "upstream": "GeeeekExplorer/nano-vllm",
-      "component": "layers/sampler.py",
-      "topic": "exponential-race (Gumbel-max) sampling vs torch.multinomial: distribution correctness, eager throughput and memory at Qwen3 vocab",
-      "device": "cuda",
-      "date": "2026-10-22",
-      "status": "done"
     }
   ]
 }
