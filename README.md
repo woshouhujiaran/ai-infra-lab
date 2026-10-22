@@ -14,6 +14,7 @@ Rules:
 | ID | Upstream | Component | Device | Result |
 |----|----------|-----------|--------|--------|
 | [0001](experiments/0001-nanovllm-prefix-cache) | nano-vllm | BlockManager prefix cache | CPU | Burst arrival drops prefix-cache hit rate from 92.7% to 83.8% (2048-token shared prefix) |
+| [0002](experiments/0002-nanovllm-sampler) | nano-vllm | Sampler (exponential race) | RTX 4060 | Exact distribution; 1.54× faster than multinomial at batch 1, parity at batch 256, 1.5× temp memory |
 
 ## Daily automation
 
