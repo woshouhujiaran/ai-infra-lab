@@ -5,6 +5,7 @@
 """
 import json
 import sys
+import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -37,9 +38,11 @@ def try_compiled():
         return None, "triton not installed (torch.compile needs it on Windows)"
     sampler = Sampler()
     try:
+        t0 = time.perf_counter()
         x = torch.randn(2, 8, device="cuda")
         sampler(x, torch.ones(2, device="cuda"))
-        return (lambda l, t: sampler(l, t)), None
+        torch.cuda.synchronize()
+        return (lambda l, t: sampler(l, t)), f"first compile took {time.perf_counter() - t0:.1f} s"
     except Exception as e:  # noqa: BLE001
         return None, f"torch.compile failed: {type(e).__name__}: {str(e)[:200]}"
 
@@ -115,7 +118,8 @@ def main():
     lines += [f"| {r['method']} | {r['batch']} | {r['ms_per_call']} | {r['tokens_per_s']} | {r['extra_peak_mib']} |"
               for r in perf]
     if compile_note:
-        lines += ["", f"compiled variant skipped: {compile_note}"]
+        prefix = "compiled variant" if compiled is not None else "compiled variant skipped"
+        lines += ["", f"{prefix}: {compile_note}"]
     (HERE / "results.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
 
