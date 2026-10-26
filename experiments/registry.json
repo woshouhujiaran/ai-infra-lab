@@ -9,6 +9,16 @@
       "device": "cpu",
       "date": "2026-10-22",
       "status": "done"
+    },
+    {
+      "id": "0002",
+      "slug": "nanovllm-sampler",
+      "upstream": "GeeeekExplorer/nano-vllm",
+      "component": "layers/sampler.py",
+      "topic": "exponential-race sampling vs torch.multinomial: distribution, throughput, temp memory; eager vs torch.compile (triton-windows)",
+      "device": "cuda",
+      "date": "2026-10-26",
+      "status": "done"
     }
   ]
 }
