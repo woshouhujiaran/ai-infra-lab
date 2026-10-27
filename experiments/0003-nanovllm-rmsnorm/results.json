@@ -1,0 +1,209 @@
+{
+  "experiment": "0003-nanovllm-rmsnorm",
+  "upstream": "GeeeekExplorer/nano-vllm",
+  "upstream_commit": "bb823b3e06983d71485a8e1f23715ebd87d98ef8",
+  "component": "nanovllm.layers.layernorm.RMSNorm",
+  "hidden_size": 4096,
+  "eps": 1e-06,
+  "dtype": "bfloat16",
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "memory_total_mib": 8188,
+    "memory_used_mib": 68,
+    "utilization_percent": 28,
+    "temperature_c": 49,
+    "memory_fraction_cap": 0.6,
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+  },
+  "compile_note": "first compile took 24.3 s",
+  "numerics": [
+    {
+      "method": "fused_eager",
+      "tokens": 1,
+      "out_max_abs": 0.0,
+      "out_mean_abs": 0.0,
+      "out_max_rel": 0.0,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 1,
+      "out_max_abs": 0.03125,
+      "out_mean_abs": 0.000973,
+      "out_max_rel": 0.013333,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    },
+    {
+      "method": "fused_eager",
+      "tokens": 16,
+      "out_max_abs": 0.0,
+      "out_mean_abs": 0.0,
+      "out_max_rel": 0.0,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 16,
+      "out_max_abs": 0.03125,
+      "out_mean_abs": 0.001055,
+      "out_max_rel": 0.013793,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    },
+    {
+      "method": "fused_eager",
+      "tokens": 256,
+      "out_max_abs": 0.0,
+      "out_mean_abs": 0.0,
+      "out_max_rel": 0.0,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 256,
+      "out_max_abs": 0.03125,
+      "out_mean_abs": 0.001052,
+      "out_max_rel": 0.013889,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    },
+    {
+      "method": "fused_eager",
+      "tokens": 2048,
+      "out_max_abs": 0.0,
+      "out_mean_abs": 0.0,
+      "out_max_rel": 0.0,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 2048,
+      "out_max_abs": 0.03125,
+      "out_mean_abs": 0.00105,
+      "out_max_rel": 0.013889,
+      "residual_max_abs": 0.0,
+      "allclose_rtol_1e2_atol_1e2": true
+    }
+  ],
+  "throughput": [
+    {
+      "method": "fused_eager",
+      "tokens": 1,
+      "ms_per_call": 0.4635,
+      "tokens_per_s": 2157,
+      "extra_peak_mib": 0.04
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 1,
+      "ms_per_call": 0.2654,
+      "tokens_per_s": 3767,
+      "extra_peak_mib": 0.04
+    },
+    {
+      "method": "fused_compiled",
+      "tokens": 1,
+      "ms_per_call": 0.1547,
+      "tokens_per_s": 6464,
+      "extra_peak_mib": 0.02
+    },
+    {
+      "method": "separate_compiled",
+      "tokens": 1,
+      "ms_per_call": 0.1156,
+      "tokens_per_s": 8651,
+      "extra_peak_mib": 0.02
+    },
+    {
+      "method": "fused_eager",
+      "tokens": 16,
+      "ms_per_call": 0.1613,
+      "tokens_per_s": 99219,
+      "extra_peak_mib": 0.63
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 16,
+      "ms_per_call": 0.0935,
+      "tokens_per_s": 171214,
+      "extra_peak_mib": 0.63
+    },
+    {
+      "method": "fused_compiled",
+      "tokens": 16,
+      "ms_per_call": 0.0678,
+      "tokens_per_s": 236099,
+      "extra_peak_mib": 0.38
+    },
+    {
+      "method": "separate_compiled",
+      "tokens": 16,
+      "ms_per_call": 0.0858,
+      "tokens_per_s": 186411,
+      "extra_peak_mib": 0.25
+    },
+    {
+      "method": "fused_eager",
+      "tokens": 256,
+      "ms_per_call": 0.2607,
+      "tokens_per_s": 982087,
+      "extra_peak_mib": 10.0
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 256,
+      "ms_per_call": 0.1896,
+      "tokens_per_s": 1350184,
+      "extra_peak_mib": 10.0
+    },
+    {
+      "method": "fused_compiled",
+      "tokens": 256,
+      "ms_per_call": 0.0874,
+      "tokens_per_s": 2927401,
+      "extra_peak_mib": 6.0
+    },
+    {
+      "method": "separate_compiled",
+      "tokens": 256,
+      "ms_per_call": 0.0982,
+      "tokens_per_s": 2607426,
+      "extra_peak_mib": 4.0
+    },
+    {
+      "method": "fused_eager",
+      "tokens": 2048,
+      "ms_per_call": 2.4365,
+      "tokens_per_s": 840548,
+      "extra_peak_mib": 80.01
+    },
+    {
+      "method": "separate_eager",
+      "tokens": 2048,
+      "ms_per_call": 1.7,
+      "tokens_per_s": 1204732,
+      "extra_peak_mib": 80.01
+    },
+    {
+      "method": "fused_compiled",
+      "tokens": 2048,
+      "ms_per_call": 0.38,
+      "tokens_per_s": 5389673,
+      "extra_peak_mib": 48.0
+    },
+    {
+      "method": "separate_compiled",
+      "tokens": 2048,
+      "ms_per_call": 0.3299,
+      "tokens_per_s": 6207325,
+      "extra_peak_mib": 32.01
+    }
+  ],
+  "peak_memory_mib": 64.0
+}
