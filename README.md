@@ -15,6 +15,7 @@ Rules:
 |----|----------|-----------|--------|--------|
 | [0001](experiments/0001-nanovllm-prefix-cache) | nano-vllm | BlockManager prefix cache | CPU | Burst arrival drops prefix-cache hit rate from 92.7% to 83.8% (2048-token shared prefix) |
 | [0002](experiments/0002-nanovllm-sampler) | nano-vllm | Sampler (exponential race) | RTX 4060 | Exact like `torch.multinomial`; only `torch.compile` makes it 2.0× faster at batch 256 with 1/3 the temp memory of eager |
+| [0003](experiments/0003-nanovllm-rmsnorm) | nano-vllm | RMSNorm fused residual-add | RTX 4060 | Fused matches fp32 ref (separate errs by 0.03125 abs); eager fused is slower; compile wins only at mid token counts |
 
 ## Daily automation
 
