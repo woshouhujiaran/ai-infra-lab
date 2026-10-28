@@ -20,7 +20,7 @@ Rules:
 
 ## Daily automation
 
-A Windows scheduled task ("ai-infra-lab daily experiment", every day at 12:00) runs `scripts/daily_run.ps1`, which starts the Cursor CLI agent with [automation/daily_prompt.md](automation/daily_prompt.md). The agent picks a new topic from [experiments/BACKLOG.md](experiments/BACKLOG.md) that is not in the registry, runs it locally, commits step by step and pushes here. Logs go to `logs/` (not committed).
+A Windows scheduled task ("ai-infra-lab daily experiment", every day at 14:00) runs `scripts/daily_run.ps1`, which starts the Cursor CLI agent with [automation/daily_prompt.md](automation/daily_prompt.md). The agent picks a new topic from [experiments/BACKLOG.md](experiments/BACKLOG.md) that is not in the registry, runs it locally, commits step by step and pushes here. Logs go to `logs/` (not committed).
 
 ## Setup
 

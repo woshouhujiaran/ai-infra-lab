@@ -1,4 +1,4 @@
-# 每日 AI Infra 组件实验（每天 12:00 由 Windows 计划任务触发）
+# 每日 AI Infra 组件实验（每天 14:00 由 Windows 计划任务触发）
 
 你在 `ai-infra-lab` 仓库根目录工作。目标：今天完成 **1 个** 新的、可在本机复现的 AI infra 小组件实验，按步骤 commit，并推送到 `origin`（公开仓库 woshouhujiaran/ai-infra-lab）。
 

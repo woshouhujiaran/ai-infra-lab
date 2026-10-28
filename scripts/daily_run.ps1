@@ -1,5 +1,5 @@
 # Runs one daily experiment through the Cursor CLI agent. Triggered by the
-# "ai-infra-lab daily experiment" scheduled task at 12:00.
+# "ai-infra-lab daily experiment" scheduled task at 14:00.
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
@@ -21,6 +21,10 @@ if ((Test-Path $lock) -and ((Get-Date) - (Get-Item $lock).LastWriteTime).TotalHo
 New-Item -ItemType File -Force $lock | Out-Null
 
 try {
+    # Windows PowerShell turns native stderr (git progress, agent logs) into
+    # terminating errors under "Stop".
+    $ErrorActionPreference = "Continue"
+    "Started $(Get-Date -Format s)" | Tee-Object -FilePath $log -Append
     $agent = Join-Path $env:LOCALAPPDATA "cursor-agent\agent.cmd"
     git pull --ff-only origin main *>&1 | Tee-Object -FilePath $log -Append
     $prompt = "Follow automation/daily_prompt.md exactly to run today's experiment, commit step by step, and push to origin main."
