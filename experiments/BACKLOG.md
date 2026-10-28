@@ -5,7 +5,7 @@ Candidates for the daily run. Pick the first unchecked item that installs on Win
 - [x] nano-vllm `BlockManager`: prefix-cache hit rate vs prefix length / block size / arrival pattern (0001)
 - [x] nano-vllm `Sampler`: exponential-race sampling vs `torch.multinomial` — distribution + throughput, eager vs compiled (0002)
 - [x] nano-vllm `RMSNorm` with fused residual add vs separate ops — numerics (bf16) and speed (0003)
-- [ ] nano-vllm `RotaryEmbedding` cached cos/sin vs on-the-fly — error vs fp32 reference, speed
+- [x] nano-vllm `RotaryEmbedding` cached cos/sin vs on-the-fly — error vs fp64 reference by position, speed (0004)
 - [ ] nano-vllm `Scheduler`: chunked prefill — time-to-first-token proxy vs `max_num_batched_tokens` (simulation)
 - [ ] karpathy/minbpe: BPE training/encoding throughput vs vocab size, compared with tiktoken
 - [ ] bitsandbytes: `Linear8bitLt` / `Linear4bit` (NF4) — weight memory, output error, latency vs fp16 Linear

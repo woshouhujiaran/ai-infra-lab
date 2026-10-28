@@ -29,6 +29,16 @@
       "device": "cuda",
       "date": "2026-10-27",
       "status": "done"
+    },
+    {
+      "id": "0004",
+      "slug": "nanovllm-rope",
+      "upstream": "GeeeekExplorer/nano-vllm",
+      "component": "layers/rotary_embedding.py",
+      "topic": "RoPE cached fp32 cos/sin table vs fp64-built table vs on-the-fly: error vs fp64 ref by position, eager vs torch.compile throughput/memory",
+      "device": "cuda",
+      "date": "2026-10-28",
+      "status": "done"
     }
   ]
 }
