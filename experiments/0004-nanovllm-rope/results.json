@@ -1,0 +1,417 @@
+{
+  "experiment": "0004-nanovllm-rope",
+  "upstream": "GeeeekExplorer/nano-vllm",
+  "upstream_commit": "bb823b3e06983d71485a8e1f23715ebd87d98ef8",
+  "component": "nanovllm.layers.rotary_embedding.RotaryEmbedding",
+  "head_dim": 128,
+  "num_heads": 16,
+  "num_kv_heads": 8,
+  "rope_theta": 1000000.0,
+  "max_position": 40960,
+  "cos_sin_cache_mib": 20.0,
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "memory_total_mib": 8188,
+    "memory_used_mib": 60,
+    "utilization_percent": 23,
+    "temperature_c": 55,
+    "memory_fraction_cap": 0.6,
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+  },
+  "compile_note": "first compile took 41.2 s",
+  "table_numerics": [
+    {
+      "method": "cached_fp32",
+      "positions": "[0, 1024)",
+      "max_abs": 6.65e-05,
+      "mean_abs": 1.24e-06
+    },
+    {
+      "method": "cached_fp32",
+      "positions": "[1024, 8192)",
+      "max_abs": 0.000563,
+      "mean_abs": 1.12e-05
+    },
+    {
+      "method": "cached_fp32",
+      "positions": "[8192, 32768)",
+      "max_abs": 0.00233,
+      "mean_abs": 4.97e-05
+    },
+    {
+      "method": "cached_fp32",
+      "positions": "[32768, 40960)",
+      "max_abs": 0.0032,
+      "mean_abs": 8.76e-05
+    },
+    {
+      "method": "cached_fp64_built",
+      "positions": "[0, 1024)",
+      "max_abs": 2.98e-08,
+      "mean_abs": 1.6e-08
+    },
+    {
+      "method": "cached_fp64_built",
+      "positions": "[1024, 8192)",
+      "max_abs": 2.98e-08,
+      "mean_abs": 1.65e-08
+    },
+    {
+      "method": "cached_fp64_built",
+      "positions": "[8192, 32768)",
+      "max_abs": 2.98e-08,
+      "mean_abs": 1.67e-08
+    },
+    {
+      "method": "cached_fp64_built",
+      "positions": "[32768, 40960)",
+      "max_abs": 2.98e-08,
+      "mean_abs": 1.68e-08
+    },
+    {
+      "method": "on_the_fly_fp32",
+      "positions": "[0, 1024)",
+      "max_abs": 6.65e-05,
+      "mean_abs": 1.24e-06
+    },
+    {
+      "method": "on_the_fly_fp32",
+      "positions": "[1024, 8192)",
+      "max_abs": 0.000563,
+      "mean_abs": 1.12e-05
+    },
+    {
+      "method": "on_the_fly_fp32",
+      "positions": "[8192, 32768)",
+      "max_abs": 0.00233,
+      "mean_abs": 4.97e-05
+    },
+    {
+      "method": "on_the_fly_fp32",
+      "positions": "[32768, 40960)",
+      "max_abs": 0.0032,
+      "mean_abs": 8.76e-05
+    }
+  ],
+  "output_numerics": [
+    {
+      "method": "cached_fp32_eager",
+      "positions": "[0, 1024)",
+      "max_abs": 0.01549,
+      "mean_abs": 0.00105,
+      "bf16_mismatch_pct": 0.115
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "positions": "[0, 1024)",
+      "max_abs": 0.01549,
+      "mean_abs": 0.00105,
+      "bf16_mismatch_pct": 0.002
+    },
+    {
+      "method": "on_the_fly_eager",
+      "positions": "[0, 1024)",
+      "max_abs": 0.01549,
+      "mean_abs": 0.00105,
+      "bf16_mismatch_pct": 0.115
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "positions": "[0, 1024)",
+      "max_abs": 0.01549,
+      "mean_abs": 0.00105,
+      "bf16_mismatch_pct": 0.115
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "positions": "[0, 1024)",
+      "max_abs": 0.01549,
+      "mean_abs": 0.00105,
+      "bf16_mismatch_pct": 0.115
+    },
+    {
+      "method": "cached_fp32_eager",
+      "positions": "[1024, 8192)",
+      "max_abs": 0.01556,
+      "mean_abs": 0.00112,
+      "bf16_mismatch_pct": 0.718
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "positions": "[1024, 8192)",
+      "max_abs": 0.01556,
+      "mean_abs": 0.00112,
+      "bf16_mismatch_pct": 0.002
+    },
+    {
+      "method": "on_the_fly_eager",
+      "positions": "[1024, 8192)",
+      "max_abs": 0.01556,
+      "mean_abs": 0.00112,
+      "bf16_mismatch_pct": 0.718
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "positions": "[1024, 8192)",
+      "max_abs": 0.01556,
+      "mean_abs": 0.00112,
+      "bf16_mismatch_pct": 0.718
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "positions": "[1024, 8192)",
+      "max_abs": 0.01556,
+      "mean_abs": 0.00112,
+      "bf16_mismatch_pct": 0.719
+    },
+    {
+      "method": "cached_fp32_eager",
+      "positions": "[8192, 32768)",
+      "max_abs": 0.01558,
+      "mean_abs": 0.00114,
+      "bf16_mismatch_pct": 2.375
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "positions": "[8192, 32768)",
+      "max_abs": 0.01558,
+      "mean_abs": 0.00112,
+      "bf16_mismatch_pct": 0.002
+    },
+    {
+      "method": "on_the_fly_eager",
+      "positions": "[8192, 32768)",
+      "max_abs": 0.01558,
+      "mean_abs": 0.00114,
+      "bf16_mismatch_pct": 2.375
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "positions": "[8192, 32768)",
+      "max_abs": 0.01558,
+      "mean_abs": 0.00114,
+      "bf16_mismatch_pct": 2.375
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "positions": "[8192, 32768)",
+      "max_abs": 0.01558,
+      "mean_abs": 0.00114,
+      "bf16_mismatch_pct": 2.375
+    },
+    {
+      "method": "cached_fp32_eager",
+      "positions": "[32768, 40960)",
+      "max_abs": 0.0156,
+      "mean_abs": 0.00115,
+      "bf16_mismatch_pct": 3.583
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "positions": "[32768, 40960)",
+      "max_abs": 0.0156,
+      "mean_abs": 0.00112,
+      "bf16_mismatch_pct": 0.002
+    },
+    {
+      "method": "on_the_fly_eager",
+      "positions": "[32768, 40960)",
+      "max_abs": 0.0156,
+      "mean_abs": 0.00115,
+      "bf16_mismatch_pct": 3.583
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "positions": "[32768, 40960)",
+      "max_abs": 0.0156,
+      "mean_abs": 0.00115,
+      "bf16_mismatch_pct": 3.583
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "positions": "[32768, 40960)",
+      "max_abs": 0.0156,
+      "mean_abs": 0.00115,
+      "bf16_mismatch_pct": 3.583
+    }
+  ],
+  "throughput": [
+    {
+      "method": "cached_fp32_eager",
+      "tokens": 1,
+      "ms_per_call": 0.2736,
+      "tokens_per_s": 3655,
+      "extra_peak_mib": 0.03
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "tokens": 1,
+      "ms_per_call": 0.4369,
+      "tokens_per_s": 2289,
+      "extra_peak_mib": 0.03
+    },
+    {
+      "method": "on_the_fly_eager",
+      "tokens": 1,
+      "ms_per_call": 0.4044,
+      "tokens_per_s": 2473,
+      "extra_peak_mib": 0.03
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "tokens": 1,
+      "ms_per_call": 0.0611,
+      "tokens_per_s": 16358,
+      "extra_peak_mib": 0.01
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "tokens": 1,
+      "ms_per_call": 0.1994,
+      "tokens_per_s": 5015,
+      "extra_peak_mib": 0.01
+    },
+    {
+      "method": "cached_fp32_eager",
+      "tokens": 16,
+      "ms_per_call": 0.6492,
+      "tokens_per_s": 24647,
+      "extra_peak_mib": 0.45
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "tokens": 16,
+      "ms_per_call": 0.3423,
+      "tokens_per_s": 46737,
+      "extra_peak_mib": 0.45
+    },
+    {
+      "method": "on_the_fly_eager",
+      "tokens": 16,
+      "ms_per_call": 0.4818,
+      "tokens_per_s": 33211,
+      "extra_peak_mib": 0.45
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "tokens": 16,
+      "ms_per_call": 0.121,
+      "tokens_per_s": 132191,
+      "extra_peak_mib": 0.09
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "tokens": 16,
+      "ms_per_call": 0.1253,
+      "tokens_per_s": 127728,
+      "extra_peak_mib": 0.09
+    },
+    {
+      "method": "cached_fp32_eager",
+      "tokens": 256,
+      "ms_per_call": 0.3474,
+      "tokens_per_s": 736941,
+      "extra_peak_mib": 7.12
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "tokens": 256,
+      "ms_per_call": 0.4488,
+      "tokens_per_s": 570399,
+      "extra_peak_mib": 7.12
+    },
+    {
+      "method": "on_the_fly_eager",
+      "tokens": 256,
+      "ms_per_call": 0.4802,
+      "tokens_per_s": 533072,
+      "extra_peak_mib": 7.19
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "tokens": 256,
+      "ms_per_call": 0.1658,
+      "tokens_per_s": 1543782,
+      "extra_peak_mib": 1.5
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "tokens": 256,
+      "ms_per_call": 0.191,
+      "tokens_per_s": 1340195,
+      "extra_peak_mib": 1.5
+    },
+    {
+      "method": "cached_fp32_eager",
+      "tokens": 2048,
+      "ms_per_call": 1.0844,
+      "tokens_per_s": 1888628,
+      "extra_peak_mib": 57.0
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "tokens": 2048,
+      "ms_per_call": 1.0784,
+      "tokens_per_s": 1899155,
+      "extra_peak_mib": 57.0
+    },
+    {
+      "method": "on_the_fly_eager",
+      "tokens": 2048,
+      "ms_per_call": 1.0672,
+      "tokens_per_s": 1919109,
+      "extra_peak_mib": 57.5
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "tokens": 2048,
+      "ms_per_call": 0.4841,
+      "tokens_per_s": 4230745,
+      "extra_peak_mib": 12.0
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "tokens": 2048,
+      "ms_per_call": 0.5346,
+      "tokens_per_s": 3831197,
+      "extra_peak_mib": 12.0
+    },
+    {
+      "method": "cached_fp32_eager",
+      "tokens": 8192,
+      "ms_per_call": 5.5045,
+      "tokens_per_s": 1488239,
+      "extra_peak_mib": 228.0
+    },
+    {
+      "method": "cached_fp64_built_eager",
+      "tokens": 8192,
+      "ms_per_call": 5.3251,
+      "tokens_per_s": 1538379,
+      "extra_peak_mib": 228.0
+    },
+    {
+      "method": "on_the_fly_eager",
+      "tokens": 8192,
+      "ms_per_call": 5.2403,
+      "tokens_per_s": 1563272,
+      "extra_peak_mib": 230.0
+    },
+    {
+      "method": "cached_fp32_compiled",
+      "tokens": 8192,
+      "ms_per_call": 1.1334,
+      "tokens_per_s": 7227784,
+      "extra_peak_mib": 48.0
+    },
+    {
+      "method": "on_the_fly_compiled",
+      "tokens": 8192,
+      "ms_per_call": 1.2514,
+      "tokens_per_s": 6546163,
+      "extra_peak_mib": 48.0
+    }
+  ],
+  "peak_memory_mib": 136.1
+}
