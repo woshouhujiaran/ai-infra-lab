@@ -6,7 +6,7 @@ Candidates for the daily run. Pick the first unchecked item that installs on Win
 - [x] nano-vllm `Sampler`: exponential-race sampling vs `torch.multinomial` — distribution + throughput, eager vs compiled (0002)
 - [x] nano-vllm `RMSNorm` with fused residual add vs separate ops — numerics (bf16) and speed (0003)
 - [x] nano-vllm `RotaryEmbedding` cached cos/sin vs on-the-fly — error vs fp64 reference by position, speed (0004)
-- [ ] nano-vllm `Scheduler`: chunked prefill — time-to-first-token proxy vs `max_num_batched_tokens` (simulation)
+- [x] nano-vllm `Scheduler`: chunked prefill — time-to-first-token proxy vs `max_num_batched_tokens` (simulation) (0005)
 - [ ] karpathy/minbpe: BPE training/encoding throughput vs vocab size, compared with tiktoken
 - [ ] bitsandbytes: `Linear8bitLt` / `Linear4bit` (NF4) — weight memory, output error, latency vs fp16 Linear
 - [ ] mit-han-lab/streaming-llm: attention-sink KV eviction on a small model (≤ 500M) — perplexity vs cache size

@@ -39,6 +39,16 @@
       "device": "cuda",
       "date": "2026-10-28",
       "status": "done"
+    },
+    {
+      "id": "0005",
+      "slug": "nanovllm-chunked-prefill",
+      "upstream": "GeeeekExplorer/nano-vllm",
+      "component": "engine/scheduler.py",
+      "topic": "chunked prefill: TTFT / inter-token latency vs max_num_batched_tokens on a simulated clock, upstream prefill-first vs decode-first mixed batches",
+      "device": "cpu",
+      "date": "2026-10-29",
+      "status": "done"
     }
   ]
 }
