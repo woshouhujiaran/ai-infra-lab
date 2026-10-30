@@ -49,6 +49,16 @@
       "device": "cpu",
       "date": "2026-10-29",
       "status": "done"
+    },
+    {
+      "id": "0006",
+      "slug": "minbpe-vs-tiktoken",
+      "upstream": "karpathy/minbpe",
+      "component": "minbpe/regex.py",
+      "topic": "BPE training time and encode throughput vs vocab size; minbpe vs per-chunk-cached minbpe vs tiktoken on identical merges; GPT4Tokenizer vs cl100k_base",
+      "device": "cpu",
+      "date": "2026-10-30",
+      "status": "done"
     }
   ]
 }

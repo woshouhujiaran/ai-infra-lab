@@ -18,6 +18,7 @@ Rules:
 | [0003](experiments/0003-nanovllm-rmsnorm) | nano-vllm | RMSNorm fused residual-add | RTX 4060 | Fused matches fp32 ref (separate errs by 0.03125 abs); eager fused is slower; compile wins only at mid token counts |
 | [0004](experiments/0004-nanovllm-rope) | nano-vllm | RotaryEmbedding cos/sin cache | RTX 4060 | fp32 table drifts with position (3.6% wrong bf16 outputs at 32k+); fp64-built table fixes it for free; cached beats on-the-fly once compiled |
 | [0005](experiments/0005-nanovllm-chunked-prefill) | nano-vllm | Scheduler chunked prefill | CPU | Prefill-first chunking never shortens decode stalls (1.0 s → 1.5 s at budget 256); decode-first mixing cuts them to 44–155 ms at budgets 256–1024 for higher TTFT |
+| [0006](experiments/0006-minbpe-vs-tiktoken) | minbpe | RegexTokenizer train/encode | CPU | Same ids as tiktoken on identical merges, but tiktoken encodes 12–29× faster (gap grows with vocab); a chunk cache recovers 2.5–3×; `train` crashes once the text runs out of pairs |
 
 ## Daily automation
 
