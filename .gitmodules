@@ -1,3 +1,6 @@
 [submodule "upstream/nano-vllm"]
 	path = upstream/nano-vllm
 	url = https://github.com/GeeeekExplorer/nano-vllm.git
+[submodule "upstream/minbpe"]
+	path = upstream/minbpe
+	url = https://github.com/karpathy/minbpe.git
