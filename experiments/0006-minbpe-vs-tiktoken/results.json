@@ -1,0 +1,390 @@
+{
+  "experiment": "0006-minbpe-vs-tiktoken",
+  "upstream": "karpathy/minbpe",
+  "upstream_commit": "1acefe89412b20245db5a22d2a02001e547dc602",
+  "component": "minbpe.RegexTokenizer train/encode_ordinary (+ GPT4Tokenizer)",
+  "baseline": "tiktoken 0.14.0 (Rust CoreBPE, single thread)",
+  "python": "3.13.3",
+  "cpu": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "seed": 0,
+  "train_text_bytes": 92874,
+  "corpus_bytes": {
+    "heldout_prose": 92894,
+    "code": 23804,
+    "full_prose": 185768
+  },
+  "gpt4_init_seconds": 7.91,
+  "training": [
+    {
+      "vocab_size": 512,
+      "merges": 256,
+      "train_seconds": 2.9,
+      "ms_per_merge": 11.35,
+      "duplicate_byte_tokens": 0
+    },
+    {
+      "vocab_size": 1024,
+      "merges": 768,
+      "train_seconds": 7.51,
+      "ms_per_merge": 9.78,
+      "duplicate_byte_tokens": 0
+    },
+    {
+      "vocab_size": 2048,
+      "merges": 1792,
+      "train_seconds": 15.67,
+      "ms_per_merge": 8.75,
+      "duplicate_byte_tokens": 0
+    },
+    {
+      "vocab_size": 4096,
+      "merges": 3840,
+      "train_seconds": 29.84,
+      "ms_per_merge": 7.77,
+      "duplicate_byte_tokens": 0
+    },
+    {
+      "vocab_size": 8192,
+      "merges": 7936,
+      "train_seconds": 50.94,
+      "error": "ValueError: max() iterable argument is empty",
+      "merges_before_exhaustion": 7252
+    }
+  ],
+  "encoding": [
+    {
+      "tokenizer": "trained_512",
+      "corpus": "heldout_prose",
+      "impl": "minbpe",
+      "seconds": 0.09313,
+      "MB_per_s": 0.9974,
+      "tokens": 44032,
+      "bytes_per_token": 2.1097
+    },
+    {
+      "tokenizer": "trained_512",
+      "corpus": "heldout_prose",
+      "impl": "minbpe+cache",
+      "seconds": 0.03115,
+      "MB_per_s": 2.9824,
+      "tokens": 44032,
+      "bytes_per_token": 2.1097
+    },
+    {
+      "tokenizer": "trained_512",
+      "corpus": "heldout_prose",
+      "impl": "tiktoken",
+      "seconds": 0.00517,
+      "MB_per_s": 17.9748,
+      "tokens": 44032,
+      "bytes_per_token": 2.1097
+    },
+    {
+      "tokenizer": "trained_512",
+      "corpus": "code",
+      "impl": "minbpe",
+      "seconds": 0.01691,
+      "MB_per_s": 1.4078,
+      "tokens": 17169,
+      "bytes_per_token": 1.3865
+    },
+    {
+      "tokenizer": "trained_512",
+      "corpus": "code",
+      "impl": "minbpe+cache",
+      "seconds": 0.00677,
+      "MB_per_s": 3.5186,
+      "tokens": 17169,
+      "bytes_per_token": 1.3865
+    },
+    {
+      "tokenizer": "trained_512",
+      "corpus": "code",
+      "impl": "tiktoken",
+      "seconds": 0.00142,
+      "MB_per_s": 16.7787,
+      "tokens": 17169,
+      "bytes_per_token": 1.3865
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "heldout_prose",
+      "impl": "minbpe",
+      "seconds": 0.09969,
+      "MB_per_s": 0.9319,
+      "tokens": 36637,
+      "bytes_per_token": 2.5355
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "heldout_prose",
+      "impl": "minbpe+cache",
+      "seconds": 0.03422,
+      "MB_per_s": 2.715,
+      "tokens": 36637,
+      "bytes_per_token": 2.5355
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "heldout_prose",
+      "impl": "tiktoken",
+      "seconds": 0.00488,
+      "MB_per_s": 19.0349,
+      "tokens": 36637,
+      "bytes_per_token": 2.5355
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "code",
+      "impl": "minbpe",
+      "seconds": 0.01818,
+      "MB_per_s": 1.3092,
+      "tokens": 15730,
+      "bytes_per_token": 1.5133
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "code",
+      "impl": "minbpe+cache",
+      "seconds": 0.00733,
+      "MB_per_s": 3.2464,
+      "tokens": 15730,
+      "bytes_per_token": 1.5133
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "code",
+      "impl": "tiktoken",
+      "seconds": 0.00142,
+      "MB_per_s": 16.7977,
+      "tokens": 15730,
+      "bytes_per_token": 1.5133
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "heldout_prose",
+      "impl": "minbpe",
+      "seconds": 0.10116,
+      "MB_per_s": 0.9183,
+      "tokens": 33150,
+      "bytes_per_token": 2.8022
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "heldout_prose",
+      "impl": "minbpe+cache",
+      "seconds": 0.03679,
+      "MB_per_s": 2.5248,
+      "tokens": 33150,
+      "bytes_per_token": 2.8022
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "heldout_prose",
+      "impl": "tiktoken",
+      "seconds": 0.00461,
+      "MB_per_s": 20.1606,
+      "tokens": 33150,
+      "bytes_per_token": 2.8022
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "code",
+      "impl": "minbpe",
+      "seconds": 0.01967,
+      "MB_per_s": 1.2099,
+      "tokens": 14655,
+      "bytes_per_token": 1.6243
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "code",
+      "impl": "minbpe+cache",
+      "seconds": 0.00773,
+      "MB_per_s": 3.0805,
+      "tokens": 14655,
+      "bytes_per_token": 1.6243
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "code",
+      "impl": "tiktoken",
+      "seconds": 0.00141,
+      "MB_per_s": 16.844,
+      "tokens": 14655,
+      "bytes_per_token": 1.6243
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "heldout_prose",
+      "impl": "minbpe",
+      "seconds": 0.10561,
+      "MB_per_s": 0.8796,
+      "tokens": 31086,
+      "bytes_per_token": 2.9883
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "heldout_prose",
+      "impl": "minbpe+cache",
+      "seconds": 0.03762,
+      "MB_per_s": 2.4694,
+      "tokens": 31086,
+      "bytes_per_token": 2.9883
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "heldout_prose",
+      "impl": "tiktoken",
+      "seconds": 0.00447,
+      "MB_per_s": 20.7826,
+      "tokens": 31086,
+      "bytes_per_token": 2.9883
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "code",
+      "impl": "minbpe",
+      "seconds": 0.01976,
+      "MB_per_s": 1.2046,
+      "tokens": 13903,
+      "bytes_per_token": 1.7121
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "code",
+      "impl": "minbpe+cache",
+      "seconds": 0.00785,
+      "MB_per_s": 3.031,
+      "tokens": 13903,
+      "bytes_per_token": 1.7121
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "code",
+      "impl": "tiktoken",
+      "seconds": 0.00137,
+      "MB_per_s": 17.3473,
+      "tokens": 13903,
+      "bytes_per_token": 1.7121
+    },
+    {
+      "tokenizer": "gpt4_cl100k",
+      "corpus": "full_prose",
+      "impl": "minbpe",
+      "seconds": 0.24687,
+      "MB_per_s": 0.7525,
+      "tokens": 49298,
+      "bytes_per_token": 3.7683
+    },
+    {
+      "tokenizer": "gpt4_cl100k",
+      "corpus": "full_prose",
+      "impl": "tiktoken",
+      "seconds": 0.00849,
+      "MB_per_s": 21.8741,
+      "tokens": 49298,
+      "bytes_per_token": 3.7683
+    },
+    {
+      "tokenizer": "gpt4_cl100k",
+      "corpus": "code",
+      "impl": "minbpe",
+      "seconds": 0.02951,
+      "MB_per_s": 0.8067,
+      "tokens": 5729,
+      "bytes_per_token": 4.155
+    },
+    {
+      "tokenizer": "gpt4_cl100k",
+      "corpus": "code",
+      "impl": "tiktoken",
+      "seconds": 0.00106,
+      "MB_per_s": 22.4439,
+      "tokens": 5729,
+      "bytes_per_token": 4.155
+    }
+  ],
+  "checks": [
+    {
+      "tokenizer": "trained_512",
+      "corpus": "heldout_prose",
+      "n_bytes": 92894,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 18.0
+    },
+    {
+      "tokenizer": "trained_512",
+      "corpus": "code",
+      "n_bytes": 23804,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 11.9
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "heldout_prose",
+      "n_bytes": 92894,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 20.4
+    },
+    {
+      "tokenizer": "trained_1024",
+      "corpus": "code",
+      "n_bytes": 23804,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 12.8
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "heldout_prose",
+      "n_bytes": 92894,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 22.0
+    },
+    {
+      "tokenizer": "trained_2048",
+      "corpus": "code",
+      "n_bytes": 23804,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 13.9
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "heldout_prose",
+      "n_bytes": 92894,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 23.6
+    },
+    {
+      "tokenizer": "trained_4096",
+      "corpus": "code",
+      "n_bytes": 23804,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 14.4
+    },
+    {
+      "tokenizer": "gpt4_cl100k",
+      "corpus": "full_prose",
+      "n_bytes": 185768,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 29.1
+    },
+    {
+      "tokenizer": "gpt4_cl100k",
+      "corpus": "code",
+      "n_bytes": 23804,
+      "ids_identical": true,
+      "first_mismatch": null,
+      "tiktoken_speedup_vs_minbpe": 27.8
+    }
+  ]
+}

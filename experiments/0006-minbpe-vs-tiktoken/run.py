@@ -56,6 +56,26 @@ class CachedRegexTokenizer(RegexTokenizer):
         return ids
 
 
+def merges_before_exhaustion(text, vocab_size):
+    """Re-run a training that ran out of pairs, counting merges via a wrapped `merge`."""
+    import minbpe.regex as mr
+
+    orig, last_idx = mr.merge, [255]
+
+    def counting_merge(ids, pair, idx):
+        last_idx[0] = max(last_idx[0], idx)
+        return orig(ids, pair, idx)
+
+    mr.merge = counting_merge
+    try:
+        RegexTokenizer().train(text, vocab_size)
+    except ValueError:
+        pass
+    finally:
+        mr.merge = orig
+    return last_idx[0] - 255
+
+
 def to_tiktoken(tok: RegexTokenizer, name: str):
     """Load minbpe merges into tiktoken: rank of a byte string = minbpe token id."""
     ranks = {}
@@ -111,15 +131,23 @@ def main():
     prev_merges = None
     for vocab_size in VOCAB_SIZES:
         tok = RegexTokenizer()
+        n_merges = vocab_size - 256
         t0 = time.perf_counter()
-        tok.train(train_text, vocab_size)
+        try:
+            tok.train(train_text, vocab_size)
+        except ValueError as e:
+            fail_s = time.perf_counter() - t0
+            done = merges_before_exhaustion(train_text, vocab_size)
+            train_rows.append({"vocab_size": vocab_size, "merges": n_merges, "train_seconds": round(fail_s, 2),
+                               "error": f"ValueError: {e}", "merges_before_exhaustion": done})
+            print(f"vocab {vocab_size}: training failed after {done} merges ({e})", flush=True)
+            continue
         train_s = time.perf_counter() - t0
         merges = sorted(tok.merges.items(), key=lambda kv: kv[1])
         if prev_merges is not None:
             assert merges[:len(prev_merges)] == prev_merges, "smaller vocab is not a prefix"
         prev_merges = merges
         enc, dups = to_tiktoken(tok, f"minbpe_{vocab_size}")
-        n_merges = vocab_size - 256
         train_rows.append({"vocab_size": vocab_size, "merges": n_merges, "train_seconds": round(train_s, 2),
                            "ms_per_merge": round(1000 * train_s / n_merges, 2),
                            "duplicate_byte_tokens": dups})
@@ -168,7 +196,8 @@ def main():
           f"Training text: first half of taylorswift.txt ({result['train_text_bytes']} bytes). "
           f"GPT4Tokenizer init: {result['gpt4_init_seconds']} s.", "",
           "## Training", ""]
-    md += table(train_rows, ["vocab_size", "merges", "train_seconds", "ms_per_merge", "duplicate_byte_tokens"])
+    md += table(train_rows, ["vocab_size", "merges", "train_seconds", "ms_per_merge", "duplicate_byte_tokens",
+                             "merges_before_exhaustion", "error"])
     md += ["", "## Encoding (best of N runs)", ""]
     md += table(encode_rows, ["tokenizer", "corpus", "impl", "seconds", "MB_per_s", "tokens", "bytes_per_token"])
     md += ["", "## minbpe vs tiktoken token ids", ""]
