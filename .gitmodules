@@ -4,3 +4,6 @@
 [submodule "upstream/minbpe"]
 	path = upstream/minbpe
 	url = https://github.com/karpathy/minbpe.git
+[submodule "upstream/bitsandbytes"]
+	path = upstream/bitsandbytes
+	url = https://github.com/bitsandbytes-foundation/bitsandbytes.git
