@@ -1,8 +1,15 @@
 # Runs one daily experiment through the Cursor CLI agent. Triggered by the
 # "ai-infra-lab daily experiment" scheduled task at 14:00.
+# Resume an interrupted run (chat ID is printed in the log):
+#   powershell -ExecutionPolicy Bypass -File scripts\daily_run.ps1 -ResumeChatId <id>
+param([string]$ResumeChatId)
+
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
+
+# The agent writes UTF-8; the console default (GBK) would garble Chinese text.
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false
 
 $proxyHost = "127.0.0.1"
 $proxyPort = 7897
@@ -16,11 +23,67 @@ $retryDelayMinutes = 10
 
 $logDir = Join-Path $root "logs"
 New-Item -ItemType Directory -Force $logDir | Out-Null
-$log = Join-Path $logDir ("{0}.log" -f (Get-Date -Format "yyyy-MM-dd_HHmm"))
+$stamp = Get-Date -Format "yyyy-MM-dd_HHmm"
+$log = Join-Path $logDir "$stamp.log"
+$events = Join-Path $logDir "$stamp.agent.jsonl"
 $lock = Join-Path $logDir "daily.lock"
 
 function Write-Log($message) {
     "[$(Get-Date -Format s)] $message" | Tee-Object -FilePath $log -Append | Out-Host
+}
+
+function Limit-Text([string]$text, [int]$max = 300) {
+    $text = ($text -replace '\s+', ' ').Trim()
+    if ($text.Length -gt $max) { return $text.Substring(0, $max) + " ..." }
+    return $text
+}
+
+# Turns one stream-json event into a readable log line ($null = not worth logging).
+function Format-AgentEvent($e) {
+    switch ($e.type) {
+        "system" { return "agent: session $($e.session_id), model $($e.model)" }
+        "assistant" {
+            $text = ($e.message.content | Where-Object { $_.type -eq "text" } | ForEach-Object { $_.text }) -join ""
+            if ($text.Trim()) { return "agent says: $(Limit-Text $text 1000)" }
+            return $null
+        }
+        "tool_call" {
+            $prop = $e.tool_call.PSObject.Properties | Where-Object { $_.Name -like "*ToolCall" } | Select-Object -First 1
+            if (-not $prop) { return "tool $($e.subtype)" }
+            $name = $prop.Name -replace "ToolCall$", ""
+            $call = $prop.Value
+            if ($e.subtype -eq "started") {
+                $a = $call.args
+                $target = if ($a.command) { $a.command } elseif ($a.path) { $a.path } elseif ($a.pattern) { $a.pattern } else { $a | ConvertTo-Json -Compress -Depth 5 }
+                return "tool $name > $(Limit-Text $target)"
+            }
+            $r = $call.result
+            if ($r.success) {
+                $code = $r.success.exitCode
+                if ($null -ne $code -and $code -ne 0) { return "tool $name < exit $code" }
+                return "tool $name < ok" + $(if ($null -ne $code) { " (exit $code)" } else { "" })
+            }
+            return "tool $name < FAILED: $(Limit-Text ($r | ConvertTo-Json -Compress -Depth 6) 500)"
+        }
+        "result" {
+            $status = if ($e.is_error) { "ERROR" } else { $e.subtype }
+            return "agent result: $status after $([math]::Round($e.duration_ms / 60000, 1)) min`n$($e.result)"
+        }
+    }
+    return $null
+}
+
+# Raw events go to the .jsonl file; a readable summary goes to the .log.
+function Write-AgentOutput {
+    process {
+        $line = "$_"
+        if (-not $line.Trim()) { return }
+        try { $e = $line | ConvertFrom-Json } catch { $e = $null }
+        if ($null -eq $e -or -not $e.type) { Write-Log "agent output: $line"; return }
+        [IO.File]::AppendAllText($events, $line + "`n", (New-Object System.Text.UTF8Encoding $false))
+        $summary = Format-AgentEvent $e
+        if ($summary) { Write-Log $summary }
+    }
 }
 
 function Test-Proxy {
@@ -58,8 +121,16 @@ try {
     # terminating errors under "Stop".
     $ErrorActionPreference = "Continue"
     Write-Log "Started"
-    $agent = Join-Path $env:LOCALAPPDATA "cursor-agent\agent.cmd"
-    $prompt = "Follow automation/daily_prompt.md exactly to run today's experiment, commit step by step, and push to origin main."
+    # Not agent.cmd: the CLI auto-updates mid-run and rewrites agent.cmd, and cmd.exe
+    # then resumes the edited batch file at a stale offset and fails with exit 1.
+    # Running the .ps1 in-process also keeps the agent's UTF-8 output intact.
+    $agent = Join-Path $env:LOCALAPPDATA "cursor-agent\cursor-agent.ps1"
+    $today = Get-Date -Format "yyyy-MM-dd"
+    $freshPrompt = "Follow automation/daily_prompt.md exactly to run today's experiment, commit step by step, and push to origin main."
+    $continuePrompt = "The previous run in this chat stopped before finishing. Check git status, git log and experiments/ to see what is already done, then continue following automation/daily_prompt.md from where it stopped: commit step by step and push to origin main."
+
+    $chatId = $ResumeChatId
+    if ($chatId) { Write-Log "Resuming chat $chatId" }
 
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         if ($attempt -gt 1) {
@@ -71,10 +142,23 @@ try {
 
         git pull --ff-only origin main *>&1 | Tee-Object -FilePath $log -Append
         if ($LASTEXITCODE -ne 0) { Write-Log "git pull failed (exit $LASTEXITCODE)."; continue }
+        $registry = Get-Content -Raw -Encoding UTF8 (Join-Path $root "experiments\registry.json") | ConvertFrom-Json
+        $done = $registry.experiments | Where-Object { $_.date -eq $today } | Select-Object -First 1
+        if ($done) {
+            Write-Log "Today's experiment $($done.id)-$($done.slug) is already registered ($($done.status)); nothing to do."
+            exit 0
+        }
+        if (-not $chatId) {
+            $chatId = "$(& $agent create-chat 2>$null | Select-Object -Last 1)".Trim()
+            if ($chatId -notmatch '^[0-9a-f-]{36}$') { Write-Log "create-chat failed: $chatId"; $chatId = $null; continue }
+            Write-Log "Chat $chatId (raw events: $events)"
+            Write-Log "To resume manually: powershell -ExecutionPolicy Bypass -File scripts\daily_run.ps1 -ResumeChatId $chatId"
+        }
         $before = git rev-parse HEAD
 
-        & $agent -p --force --trust --workspace $root --output-format text $prompt *>&1 |
-            Tee-Object -FilePath $log -Append
+        $prompt = if ($ResumeChatId -or $attempt -gt 1) { $continuePrompt } else { $freshPrompt }
+        & $agent -p --force --trust --workspace $root --resume $chatId --output-format stream-json $prompt *>&1 |
+            Write-AgentOutput
         $agentExit = $LASTEXITCODE
 
         git fetch origin main *>&1 | Tee-Object -FilePath $log -Append
@@ -87,13 +171,13 @@ try {
         }
         # Partial work is already committed; a blind retry could start a second experiment.
         if ($agentExit -ne 0 -or $after -ne $remote) {
-            Write-Log "Agent exited with $agentExit; HEAD $after, origin/main $remote. Needs a manual look."
+            Write-Log "Agent exited with $agentExit; HEAD $after, origin/main $remote. Needs a manual look; resume with -ResumeChatId $chatId."
             exit 1
         }
         Write-Log "Finished: $before..$after pushed to origin/main."
         exit 0
     }
-    Write-Log "All $maxAttempts attempts failed."
+    Write-Log "All $maxAttempts attempts failed. Resume with -ResumeChatId $chatId."
     exit 1
 }
 finally {
