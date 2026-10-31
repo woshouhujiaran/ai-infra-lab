@@ -59,6 +59,16 @@
       "device": "cpu",
       "date": "2026-10-30",
       "status": "done"
+    },
+    {
+      "id": "0007",
+      "slug": "bnb-linear-quant",
+      "upstream": "bitsandbytes-foundation/bitsandbytes",
+      "component": "bitsandbytes/nn/modules.py (Linear8bitLt, Linear4bit)",
+      "topic": "int8 (threshold 0 / 6) and FP4 / NF4 / NF4 double-quant Linear vs fp16: resident memory, error vs fp64 with outlier activations and heavy-tailed weights, latency and temp memory vs token count",
+      "device": "cuda",
+      "date": "2026-10-31",
+      "status": "done"
     }
   ]
 }
