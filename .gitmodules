@@ -7,3 +7,6 @@
 [submodule "upstream/bitsandbytes"]
 	path = upstream/bitsandbytes
 	url = https://github.com/bitsandbytes-foundation/bitsandbytes.git
+[submodule "upstream/streaming-llm"]
+	path = upstream/streaming-llm
+	url = https://github.com/mit-han-lab/streaming-llm.git
