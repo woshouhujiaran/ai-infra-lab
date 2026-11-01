@@ -69,6 +69,16 @@
       "device": "cuda",
       "date": "2026-10-31",
       "status": "done"
+    },
+    {
+      "id": "0008",
+      "slug": "streamingllm-attention-sink",
+      "upstream": "mit-han-lab/streaming-llm",
+      "component": "streaming_llm/kv_cache.py (StartRecentKVCache) + pos_shift attention",
+      "topic": "attention-sink KV eviction on Pythia-160M past its 2048 context: PG19 perplexity vs cache size, sink count, position shift on/off, vs window and re-computation; attention mass on first tokens; torch.cat eviction cost",
+      "device": "cuda",
+      "date": "2026-11-01",
+      "status": "done"
     }
   ]
 }

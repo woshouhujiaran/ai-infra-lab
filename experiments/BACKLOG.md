@@ -9,7 +9,7 @@ Candidates for the daily run. Pick the first unchecked item that installs on Win
 - [x] nano-vllm `Scheduler`: chunked prefill — time-to-first-token proxy vs `max_num_batched_tokens` (simulation) (0005)
 - [x] karpathy/minbpe: BPE training/encoding throughput vs vocab size, compared with tiktoken (0006)
 - [x] bitsandbytes: `Linear8bitLt` / `Linear4bit` (NF4) — weight memory, output error, latency vs fp16 Linear (0007)
-- [ ] mit-han-lab/streaming-llm: attention-sink KV eviction on a small model (≤ 500M) — perplexity vs cache size
+- [x] mit-han-lab/streaming-llm: attention-sink KV eviction on a small model (≤ 500M) — perplexity vs cache size (0008)
 - [ ] linkedin/Liger-Kernel: fused cross-entropy (Triton, via `triton-windows`) — peak memory vs PyTorch CE
 - [ ] triton-lang/triton tutorial: fused softmax kernel vs `torch.softmax` bandwidth (via `triton-windows`)
 - [ ] karpathy/nanoGPT `CausalSelfAttention`: SDPA flash backend vs manual attention — memory/latency vs seq len

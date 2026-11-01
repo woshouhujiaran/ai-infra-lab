@@ -20,6 +20,7 @@ Rules:
 | [0005](experiments/0005-nanovllm-chunked-prefill) | nano-vllm | Scheduler chunked prefill | CPU | Prefill-first chunking never shortens decode stalls (1.0 s → 1.5 s at budget 256); decode-first mixing cuts them to 44–155 ms at budgets 256–1024 for higher TTFT |
 | [0006](experiments/0006-minbpe-vs-tiktoken) | minbpe | RegexTokenizer train/encode | CPU | Same ids as tiktoken on identical merges, but tiktoken encodes 12–29× faster (gap grows with vocab); a chunk cache recovers 2.5–3×; `train` crashes once the text runs out of pairs |
 | [0007](experiments/0007-bnb-linear-quant) | bitsandbytes | Linear8bitLt / Linear4bit | RTX 4060 | NF4 cuts weights 3.8–3.9× and decodes 1.2–1.5× faster than fp16 at 9% error (FP4 12%); int8 prefill is 2.4–3.0× faster but needs threshold 6 to hold ~1% error with outlier activations; 16-token batches are 2–4× slower for all quantized layers |
+| [0008](experiments/0008-streamingllm-attention-sink) | streaming-llm | StartRecentKVCache (attention sinks) | RTX 4060 | Past 2048 tokens dense ppl explodes to 6229 and window sits at 40–50; 4 sinks + position shift stay at 31–32 and match re-computation; without shift sinks blow up like dense; 1 sink is within 1.4% of 4; upstream's `torch.cat` eviction costs 12–23% of each step |
 
 ## Daily automation
 
