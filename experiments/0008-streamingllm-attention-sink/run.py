@@ -87,7 +87,7 @@ class Pythia:
     def lin(self, x, name):
         return F.linear(x, self.w[name + ".weight"], self.w[name + ".bias"])
 
-    def forward(self, ids, pos, cache=None, pos_shift=False, probe=None):
+    def forward(self, ids, pos, cache=None, pos_shift=False, probe=None, last_only=False, keep_cache=True):
         """ids [B, T]; pos [T] RoPE positions of the new tokens.
 
         pos_shift=False: keys are cached already rotated at their text position (HF behaviour).
@@ -113,7 +113,8 @@ class Pythia:
             if cache is not None:
                 k = torch.cat((cache[i][0], k), dim=2)
                 v = torch.cat((cache[i][1], v), dim=2)
-            new_cache.append([k, v])
+            if keep_cache:
+                new_cache.append([k, v])
             k_att = self.rope(k, kcos, ksin) if pos_shift else k
             if probe is not None:
                 scores = (q @ k_att.transpose(-1, -2)) / math.sqrt(self.head_dim)
@@ -132,6 +133,8 @@ class Pythia:
             m = self.lin(F.gelu(self.lin(self.ln(x, p + "post_attention_layernorm"), p + "mlp.dense_h_to_4h")),
                          p + "mlp.dense_4h_to_h")
             x = x + a + m
+        if last_only:
+            x = x[:, -1:]
         x = self.ln(x, "gpt_neox.final_layer_norm")
         return F.linear(x, self.w["embed_out.weight"]), new_cache
 
@@ -195,7 +198,7 @@ def recompute(model: Pythia, ids, cache_size: int, targets: list[int]):
     for i in range(0, len(jobs), RECOMPUTE_BATCH):
         chunk = jobs[i: i + RECOMPUTE_BATCH]
         x = torch.stack([ids[b, t - cache_size: t + 1] for b, t in chunk])
-        logits, _ = model.forward(x, pos)
+        logits, _ = model.forward(x, pos, last_only=True, keep_cache=False)
         y = torch.stack([ids[b, t + 1] for b, t in chunk])
         for (b, t), v in zip(chunk, F.cross_entropy(logits[:, -1], y, reduction="none").tolist()):
             out[(b, t)] = v
@@ -275,7 +278,8 @@ def main():
 
     probe = []
     with torch.inference_mode():
-        model.forward(ids[:, :PROBE_TOKENS], torch.arange(PROBE_TOKENS, device=ids.device), probe=probe)
+        model.forward(ids[:, :PROBE_TOKENS], torch.arange(PROBE_TOKENS, device=ids.device), probe=probe,
+                      last_only=True, keep_cache=False)
     uniform = sum(1 / (t + 1) for t in range(PROBE_FROM, PROBE_TOKENS)) / (PROBE_TOKENS - PROBE_FROM)
 
     policies = [{"name": "dense", "cache": None, "sinks": 0, "pos_shift": False}]

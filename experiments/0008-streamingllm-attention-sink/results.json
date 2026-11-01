@@ -1,0 +1,626 @@
+{
+  "experiment": "0008-streamingllm-attention-sink",
+  "upstream": "mit-han-lab/streaming-llm",
+  "upstream_commit": "2e5042606d69933d88fbf909bd77907456b9b4dd",
+  "component": "streaming_llm/kv_cache.py StartRecentKVCache (+ pos_shift/modify_gpt_neox.py, re-implemented)",
+  "model": "EleutherAI/pythia-160m@50f5173d932e8e61f858120bcb800b97af589f46",
+  "model_train_context": 2048,
+  "data": "emozilla/pg19-test@c5e39bf32e33f9111323aa68d7d9000d22722035 first 4 books with >= 4097 tokens",
+  "books": [
+    "Reminiscences of Pioneer Days in St. Paul by Frank Moore",
+    "Dragon's blood by Henry Milner Rideout",
+    "Travels in Morocco Volume 2 by James Richardson",
+    "Impressions of Theophrastus Such by George Eliot"
+  ],
+  "scored_tokens_per_book": 4096,
+  "dtype": "fp32 (TF32 off)",
+  "recompute_stride": 16,
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "memory_total_mib": 8188,
+    "memory_used_mib": 0,
+    "utilization_percent": 0,
+    "temperature_c": 63,
+    "memory_fraction_cap": 0.6,
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+  },
+  "validation": {
+    "max_abs_logit_transformers": 847.614,
+    "max_abs_logit_diff_vs_transformers": 0.018372,
+    "max_abs_logit_diff_streaming_vs_parallel": 0.00769,
+    "max_abs_logit_diff_window_shift_vs_noshift": 0.013306
+  },
+  "attention_probe": {
+    "tokens": 1024,
+    "queries_from": 256,
+    "uniform_mass_first1": 0.0018,
+    "layers": [
+      {
+        "layer": 0,
+        "mass_first1": 0.0002,
+        "mass_first4": 0.0008,
+        "mass_last4": 0.2844
+      },
+      {
+        "layer": 1,
+        "mass_first1": 0.0002,
+        "mass_first4": 0.0022,
+        "mass_last4": 0.2784
+      },
+      {
+        "layer": 2,
+        "mass_first1": 0.022,
+        "mass_first4": 0.2293,
+        "mass_last4": 0.2827
+      },
+      {
+        "layer": 3,
+        "mass_first1": 0.0459,
+        "mass_first4": 0.2353,
+        "mass_last4": 0.4496
+      },
+      {
+        "layer": 4,
+        "mass_first1": 0.1757,
+        "mass_first4": 0.5493,
+        "mass_last4": 0.1507
+      },
+      {
+        "layer": 5,
+        "mass_first1": 0.1516,
+        "mass_first4": 0.535,
+        "mass_last4": 0.09
+      },
+      {
+        "layer": 6,
+        "mass_first1": 0.1418,
+        "mass_first4": 0.5006,
+        "mass_last4": 0.1211
+      },
+      {
+        "layer": 7,
+        "mass_first1": 0.1367,
+        "mass_first4": 0.5093,
+        "mass_last4": 0.2231
+      },
+      {
+        "layer": 8,
+        "mass_first1": 0.0824,
+        "mass_first4": 0.6163,
+        "mass_last4": 0.1035
+      },
+      {
+        "layer": 9,
+        "mass_first1": 0.1109,
+        "mass_first4": 0.6875,
+        "mass_last4": 0.1428
+      },
+      {
+        "layer": 10,
+        "mass_first1": 0.1306,
+        "mass_first4": 0.6174,
+        "mass_last4": 0.1117
+      },
+      {
+        "layer": 11,
+        "mass_first1": 0.0247,
+        "mass_first4": 0.5435,
+        "mass_last4": 0.2587
+      }
+    ]
+  },
+  "policies": [
+    {
+      "name": "dense",
+      "cache": null,
+      "sinks": 0,
+      "pos_shift": false,
+      "ppl": 117.029,
+      "ppl_subsample": 103.076,
+      "ppl_by_bucket": [
+        23.672,
+        37.416,
+        32.548,
+        28.318,
+        29.098,
+        101.036,
+        2353.496,
+        6229.088
+      ],
+      "ppl_per_book": [
+        72.555,
+        138.245,
+        128.674,
+        145.334
+      ],
+      "ms_per_token": 13.654,
+      "evict_ms_per_evicting_step": null,
+      "evicting_steps": 0,
+      "final_cache_tokens": 4096,
+      "kv_mib_per_sequence": 288.0
+    },
+    {
+      "name": "window C=256",
+      "cache": 256,
+      "sinks": 0,
+      "pos_shift": false,
+      "ppl": 49.974,
+      "ppl_subsample": 47.391,
+      "ppl_by_bucket": [
+        36.237,
+        63.213,
+        57.349,
+        54.054,
+        47.498,
+        49.595,
+        43.432,
+        53.542
+      ],
+      "ppl_per_book": [
+        32.841,
+        65.318,
+        49.647,
+        58.563
+      ],
+      "ms_per_token": 6.076,
+      "evict_ms_per_evicting_step": 0.75,
+      "evicting_steps": 3840,
+      "final_cache_tokens": 256,
+      "kv_mib_per_sequence": 18.0
+    },
+    {
+      "name": "sink4 no-shift C=256",
+      "cache": 256,
+      "sinks": 4,
+      "pos_shift": false,
+      "ppl": 88.972,
+      "ppl_subsample": 79.717,
+      "ppl_by_bucket": [
+        23.729,
+        38.693,
+        35.412,
+        33.884,
+        31.111,
+        57.285,
+        696.991,
+        2869.489
+      ],
+      "ppl_per_book": [
+        55.894,
+        116.164,
+        89.123,
+        108.291
+      ],
+      "ms_per_token": 8.162,
+      "evict_ms_per_evicting_step": 0.894,
+      "evicting_steps": 3840,
+      "final_cache_tokens": 256,
+      "kv_mib_per_sequence": 18.0
+    },
+    {
+      "name": "sink1 shift C=256",
+      "cache": 256,
+      "sinks": 1,
+      "pos_shift": true,
+      "ppl": 32.298,
+      "ppl_subsample": 29.81,
+      "ppl_by_bucket": [
+        23.792,
+        39.045,
+        35.787,
+        34.267,
+        31.402,
+        33.257,
+        29.141,
+        34.159
+      ],
+      "ppl_per_book": [
+        21.705,
+        41.318,
+        31.652,
+        38.338
+      ],
+      "ms_per_token": 6.389,
+      "evict_ms_per_evicting_step": 0.752,
+      "evicting_steps": 3840,
+      "final_cache_tokens": 256,
+      "kv_mib_per_sequence": 18.0
+    },
+    {
+      "name": "sink4 shift C=256",
+      "cache": 256,
+      "sinks": 4,
+      "pos_shift": true,
+      "ppl": 31.924,
+      "ppl_subsample": 29.514,
+      "ppl_by_bucket": [
+        23.719,
+        38.732,
+        35.325,
+        33.785,
+        30.848,
+        32.821,
+        28.757,
+        33.797
+      ],
+      "ppl_per_book": [
+        21.239,
+        40.968,
+        31.298,
+        38.141
+      ],
+      "ms_per_token": 6.31,
+      "evict_ms_per_evicting_step": 0.75,
+      "evicting_steps": 3840,
+      "final_cache_tokens": 256,
+      "kv_mib_per_sequence": 18.0
+    },
+    {
+      "name": "sink8 shift C=256",
+      "cache": 256,
+      "sinks": 8,
+      "pos_shift": true,
+      "ppl": 31.983,
+      "ppl_subsample": 29.516,
+      "ppl_by_bucket": [
+        23.728,
+        38.745,
+        35.376,
+        33.847,
+        30.915,
+        32.958,
+        28.864,
+        33.821
+      ],
+      "ppl_per_book": [
+        21.249,
+        41.03,
+        31.455,
+        38.156
+      ],
+      "ms_per_token": 7.631,
+      "evict_ms_per_evicting_step": 0.792,
+      "evicting_steps": 3840,
+      "final_cache_tokens": 256,
+      "kv_mib_per_sequence": 18.0
+    },
+    {
+      "name": "window C=512",
+      "cache": 512,
+      "sinks": 0,
+      "pos_shift": false,
+      "ppl": 44.428,
+      "ppl_subsample": 41.457,
+      "ppl_by_bucket": [
+        23.672,
+        62.798,
+        51.815,
+        48.965,
+        43.504,
+        46.687,
+        40.204,
+        49.285
+      ],
+      "ppl_per_book": [
+        29.076,
+        57.77,
+        43.869,
+        52.872
+      ],
+      "ms_per_token": 8.411,
+      "evict_ms_per_evicting_step": 1.438,
+      "evicting_steps": 3584,
+      "final_cache_tokens": 512,
+      "kv_mib_per_sequence": 36.0
+    },
+    {
+      "name": "sink4 no-shift C=512",
+      "cache": 512,
+      "sinks": 4,
+      "pos_shift": false,
+      "ppl": 84.712,
+      "ppl_subsample": 75.832,
+      "ppl_by_bucket": [
+        23.672,
+        37.44,
+        33.814,
+        32.713,
+        29.974,
+        55.202,
+        630.98,
+        2591.001
+      ],
+      "ppl_per_book": [
+        52.499,
+        110.921,
+        84.862,
+        104.21
+      ],
+      "ms_per_token": 7.781,
+      "evict_ms_per_evicting_step": 1.42,
+      "evicting_steps": 3584,
+      "final_cache_tokens": 512,
+      "kv_mib_per_sequence": 36.0
+    },
+    {
+      "name": "sink1 shift C=512",
+      "cache": 512,
+      "sinks": 1,
+      "pos_shift": true,
+      "ppl": 31.434,
+      "ppl_subsample": 29.316,
+      "ppl_by_bucket": [
+        23.672,
+        37.963,
+        34.204,
+        33.114,
+        30.365,
+        32.601,
+        27.968,
+        33.828
+      ],
+      "ppl_per_book": [
+        20.915,
+        40.037,
+        30.797,
+        37.859
+      ],
+      "ms_per_token": 8.604,
+      "evict_ms_per_evicting_step": 1.44,
+      "evicting_steps": 3584,
+      "final_cache_tokens": 512,
+      "kv_mib_per_sequence": 36.0
+    },
+    {
+      "name": "sink4 shift C=512",
+      "cache": 512,
+      "sinks": 4,
+      "pos_shift": true,
+      "ppl": 31.071,
+      "ppl_subsample": 28.873,
+      "ppl_by_bucket": [
+        23.672,
+        37.424,
+        33.81,
+        32.626,
+        29.764,
+        32.275,
+        27.695,
+        33.414
+      ],
+      "ppl_per_book": [
+        20.391,
+        39.757,
+        30.535,
+        37.654
+      ],
+      "ms_per_token": 10.337,
+      "evict_ms_per_evicting_step": 1.471,
+      "evicting_steps": 3584,
+      "final_cache_tokens": 512,
+      "kv_mib_per_sequence": 36.0
+    },
+    {
+      "name": "sink8 shift C=512",
+      "cache": 512,
+      "sinks": 8,
+      "pos_shift": true,
+      "ppl": 31.081,
+      "ppl_subsample": 28.851,
+      "ppl_by_bucket": [
+        23.672,
+        37.416,
+        33.825,
+        32.624,
+        29.795,
+        32.293,
+        27.715,
+        33.418
+      ],
+      "ppl_per_book": [
+        20.414,
+        39.767,
+        30.537,
+        37.647
+      ],
+      "ms_per_token": 9.911,
+      "evict_ms_per_evicting_step": 1.464,
+      "evicting_steps": 3584,
+      "final_cache_tokens": 512,
+      "kv_mib_per_sequence": 36.0
+    },
+    {
+      "name": "window C=1024",
+      "cache": 1024,
+      "sinks": 0,
+      "pos_shift": false,
+      "ppl": 40.36,
+      "ppl_subsample": 38.704,
+      "ppl_by_bucket": [
+        23.672,
+        37.416,
+        51.473,
+        47.078,
+        41.772,
+        43.46,
+        38.718,
+        46.667
+      ],
+      "ppl_per_book": [
+        26.59,
+        50.295,
+        40.583,
+        48.889
+      ],
+      "ms_per_token": 10.826,
+      "evict_ms_per_evicting_step": 2.838,
+      "evicting_steps": 3072,
+      "final_cache_tokens": 1024,
+      "kv_mib_per_sequence": 72.0
+    },
+    {
+      "name": "sink4 no-shift C=1024",
+      "cache": 1024,
+      "sinks": 4,
+      "pos_shift": false,
+      "ppl": 81.763,
+      "ppl_subsample": 74.081,
+      "ppl_by_bucket": [
+        23.672,
+        37.416,
+        32.525,
+        32.46,
+        29.313,
+        52.655,
+        583.023,
+        2373.701
+      ],
+      "ppl_per_book": [
+        50.775,
+        106.235,
+        82.477,
+        100.457
+      ],
+      "ms_per_token": 10.752,
+      "evict_ms_per_evicting_step": 2.826,
+      "evicting_steps": 3072,
+      "final_cache_tokens": 1024,
+      "kv_mib_per_sequence": 72.0
+    },
+    {
+      "name": "sink1 shift C=1024",
+      "cache": 1024,
+      "sinks": 1,
+      "pos_shift": true,
+      "ppl": 30.976,
+      "ppl_subsample": 28.978,
+      "ppl_by_bucket": [
+        23.672,
+        37.416,
+        33.371,
+        32.845,
+        29.88,
+        31.93,
+        27.712,
+        33.026
+      ],
+      "ppl_per_book": [
+        20.661,
+        38.989,
+        30.473,
+        37.507
+      ],
+      "ms_per_token": 12.555,
+      "evict_ms_per_evicting_step": 2.863,
+      "evicting_steps": 3072,
+      "final_cache_tokens": 1024,
+      "kv_mib_per_sequence": 72.0
+    },
+    {
+      "name": "sink4 shift C=1024",
+      "cache": 1024,
+      "sinks": 4,
+      "pos_shift": true,
+      "ppl": 30.562,
+      "ppl_subsample": 28.58,
+      "ppl_by_bucket": [
+        23.672,
+        37.416,
+        32.473,
+        32.427,
+        29.154,
+        31.42,
+        27.346,
+        32.581
+      ],
+      "ppl_per_book": [
+        20.045,
+        38.729,
+        30.157,
+        37.266
+      ],
+      "ms_per_token": 12.803,
+      "evict_ms_per_evicting_step": 2.847,
+      "evicting_steps": 3072,
+      "final_cache_tokens": 1024,
+      "kv_mib_per_sequence": 72.0
+    },
+    {
+      "name": "sink8 shift C=1024",
+      "cache": 1024,
+      "sinks": 8,
+      "pos_shift": true,
+      "ppl": 30.565,
+      "ppl_subsample": 28.564,
+      "ppl_by_bucket": [
+        23.672,
+        37.416,
+        32.464,
+        32.423,
+        29.17,
+        31.423,
+        27.356,
+        32.585
+      ],
+      "ppl_per_book": [
+        20.058,
+        38.724,
+        30.151,
+        37.266
+      ],
+      "ms_per_token": 12.32,
+      "evict_ms_per_evicting_step": 2.862,
+      "evicting_steps": 3072,
+      "final_cache_tokens": 1024,
+      "kv_mib_per_sequence": 72.0
+    },
+    {
+      "name": "recompute C=256",
+      "cache": 256,
+      "sinks": 0,
+      "pos_shift": false,
+      "ppl": null,
+      "ppl_subsample": 29.609,
+      "ppl_by_bucket": null,
+      "ppl_per_book": null,
+      "ms_per_token": 34.17,
+      "evict_ms_per_evicting_step": null,
+      "evicting_steps": null,
+      "final_cache_tokens": 257,
+      "kv_mib_per_sequence": null
+    },
+    {
+      "name": "recompute C=512",
+      "cache": 512,
+      "sinks": 0,
+      "pos_shift": false,
+      "ppl": null,
+      "ppl_subsample": 28.779,
+      "ppl_by_bucket": null,
+      "ppl_per_book": null,
+      "ms_per_token": 68.854,
+      "evict_ms_per_evicting_step": null,
+      "evicting_steps": null,
+      "final_cache_tokens": 513,
+      "kv_mib_per_sequence": null
+    },
+    {
+      "name": "recompute C=1024",
+      "cache": 1024,
+      "sinks": 0,
+      "pos_shift": false,
+      "ppl": null,
+      "ppl_subsample": 28.644,
+      "ppl_by_bucket": null,
+      "ppl_per_book": null,
+      "ms_per_token": 150.764,
+      "evict_ms_per_evicting_step": null,
+      "evicting_steps": null,
+      "final_cache_tokens": 1025,
+      "kv_mib_per_sequence": null
+    }
+  ],
+  "runtime_s": 716.5,
+  "peak_memory_mib": 3126.4
+}
