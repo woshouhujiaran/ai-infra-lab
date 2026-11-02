@@ -52,6 +52,8 @@ def torch_fp32(x, w, y):
     return F.cross_entropy((x @ w.t()).float(), y)
 
 
+# One static graph per (shape, tokens); the default limit of 8 silently falls back to eager.
+torch._dynamo.config.recompile_limit = 64
 torch_compiled = torch.compile(torch_fp32, dynamic=False)
 
 
@@ -142,11 +144,20 @@ def numerics(shape_name, hidden, vocab, g):
     rows = [{"shape": shape_name, "variant": "fp32 ref rounded to bf16", "loss": round(ref_loss, 6),
              "loss_abs_err": 0.0, "dx_rel_err": rel_err(ref_dx.to(DTYPE), ref_dx),
              "dw_rel_err": rel_err(ref_dw.to(DTYPE), ref_dw)}]
-    for name, fn in VARIANTS.items():
-        loss = step(fn, x, w, y)
-        rows.append({"shape": shape_name, "variant": name, "loss": round(loss.item(), 6),
-                     "loss_abs_err": float(f"{abs(loss.item() - ref_loss):.3g}"),
-                     "dx_rel_err": rel_err(x.grad, ref_dx), "dw_rel_err": rel_err(w.grad, ref_dw)})
+    rows[0].update(dx_rel_err_strict=rows[0]["dx_rel_err"], dw_rel_err_strict=rows[0]["dw_rel_err"])
+    by_variant = {}
+    for reduced in (True, False):
+        torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = reduced
+        for name, fn in VARIANTS.items():
+            loss = step(fn, x, w, y)
+            row = by_variant.setdefault(name, {
+                "shape": shape_name, "variant": name, "loss": round(loss.item(), 6),
+                "loss_abs_err": float(f"{abs(loss.item() - ref_loss):.3g}")})
+            suffix = "" if reduced else "_strict"
+            row["dx_rel_err" + suffix] = rel_err(x.grad, ref_dx)
+            row["dw_rel_err" + suffix] = rel_err(w.grad, ref_dw)
+    torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = True
+    rows += by_variant.values()
     del x, w, y, ref_dx, ref_dw
     free_cuda()
     return rows
@@ -248,11 +259,14 @@ def main():
         f"## Numerics ({NUMERICS_TOKENS} tokens, bf16 inputs, targets sampled from the model's softmax, "
         f"logit std {LOGIT_STD:g}; reference = fp32 math on the same bf16 inputs)",
         "",
-        "| shape | variant | loss | loss abs err | dX rel err | dW rel err |",
-        "|---|---|---|---|---|---|",
+        "\"strict\" = rerun with `torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = False` "
+        "(PyTorch's default is True, which lets cuBLAS do split-K reductions in bf16).",
+        "",
+        "| shape | variant | loss | loss abs err | dX rel err | dW rel err | dX rel err strict | dW rel err strict |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     lines += [f"| {r['shape']} | {r['variant']} | {r['loss']} | {r['loss_abs_err']} | {r['dx_rel_err']} | "
-              f"{r['dw_rel_err']} |" for r in numerics_rows]
+              f"{r['dw_rel_err']} | {r['dx_rel_err_strict']} | {r['dw_rel_err_strict']} |" for r in numerics_rows]
     lines += [
         "",
         f"## One training step of LM head + CE (forward + backward; {WARMUP} warmup, {ITERS} timed, CUDA events)",
