@@ -10,3 +10,6 @@
 [submodule "upstream/streaming-llm"]
 	path = upstream/streaming-llm
 	url = https://github.com/mit-han-lab/streaming-llm.git
+[submodule "upstream/Liger-Kernel"]
+	path = upstream/Liger-Kernel
+	url = https://github.com/linkedin/Liger-Kernel.git
