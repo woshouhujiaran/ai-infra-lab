@@ -21,6 +21,7 @@ Rules:
 | [0006](experiments/0006-minbpe-vs-tiktoken) | minbpe | RegexTokenizer train/encode | CPU | Same ids as tiktoken on identical merges, but tiktoken encodes 12–29× faster (gap grows with vocab); a chunk cache recovers 2.5–3×; `train` crashes once the text runs out of pairs |
 | [0007](experiments/0007-bnb-linear-quant) | bitsandbytes | Linear8bitLt / Linear4bit | RTX 4060 | NF4 cuts weights 3.8–3.9× and decodes 1.2–1.5× faster than fp16 at 9% error (FP4 12%); int8 prefill is 2.4–3.0× faster but needs threshold 6 to hold ~1% error with outlier activations; 16-token batches are 2–4× slower for all quantized layers |
 | [0008](experiments/0008-streamingllm-attention-sink) | streaming-llm | StartRecentKVCache (attention sinks) | RTX 4060 | Past 2048 tokens dense ppl explodes to 6229 and window sits at 40–50; 4 sinks + position shift stay at 31–32 and match re-computation; without shift sinks blow up like dense; 1 sink is within 1.4% of 4; upstream's `torch.cat` eviction costs 12–23% of each step |
+| [0009](experiments/0009-liger-fused-ce) | Liger-Kernel | CrossEntropy / FusedLinearCrossEntropy | RTX 4060 | Liger CE = `torch.compile` CE: 2–4.7× less memory and 1.3–1.7× faster than the HF fp32 upcast; only fused linear CE runs 16k tokens on 128k–152k vocabs (< 0.7 GB), but its default chunking is up to 19× slower on Qwen3's head — `chunk_mem_const=8` fixes most of it; bf16 dW accumulation costs +8–23% error |
 
 ## Daily automation
 

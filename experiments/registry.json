@@ -79,6 +79,16 @@
       "device": "cuda",
       "date": "2026-11-01",
       "status": "done"
+    },
+    {
+      "id": "0009",
+      "slug": "liger-fused-ce",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "liger_kernel/ops/cross_entropy.py (LigerCrossEntropyFunction) + ops/fused_linear_cross_entropy.py (LigerFusedLinearCrossEntropyFunction)",
+      "topic": "LM head + CE fwd/bwd in bf16 on Qwen3-0.6B / Llama-3.2-1B / 32k-vocab heads: extra peak memory, latency and OOM point vs token count for torch bf16 / fp32-upcast / torch.compile CE vs Liger CE vs fused linear CE (chunk_mem_const 1 / 8, bf16 vs fp32 dW accumulation); loss/dX/dW error vs fp32 incl. cuBLAS bf16 reduced-precision reduction",
+      "device": "cuda",
+      "date": "2026-11-02",
+      "status": "done"
     }
   ]
 }
