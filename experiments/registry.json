@@ -89,6 +89,16 @@
       "device": "cuda",
       "date": "2026-11-02",
       "status": "done"
+    },
+    {
+      "id": "0010",
+      "slug": "triton-fused-softmax",
+      "upstream": "triton-lang/triton",
+      "component": "python/tutorials/02-fused-softmax.py (softmax_kernel + softmax launcher)",
+      "topic": "fp32 row softmax bandwidth vs row length (incl. power-of-two + 1 padding) for the tutorial kernel as-is / cached launch / num_warps 4-32 vs torch.softmax, torch.compile, naive softmax and copy; registers, spills, occupancy and shared-memory limit per num_warps; per-call launch overhead of per-call warmup(); error vs fp64",
+      "device": "cuda",
+      "date": "2026-11-03",
+      "status": "done"
     }
   ]
 }
