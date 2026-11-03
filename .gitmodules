@@ -13,3 +13,7 @@
 [submodule "upstream/Liger-Kernel"]
 	path = upstream/Liger-Kernel
 	url = https://github.com/linkedin/Liger-Kernel.git
+[submodule "upstream/triton"]
+	path = upstream/triton
+	url = https://github.com/triton-lang/triton.git
+	shallow = true
