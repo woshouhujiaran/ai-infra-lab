@@ -18,6 +18,7 @@ The tutorial is imported unmodified from the submodule; only its top-level
 unit test and benchmark (everything from `torch.manual_seed(0)` on) are skipped.
 """
 import ast
+import gc
 import json
 import subprocess
 import sys
@@ -35,6 +36,7 @@ from lab import gpu_guard  # noqa: E402
 
 import torch  # noqa: E402
 import triton  # noqa: E402
+from triton.runtime.errors import OutOfResources  # noqa: E402
 from triton.testing import do_bench  # noqa: E402
 
 SEED = 0
@@ -74,17 +76,20 @@ def launch_config(x, num_warps):
     n_rows, n_cols = x.shape
     block = triton.next_power_of_2(n_cols)
     num_stages = 4 if tut.SIZE_SMEM > 200000 else 2
-    y = torch.empty_like(x)
-    kernel = tut.softmax_kernel.warmup(y, x, x.stride(0), y.stride(0), n_rows, n_cols, BLOCK_SIZE=block,
+    # warmup() only compiles, so x can stand in for the output buffer.
+    kernel = tut.softmax_kernel.warmup(x, x, x.stride(0), x.stride(0), n_rows, n_cols, BLOCK_SIZE=block,
                                        num_stages=num_stages, num_warps=num_warps, grid=(1, ))
-    kernel._init_handles()
+    cfg = {"kernel": kernel, "block_size": block, "num_stages": num_stages, "num_warps": num_warps,
+           "shared_bytes": kernel.metadata.shared}
+    try:
+        kernel._init_handles()
+    except OutOfResources:
+        return dict(cfg, error=f"needs {kernel.metadata.shared} B shared memory > {tut.SIZE_SMEM} B limit",
+                    n_regs=None, n_spills=None, occupancy=None, num_programs=None)
     occupancy = tut.NUM_REGS // (kernel.n_regs * tut.WARP_SIZE * num_warps)
     occupancy = min(occupancy, tut.SIZE_SMEM // max(kernel.metadata.shared, 1))
-    return {
-        "kernel": kernel, "block_size": block, "num_stages": num_stages, "num_warps": num_warps,
-        "n_regs": kernel.n_regs, "n_spills": kernel.n_spills, "shared_bytes": kernel.metadata.shared,
-        "occupancy": occupancy, "num_programs": min(tut.NUM_SM * max(occupancy, 1), n_rows),
-    }
+    return dict(cfg, error=None, n_regs=kernel.n_regs, n_spills=kernel.n_spills, occupancy=occupancy,
+                num_programs=min(tut.NUM_SM * max(occupancy, 1), n_rows))
 
 
 class CachedSoftmax:
@@ -99,6 +104,8 @@ class CachedSoftmax:
         cfg = self.configs.get(key)
         if cfg is None:
             cfg = self.configs[key] = launch_config(x, self.num_warps)
+        if cfg["error"]:
+            raise OutOfResources(cfg["shared_bytes"], tut.SIZE_SMEM, "shared memory")
         n_rows, n_cols = x.shape
         y = torch.empty_like(x)
         cfg["kernel"][(cfg["num_programs"], 1, 1)](y, x, x.stride(0), y.stride(0), n_rows, n_cols,
@@ -136,13 +143,17 @@ def gbps(ms, numel):
 
 
 def bench(fn):
+    """(median ms, status); status is 'ok', 'OOM' or 'smem' (kernel exceeds the shared-memory limit)."""
     try:
-        ms = do_bench(fn, return_mode="median")
+        ms, status = do_bench(fn, return_mode="median"), "ok"
     except torch.OutOfMemoryError:
-        torch.cuda.empty_cache()
-        return None
+        ms, status = None, "OOM"
+    except OutOfResources:
+        ms, status = None, "smem"
+    if status != "ok":
+        gc.collect()  # the failed call's temporaries are kept alive by the traceback cycle
     torch.cuda.empty_cache()
-    return ms
+    return ms, status
 
 
 def numerics(n, g):
@@ -151,7 +162,10 @@ def numerics(n, g):
     rows = []
     fns = dict(VARIANTS, **{f"cached_w{w}": cached[w] for w in WARPS if w != 8})
     for name, fn in fns.items():
-        y = fn(x).double()
+        try:
+            y = fn(x).double()
+        except OutOfResources:
+            continue
         rows.append({
             "N": n, "variant": name,
             "max_abs_err": float(f"{(y - ref).abs().max().item():.3g}"),
@@ -162,37 +176,52 @@ def numerics(n, g):
     return rows
 
 
+def precompile():
+    """Compile every torch.compile shape up front so no compilation work overlaps a measurement."""
+    for shape in [(M, n) for n in NS] + [(NUMERICS_ROWS, n) for n in NS] + HOST_SHAPES:
+        torch_compiled(torch.empty(*shape, device="cuda"))
+    torch.cuda.synchronize()
+    gc.collect()
+    torch.cuda.empty_cache()
+
+
 def sweep(g):
+    precompile()
     perf, kernels, numeric_rows = [], [], []
     for n in NS:
         x = torch.randn(M, n, generator=g).cuda()
         numel = x.numel()
         row = {"N": n, "block_size": triton.next_power_of_2(n), "MiB_per_tensor": round(numel * 4 / 2**20, 1)}
         y = torch.empty_like(x)
-        row["copy_gbps"] = gbps(bench(lambda: y.copy_(x)), numel)
+        row["copy_gbps"] = gbps(bench(lambda: y.copy_(x))[0], numel)
         del y
         for name, fn in VARIANTS.items():
-            ms = bench(lambda: fn(x))
+            ms, row[name + "_status"] = bench(lambda: fn(x))
             row[name + "_ms"] = round(ms, 4) if ms else None
             row[name + "_gbps"] = gbps(ms, numel) if ms else None
         warp_ms = {}
         for w in WARPS:
             cfg = launch_config(x, w)
-            warp_ms[w] = bench(lambda: cached[w](x))
+            ms, status = bench(lambda: cached[w](x))
+            if ms:
+                warp_ms[w] = ms
             kernels.append({"N": n, **{k: v for k, v in cfg.items() if k != "kernel"},
-                            "ms": round(warp_ms[w], 4), "gbps": gbps(warp_ms[w], numel)})
-        best = min(warp_ms, key=warp_ms.get)
+                            "status": status, "ms": round(ms, 4) if ms else None,
+                            "gbps": gbps(ms, numel) if ms else None})
+        best = min(warp_ms, key=warp_ms.get) if warp_ms else None
         row["best_warps"] = best
-        row["best_warps_gbps"] = gbps(warp_ms[best], numel)
+        row["best_warps_status"] = "ok" if best else "smem"
+        row["best_warps_ms"] = round(warp_ms[best], 4) if best else None
+        row["best_warps_gbps"] = gbps(warp_ms[best], numel) if best else None
         base = row["torch_softmax_ms"]
-        for name in ("tutorial", "cached_w8", "torch_compile", "naive_softmax"):
+        for name in ("tutorial", "cached_w8", "best_warps", "torch_compile", "naive_softmax"):
             row[name + "_speedup_vs_torch"] = round(base / row[name + "_ms"], 2) if row[name + "_ms"] else None
-        row["best_warps_speedup_vs_torch"] = round(base / warp_ms[best], 2)
         perf.append(row)
         print(f"N={n}: " + ", ".join(f"{k}={row[k + '_gbps']}" for k in
                                       ("copy", "tutorial", "cached_w8", "best_warps", "torch_softmax",
                                        "torch_compile", "naive_softmax")) + f" GB/s (best warps {best})", flush=True)
         del x
+        gc.collect()
         torch.cuda.empty_cache()
         numeric_rows += numerics(n, g)
     return perf, kernels, numeric_rows
@@ -258,7 +287,12 @@ def main():
     }
     (HERE / "results.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
 
-    fmt = lambda v: "OOM" if v is None else v  # noqa: E731
+    def cell(r, name):
+        return r[name + "_gbps"] if r[name + "_status"] == "ok" else r[name + "_status"]
+
+    def best_cell(r):
+        return f"{r['best_warps_gbps']} ({r['best_warps']})" if r["best_warps"] else "smem"
+
     lines = [
         f"triton {upstream_commit()[:10]} tutorial, triton-windows {triton.__version__}, torch {torch.__version__}, "
         f"{GPU.get('name', 'cuda')} (theoretical DRAM {peak_gbps} GB/s, memory cap {GPU.get('memory_fraction_cap')})",
@@ -269,10 +303,11 @@ def main():
         "tutorial / torch | best / torch | compile / torch |",
         "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
-    lines += [f"| {r['N']} | {r['block_size']} | {r['MiB_per_tensor']} | {r['copy_gbps']} | {fmt(r['tutorial_gbps'])} | "
-              f"{fmt(r['cached_w8_gbps'])} | {r['best_warps_gbps']} ({r['best_warps']}) | {fmt(r['torch_softmax_gbps'])} | "
-              f"{fmt(r['torch_compile_gbps'])} | {fmt(r['naive_softmax_gbps'])} | {r['tutorial_speedup_vs_torch']} | "
-              f"{r['best_warps_speedup_vs_torch']} | {r['torch_compile_speedup_vs_torch']} |" for r in perf]
+    lines += [f"| {r['N']} | {r['block_size']} | {r['MiB_per_tensor']} | {r['copy_gbps']} | {cell(r, 'tutorial')} | "
+              f"{cell(r, 'cached_w8')} | {best_cell(r)} | "
+              f"{cell(r, 'torch_softmax')} | {cell(r, 'torch_compile')} | {cell(r, 'naive_softmax')} | "
+              f"{r['tutorial_speedup_vs_torch'] or ''} | {r['best_warps_speedup_vs_torch'] or ''} | "
+              f"{r['torch_compile_speedup_vs_torch'] or ''} |" for r in perf]
     lines += [
         "",
         "## Kernel resources per num_warps (tutorial occupancy heuristic; occupancy = programs per SM)",
@@ -280,8 +315,9 @@ def main():
         "| N | warps | regs/thread | spills (bytes) | shared B | occupancy | programs | GB/s |",
         "|---|---|---|---|---|---|---|---|",
     ]
-    lines += [f"| {k['N']} | {k['num_warps']} | {k['n_regs']} | {k['n_spills']} | {k['shared_bytes']} | "
-              f"{k['occupancy']} | {k['num_programs']} | {k['gbps']} |" for k in kernels]
+    lines += [f"| {k['N']} | {k['num_warps']} | {k['n_regs'] or ''} | {'' if k['n_spills'] is None else k['n_spills']} | "
+              f"{k['shared_bytes']} | {'' if k['occupancy'] is None else k['occupancy']} | {k['num_programs'] or ''} | "
+              f"{k['gbps'] if k['status'] == 'ok' else k['status']} |" for k in kernels]
     lines += [
         "",
         f"## Per-call cost on small inputs ({HOST_CALLS} back-to-back calls; issue = CPU time to enqueue, "
