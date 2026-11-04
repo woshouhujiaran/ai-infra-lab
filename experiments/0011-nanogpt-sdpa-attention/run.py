@@ -156,7 +156,9 @@ def classify(names):
         return "flash"
     if "triton" in s:
         return "inductor triton (unfused attention)"
-    return "unfused (bmm + softmax)"
+    if "softmax" in s:
+        return "unfused (bmm + softmax)"
+    return "no attention kernels"
 
 
 def detect(runner, x, dy):
@@ -167,7 +169,12 @@ def detect(runner, x, dy):
         with profile(activities=[ProfilerActivity.CUDA]) as prof:
             runner.call("fwd_bwd", x, dy)
             torch.cuda.synchronize()
+    except torch.OutOfMemoryError:
+        cleanup()
+        return {"backend": "OOM", "error": "OOM", "top_kernels": []}
     except RuntimeError as e:
+        if "No available kernel" not in str(e):
+            raise
         cleanup()
         return {"backend": "unsupported", "error": str(e).splitlines()[0][:200], "top_kernels": []}
     evts = [e for e in prof.key_averages() if e.device_type == DeviceType.CUDA]
