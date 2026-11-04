@@ -99,6 +99,16 @@
       "device": "cuda",
       "date": "2026-11-03",
       "status": "done"
+    },
+    {
+      "id": "0011",
+      "slug": "nanogpt-sdpa-attention",
+      "upstream": "karpathy/nanoGPT",
+      "component": "model.py (CausalSelfAttention: SDPA flash path vs manual path)",
+      "topic": "which SDPA backend nanoGPT's flash path gets on Windows torch (no FlashAttention): default mem-efficient vs forced cuDNN / math vs manual masked_fill attention vs torch.compile(manual); fwd / fwd+bwd latency and extra peak memory vs seq len at fixed tokens in bf16 autocast and fp32 TF32; attention dropout; error vs fp64",
+      "device": "cuda",
+      "date": "2026-11-04",
+      "status": "done"
     }
   ]
 }
