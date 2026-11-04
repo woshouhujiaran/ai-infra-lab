@@ -17,3 +17,6 @@
 	path = upstream/triton
 	url = https://github.com/triton-lang/triton.git
 	shallow = true
+[submodule "upstream/nanoGPT"]
+	path = upstream/nanoGPT
+	url = https://github.com/karpathy/nanoGPT.git
