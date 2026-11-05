@@ -8,3 +8,4 @@ tiktoken
 bitsandbytes
 transformers
 pyarrow
+psutil
