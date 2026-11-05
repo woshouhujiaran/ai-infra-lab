@@ -1,0 +1,3948 @@
+{
+  "torch": "2.14.1+cu126",
+  "cpu": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "threads_per_rank": 2,
+  "seconds": 223.78157305717468,
+  "runs": {
+    "1": [
+      {
+        "storage": [
+          {
+            "module": "ColumnParallelLinear",
+            "shape": [
+              14336,
+              4096
+            ],
+            "shard_bytes": 234881024,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235302912,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 117440512
+          },
+          {
+            "module": "ColumnParallelLinear + clone",
+            "shape": [
+              14336,
+              4096
+            ],
+            "shard_bytes": 234881024,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235008000,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 117440512
+          },
+          {
+            "module": "RowParallelLinear",
+            "shape": [
+              4096,
+              14336
+            ],
+            "shard_bytes": 234881024,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 234946560,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 117440512
+          },
+          {
+            "module": "VocabParallelEmbedding",
+            "shape": [
+              32000,
+              1024
+            ],
+            "shard_bytes": 131072000,
+            "storage_bytes": 131072000,
+            "rss_delta_bytes": 131219456,
+            "torch_save_bytes": 131073641,
+            "storage_after_to_fp32": 131072000,
+            "storage_after_to_bf16": 65536000
+          }
+        ],
+        "init": {
+          "same_seed_weight_bitwise_equal_nn_linear": true,
+          "bias_all_zero": true,
+          "rank_offset_seed_shard_equal_nn_linear": [
+            true
+          ]
+        },
+        "correctness": [
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: inconsistent tensor size, expected tensor [1048576] and src [262144] to have the same number of elements, but got 1048576 and 262144 elements respectively"
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5179694113356903e-07,
+                "max_abs_vs_single": 4.76837158203125e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: inconsistent tensor size, expected tensor [1048576] and src [262144] to have the same number of elements, but got 1048576 and 262144 elements respectively"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0032371036754998894,
+                "max_abs_vs_single": 0.015625,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          }
+        ],
+        "perf": [
+          {
+            "tokens": 256,
+            "fwd_ms": 11.580600403249264,
+            "fwd_gather_ms": 11.07735000550747,
+            "local_fwd_bwd_ms": 33.82274881005287,
+            "sync_fwd_bwd_ms": 33.57955068349838,
+            "async_fwd_bwd_ms": 33.531950786709785,
+            "allreduce_dx_ms": 0.0009000000318337698,
+            "up_gate_picotron_ms": 76.39594748616219,
+            "up_gate_shared_copy_ms": 74.91435110569,
+            "up_gate_dx_max_abs_diff": 0.0,
+            "up_gate_dx_bitwise_equal": true,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 1024,
+            "fwd_ms": 42.44145005941391,
+            "fwd_gather_ms": 40.977150201797485,
+            "local_fwd_bwd_ms": 125.907551497221,
+            "sync_fwd_bwd_ms": 130.92845678329468,
+            "async_fwd_bwd_ms": 125.87150186300278,
+            "allreduce_dx_ms": 0.0005500000952451956,
+            "up_gate_picotron_ms": 271.59929275512695,
+            "up_gate_shared_copy_ms": 271.38085663318634,
+            "up_gate_dx_max_abs_diff": 0.0,
+            "up_gate_dx_bitwise_equal": true,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 4096,
+            "fwd_ms": 168.14079880714417,
+            "fwd_gather_ms": 221.53660655021667,
+            "local_fwd_bwd_ms": 494.8728084564209,
+            "sync_fwd_bwd_ms": 514.6229267120361,
+            "async_fwd_bwd_ms": 532.8994989395142,
+            "allreduce_dx_ms": 0.0005000001692678779,
+            "up_gate_picotron_ms": 1124.6405839920044,
+            "up_gate_shared_copy_ms": 1104.0680408477783,
+            "up_gate_dx_max_abs_diff": 0.0,
+            "up_gate_dx_bitwise_equal": true,
+            "sync_async_dx_bitwise_equal": true
+          }
+        ],
+        "allreduce": [
+          {
+            "mib": 0.25,
+            "ms": 0.0,
+            "algbw_gbps": null
+          },
+          {
+            "mib": 1,
+            "ms": 0.0,
+            "algbw_gbps": null
+          },
+          {
+            "mib": 4,
+            "ms": 0.0,
+            "algbw_gbps": null
+          },
+          {
+            "mib": 16,
+            "ms": 0.0,
+            "algbw_gbps": null
+          }
+        ],
+        "seconds": 83.50741219520569
+      }
+    ],
+    "2": [
+      {
+        "storage": [
+          {
+            "module": "ColumnParallelLinear",
+            "shape": [
+              7168,
+              4096
+            ],
+            "shard_bytes": 117440512,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235302912,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 58720256
+          },
+          {
+            "module": "ColumnParallelLinear + clone",
+            "shape": [
+              7168,
+              4096
+            ],
+            "shard_bytes": 117440512,
+            "storage_bytes": 117440512,
+            "rss_delta_bytes": 117567488,
+            "torch_save_bytes": 117442153,
+            "storage_after_to_fp32": 117440512,
+            "storage_after_to_bf16": 58720256
+          },
+          {
+            "module": "RowParallelLinear",
+            "shape": [
+              4096,
+              7168
+            ],
+            "shard_bytes": 117440512,
+            "storage_bytes": 117440512,
+            "rss_delta_bytes": 117510144,
+            "torch_save_bytes": 117442153,
+            "storage_after_to_fp32": 117440512,
+            "storage_after_to_bf16": 58720256
+          },
+          {
+            "module": "VocabParallelEmbedding",
+            "shape": [
+              16000,
+              1024
+            ],
+            "shard_bytes": 65536000,
+            "storage_bytes": 131072000,
+            "rss_delta_bytes": 131219456,
+            "torch_save_bytes": 131073641,
+            "storage_after_to_fp32": 131072000,
+            "storage_after_to_bf16": 32768000
+          }
+        ],
+        "init": {
+          "same_seed_weight_bitwise_equal_nn_linear": true,
+          "bias_all_zero": true,
+          "rank_offset_seed_shard_equal_nn_linear": [
+            true,
+            false
+          ]
+        },
+        "correctness": [
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114286165273403e-07,
+                "max_abs_vs_single": 7.152557373046875e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: inconsistent tensor size, expected tensor [524288] and src [262144] to have the same number of elements, but got 524288 and 262144 elements respectively"
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114286165273403e-07,
+                "max_abs_vs_single": 7.152557373046875e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5201951635874666e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114286165273403e-07,
+                "max_abs_vs_single": 7.152557373046875e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: inconsistent tensor size, expected tensor [524288] and src [262144] to have the same number of elements, but got 524288 and 262144 elements respectively"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0032371036754998894,
+                "max_abs_vs_single": 0.015625,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          }
+        ],
+        "perf": [
+          {
+            "tokens": 256,
+            "fwd_ms": 5.58699993416667,
+            "fwd_gather_ms": 22.581400349736214,
+            "local_fwd_bwd_ms": 32.82999899238348,
+            "sync_fwd_bwd_ms": 27.29490026831627,
+            "async_fwd_bwd_ms": 30.123350210487843,
+            "allreduce_dx_ms": 14.46785032749176,
+            "up_gate_picotron_ms": 69.13210079073906,
+            "up_gate_shared_copy_ms": 48.59434999525547,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 1024,
+            "fwd_ms": 36.48835048079491,
+            "fwd_gather_ms": 93.83614733815193,
+            "local_fwd_bwd_ms": 67.1405978500843,
+            "sync_fwd_bwd_ms": 94.42384913563728,
+            "async_fwd_bwd_ms": 91.0615511238575,
+            "allreduce_dx_ms": 29.03165016323328,
+            "up_gate_picotron_ms": 241.60709977149963,
+            "up_gate_shared_copy_ms": 236.90734803676605,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 4096,
+            "fwd_ms": 100.7997989654541,
+            "fwd_gather_ms": 274.7217118740082,
+            "local_fwd_bwd_ms": 303.3227026462555,
+            "sync_fwd_bwd_ms": 441.4168894290924,
+            "async_fwd_bwd_ms": 375.80668926239014,
+            "allreduce_dx_ms": 79.41439747810364,
+            "up_gate_picotron_ms": 881.8491101264954,
+            "up_gate_shared_copy_ms": 805.5551052093506,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          }
+        ],
+        "allreduce": [
+          {
+            "mib": 0.25,
+            "ms": 0.3894499968737364,
+            "algbw_gbps": 0.6731133704052634
+          },
+          {
+            "mib": 1,
+            "ms": 1.345450000371784,
+            "algbw_gbps": 0.7793496597497123
+          },
+          {
+            "mib": 4,
+            "ms": 30.219050124287605,
+            "algbw_gbps": 0.1387966856254347
+          },
+          {
+            "mib": 16,
+            "ms": 101.38515010476112,
+            "algbw_gbps": 0.16548001342074387
+          }
+        ],
+        "seconds": 68.7217800617218
+      },
+      {
+        "storage": [
+          {
+            "module": "ColumnParallelLinear",
+            "shape": [
+              7168,
+              4096
+            ],
+            "shard_bytes": 117440512,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235302912,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 58720256
+          },
+          {
+            "module": "ColumnParallelLinear + clone",
+            "shape": [
+              7168,
+              4096
+            ],
+            "shard_bytes": 117440512,
+            "storage_bytes": 117440512,
+            "rss_delta_bytes": 117567488,
+            "torch_save_bytes": 117442153,
+            "storage_after_to_fp32": 117440512,
+            "storage_after_to_bf16": 58720256
+          },
+          {
+            "module": "RowParallelLinear",
+            "shape": [
+              4096,
+              7168
+            ],
+            "shard_bytes": 117440512,
+            "storage_bytes": 117440512,
+            "rss_delta_bytes": 117542912,
+            "torch_save_bytes": 117442153,
+            "storage_after_to_fp32": 117440512,
+            "storage_after_to_bf16": 58720256
+          },
+          {
+            "module": "VocabParallelEmbedding",
+            "shape": [
+              16000,
+              1024
+            ],
+            "shard_bytes": 65536000,
+            "storage_bytes": 131072000,
+            "rss_delta_bytes": 131219456,
+            "torch_save_bytes": 131073641,
+            "storage_after_to_fp32": 131072000,
+            "storage_after_to_bf16": 32768000
+          }
+        ],
+        "init": {
+          "same_seed_weight_bitwise_equal_nn_linear": true,
+          "bias_all_zero": true,
+          "rank_offset_seed_shard_equal_nn_linear": [
+            true,
+            false
+          ]
+        },
+        "correctness": [
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114286165273403e-07,
+                "max_abs_vs_single": 7.152557373046875e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: inconsistent tensor size, expected tensor [524288] and src [262144] to have the same number of elements, but got 524288 and 262144 elements respectively"
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114286165273403e-07,
+                "max_abs_vs_single": 7.152557373046875e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5201951635874666e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114286165273403e-07,
+                "max_abs_vs_single": 7.152557373046875e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.5752184206078616e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: inconsistent tensor size, expected tensor [524288] and src [262144] to have the same number of elements, but got 524288 and 262144 elements respectively"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0032371036754998894,
+                "max_abs_vs_single": 0.015625,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0033061478492269728,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          }
+        ],
+        "perf": [
+          {
+            "tokens": 256,
+            "fwd_ms": 5.58699993416667,
+            "fwd_gather_ms": 22.581400349736214,
+            "local_fwd_bwd_ms": 32.82999899238348,
+            "sync_fwd_bwd_ms": 27.29490026831627,
+            "async_fwd_bwd_ms": 30.123350210487843,
+            "allreduce_dx_ms": 14.46785032749176,
+            "up_gate_picotron_ms": 69.13210079073906,
+            "up_gate_shared_copy_ms": 48.59434999525547,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 1024,
+            "fwd_ms": 36.48835048079491,
+            "fwd_gather_ms": 93.83614733815193,
+            "local_fwd_bwd_ms": 67.1405978500843,
+            "sync_fwd_bwd_ms": 94.42384913563728,
+            "async_fwd_bwd_ms": 91.0615511238575,
+            "allreduce_dx_ms": 29.03165016323328,
+            "up_gate_picotron_ms": 241.60709977149963,
+            "up_gate_shared_copy_ms": 236.90734803676605,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 4096,
+            "fwd_ms": 100.7997989654541,
+            "fwd_gather_ms": 274.7217118740082,
+            "local_fwd_bwd_ms": 303.3227026462555,
+            "sync_fwd_bwd_ms": 441.4168894290924,
+            "async_fwd_bwd_ms": 375.80668926239014,
+            "allreduce_dx_ms": 79.41439747810364,
+            "up_gate_picotron_ms": 881.8491101264954,
+            "up_gate_shared_copy_ms": 805.5551052093506,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          }
+        ],
+        "allreduce": [
+          {
+            "mib": 0.25,
+            "ms": 0.3894499968737364,
+            "algbw_gbps": 0.6731133704052634
+          },
+          {
+            "mib": 1,
+            "ms": 1.345450000371784,
+            "algbw_gbps": 0.7793496597497123
+          },
+          {
+            "mib": 4,
+            "ms": 30.219050124287605,
+            "algbw_gbps": 0.1387966856254347
+          },
+          {
+            "mib": 16,
+            "ms": 101.38515010476112,
+            "algbw_gbps": 0.16548001342074387
+          }
+        ],
+        "seconds": 68.72254157066345
+      }
+    ],
+    "4": [
+      {
+        "storage": [
+          {
+            "module": "ColumnParallelLinear",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235323392,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "ColumnParallelLinear + clone",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58847232,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "RowParallelLinear",
+            "shape": [
+              4096,
+              3584
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58789888,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "VocabParallelEmbedding",
+            "shape": [
+              8000,
+              1024
+            ],
+            "shard_bytes": 32768000,
+            "storage_bytes": 131072000,
+            "rss_delta_bytes": 131219456,
+            "torch_save_bytes": 131073641,
+            "storage_after_to_fp32": 131072000,
+            "storage_after_to_bf16": 16384000
+          }
+        ],
+        "init": {
+          "same_seed_weight_bitwise_equal_nn_linear": true,
+          "bias_all_zero": true,
+          "rank_offset_seed_shard_equal_nn_linear": [
+            true,
+            false,
+            false,
+            false
+          ]
+        },
+        "correctness": [
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114934445754933e-07,
+                "max_abs_vs_single": 8.344650268554688e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0032371036754998894,
+                "max_abs_vs_single": 0.015625,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          }
+        ],
+        "perf": [
+          {
+            "tokens": 256,
+            "fwd_ms": 7.497249869629741,
+            "fwd_gather_ms": 16.349599696695805,
+            "local_fwd_bwd_ms": 23.367799818515778,
+            "sync_fwd_bwd_ms": 25.091800838708878,
+            "async_fwd_bwd_ms": 23.643999360501766,
+            "allreduce_dx_ms": 2.6867500273510814,
+            "up_gate_picotron_ms": 54.41080033779144,
+            "up_gate_shared_copy_ms": 49.415599554777145,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 1024,
+            "fwd_ms": 26.743600144982338,
+            "fwd_gather_ms": 64.08464908599854,
+            "local_fwd_bwd_ms": 73.97520169615746,
+            "sync_fwd_bwd_ms": 93.69700029492378,
+            "async_fwd_bwd_ms": 83.28809961676598,
+            "allreduce_dx_ms": 8.73234961181879,
+            "up_gate_picotron_ms": 192.3603042960167,
+            "up_gate_shared_copy_ms": 171.81669920682907,
+            "up_gate_dx_max_abs_diff": 3.5762786865234375e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 4096,
+            "fwd_ms": 92.83380210399628,
+            "fwd_gather_ms": 261.2133026123047,
+            "local_fwd_bwd_ms": 289.49159383773804,
+            "sync_fwd_bwd_ms": 320.269912481308,
+            "async_fwd_bwd_ms": 297.38929867744446,
+            "allreduce_dx_ms": 43.6537005007267,
+            "up_gate_picotron_ms": 693.2060122489929,
+            "up_gate_shared_copy_ms": 634.8853707313538,
+            "up_gate_dx_max_abs_diff": 4.76837158203125e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          }
+        ],
+        "allreduce": [
+          {
+            "mib": 0.25,
+            "ms": 1.887699996586889,
+            "algbw_gbps": 0.13886952401015898
+          },
+          {
+            "mib": 1,
+            "ms": 2.375899930484593,
+            "algbw_gbps": 0.44133845308296743
+          },
+          {
+            "mib": 4,
+            "ms": 7.63184973038733,
+            "algbw_gbps": 0.5495789550598413
+          },
+          {
+            "mib": 16,
+            "ms": 45.36909982562065,
+            "algbw_gbps": 0.3697938919767952
+          }
+        ],
+        "seconds": 58.89709138870239
+      },
+      {
+        "storage": [
+          {
+            "module": "ColumnParallelLinear",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235302912,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "ColumnParallelLinear + clone",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58847232,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "RowParallelLinear",
+            "shape": [
+              4096,
+              3584
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58789888,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "VocabParallelEmbedding",
+            "shape": [
+              8000,
+              1024
+            ],
+            "shard_bytes": 32768000,
+            "storage_bytes": 131072000,
+            "rss_delta_bytes": 131219456,
+            "torch_save_bytes": 131073641,
+            "storage_after_to_fp32": 131072000,
+            "storage_after_to_bf16": 16384000
+          }
+        ],
+        "init": {
+          "same_seed_weight_bitwise_equal_nn_linear": true,
+          "bias_all_zero": true,
+          "rank_offset_seed_shard_equal_nn_linear": [
+            true,
+            false,
+            false,
+            false
+          ]
+        },
+        "correctness": [
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114934445754933e-07,
+                "max_abs_vs_single": 8.344650268554688e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0032371036754998894,
+                "max_abs_vs_single": 0.015625,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          }
+        ],
+        "perf": [
+          {
+            "tokens": 256,
+            "fwd_ms": 7.497249869629741,
+            "fwd_gather_ms": 16.349599696695805,
+            "local_fwd_bwd_ms": 23.367799818515778,
+            "sync_fwd_bwd_ms": 25.091800838708878,
+            "async_fwd_bwd_ms": 23.643999360501766,
+            "allreduce_dx_ms": 2.6867500273510814,
+            "up_gate_picotron_ms": 54.41080033779144,
+            "up_gate_shared_copy_ms": 49.415599554777145,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 1024,
+            "fwd_ms": 26.743600144982338,
+            "fwd_gather_ms": 64.08464908599854,
+            "local_fwd_bwd_ms": 73.97520169615746,
+            "sync_fwd_bwd_ms": 93.69700029492378,
+            "async_fwd_bwd_ms": 83.28809961676598,
+            "allreduce_dx_ms": 8.73234961181879,
+            "up_gate_picotron_ms": 192.3603042960167,
+            "up_gate_shared_copy_ms": 171.81669920682907,
+            "up_gate_dx_max_abs_diff": 3.5762786865234375e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 4096,
+            "fwd_ms": 92.83380210399628,
+            "fwd_gather_ms": 261.2133026123047,
+            "local_fwd_bwd_ms": 289.49159383773804,
+            "sync_fwd_bwd_ms": 320.269912481308,
+            "async_fwd_bwd_ms": 297.38929867744446,
+            "allreduce_dx_ms": 43.6537005007267,
+            "up_gate_picotron_ms": 693.2060122489929,
+            "up_gate_shared_copy_ms": 634.8853707313538,
+            "up_gate_dx_max_abs_diff": 4.76837158203125e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          }
+        ],
+        "allreduce": [
+          {
+            "mib": 0.25,
+            "ms": 1.887699996586889,
+            "algbw_gbps": 0.13886952401015898
+          },
+          {
+            "mib": 1,
+            "ms": 2.375899930484593,
+            "algbw_gbps": 0.44133845308296743
+          },
+          {
+            "mib": 4,
+            "ms": 7.63184973038733,
+            "algbw_gbps": 0.5495789550598413
+          },
+          {
+            "mib": 16,
+            "ms": 45.36909982562065,
+            "algbw_gbps": 0.3697938919767952
+          }
+        ],
+        "seconds": 58.89692783355713
+      },
+      {
+        "storage": [
+          {
+            "module": "ColumnParallelLinear",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235302912,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "ColumnParallelLinear + clone",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58847232,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "RowParallelLinear",
+            "shape": [
+              4096,
+              3584
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58789888,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "VocabParallelEmbedding",
+            "shape": [
+              8000,
+              1024
+            ],
+            "shard_bytes": 32768000,
+            "storage_bytes": 131072000,
+            "rss_delta_bytes": 131219456,
+            "torch_save_bytes": 131073641,
+            "storage_after_to_fp32": 131072000,
+            "storage_after_to_bf16": 16384000
+          }
+        ],
+        "init": {
+          "same_seed_weight_bitwise_equal_nn_linear": true,
+          "bias_all_zero": true,
+          "rank_offset_seed_shard_equal_nn_linear": [
+            true,
+            false,
+            false,
+            false
+          ]
+        },
+        "correctness": [
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114934445754933e-07,
+                "max_abs_vs_single": 8.344650268554688e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0032371036754998894,
+                "max_abs_vs_single": 0.015625,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          }
+        ],
+        "perf": [
+          {
+            "tokens": 256,
+            "fwd_ms": 7.497249869629741,
+            "fwd_gather_ms": 16.349599696695805,
+            "local_fwd_bwd_ms": 23.367799818515778,
+            "sync_fwd_bwd_ms": 25.091800838708878,
+            "async_fwd_bwd_ms": 23.643999360501766,
+            "allreduce_dx_ms": 2.6867500273510814,
+            "up_gate_picotron_ms": 54.41080033779144,
+            "up_gate_shared_copy_ms": 49.415599554777145,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 1024,
+            "fwd_ms": 26.743600144982338,
+            "fwd_gather_ms": 64.08464908599854,
+            "local_fwd_bwd_ms": 73.97520169615746,
+            "sync_fwd_bwd_ms": 93.69700029492378,
+            "async_fwd_bwd_ms": 83.28809961676598,
+            "allreduce_dx_ms": 8.73234961181879,
+            "up_gate_picotron_ms": 192.3603042960167,
+            "up_gate_shared_copy_ms": 171.81669920682907,
+            "up_gate_dx_max_abs_diff": 3.5762786865234375e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 4096,
+            "fwd_ms": 92.83380210399628,
+            "fwd_gather_ms": 261.2133026123047,
+            "local_fwd_bwd_ms": 289.49159383773804,
+            "sync_fwd_bwd_ms": 320.269912481308,
+            "async_fwd_bwd_ms": 297.38929867744446,
+            "allreduce_dx_ms": 43.6537005007267,
+            "up_gate_picotron_ms": 693.2060122489929,
+            "up_gate_shared_copy_ms": 634.8853707313538,
+            "up_gate_dx_max_abs_diff": 4.76837158203125e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          }
+        ],
+        "allreduce": [
+          {
+            "mib": 0.25,
+            "ms": 1.887699996586889,
+            "algbw_gbps": 0.13886952401015898
+          },
+          {
+            "mib": 1,
+            "ms": 2.375899930484593,
+            "algbw_gbps": 0.44133845308296743
+          },
+          {
+            "mib": 4,
+            "ms": 7.63184973038733,
+            "algbw_gbps": 0.5495789550598413
+          },
+          {
+            "mib": 16,
+            "ms": 45.36909982562065,
+            "algbw_gbps": 0.3697938919767952
+          }
+        ],
+        "seconds": 58.89587426185608
+      },
+      {
+        "storage": [
+          {
+            "module": "ColumnParallelLinear",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 234881024,
+            "rss_delta_bytes": 235302912,
+            "torch_save_bytes": 234882665,
+            "storage_after_to_fp32": 234881024,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "ColumnParallelLinear + clone",
+            "shape": [
+              3584,
+              4096
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58847232,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "RowParallelLinear",
+            "shape": [
+              4096,
+              3584
+            ],
+            "shard_bytes": 58720256,
+            "storage_bytes": 58720256,
+            "rss_delta_bytes": 58789888,
+            "torch_save_bytes": 58721897,
+            "storage_after_to_fp32": 58720256,
+            "storage_after_to_bf16": 29360128
+          },
+          {
+            "module": "VocabParallelEmbedding",
+            "shape": [
+              8000,
+              1024
+            ],
+            "shard_bytes": 32768000,
+            "storage_bytes": 131072000,
+            "rss_delta_bytes": 131219456,
+            "torch_save_bytes": 131073641,
+            "storage_after_to_fp32": 131072000,
+            "storage_after_to_bf16": 16384000
+          }
+        ],
+        "init": {
+          "same_seed_weight_bitwise_equal_nn_linear": true,
+          "bias_all_zero": true,
+          "rank_offset_seed_shard_equal_nn_linear": [
+            true,
+            false,
+            false,
+            false
+          ]
+        },
+        "correctness": [
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5114934445754933e-07,
+                "max_abs_vs_single": 8.344650268554688e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5091391023270235e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.6422871322136816e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.887134548793097e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 2.5025272014982004e-07,
+                "max_abs_vs_single": 7.748603820800781e-07,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 2.536615465945174e-07,
+                "max_abs_vs_single": 1.9073486328125e-06,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 2.876237110094559e-07,
+                "max_abs_vs_single": 5.340576171875e-05,
+                "bitwise_equal_single": false
+              },
+              "db": {
+                "rel_err_vs_fp64": 1.1326657065016204e-07,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "fp32",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "2d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: Function LinearWithAsyncAllReduceBackward returned an invalid gradient at index 1 - got [] but expected shape compatible with [1024, 1024]"
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "3d",
+            "mode": "async",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0032371036754998894,
+                "max_abs_vs_single": 0.015625,
+                "bitwise_equal_single": false
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "single",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0027695913562973836,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            }
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "sync",
+            "status": "ok",
+            "metrics": {
+              "y": {
+                "rel_err_vs_fp64": 0.0027728527863498677,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "dx": {
+                "rel_err_vs_fp64": 0.0038659498274380938,
+                "max_abs_vs_single": 0.03125,
+                "bitwise_equal_single": false
+              },
+              "dW": {
+                "rel_err_vs_fp64": 0.0028751971532526037,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              },
+              "db": {
+                "rel_err_vs_fp64": 0.0023576842009787034,
+                "max_abs_vs_single": 0.0,
+                "bitwise_equal_single": true
+              }
+            },
+            "dx_ranks_identical": true
+          },
+          {
+            "dtype": "bf16",
+            "shape": "4d",
+            "mode": "async",
+            "status": "error",
+            "error": "RuntimeError: t() expects a tensor with <= 2 dimensions, but self is 3D"
+          }
+        ],
+        "perf": [
+          {
+            "tokens": 256,
+            "fwd_ms": 7.497249869629741,
+            "fwd_gather_ms": 16.349599696695805,
+            "local_fwd_bwd_ms": 23.367799818515778,
+            "sync_fwd_bwd_ms": 25.091800838708878,
+            "async_fwd_bwd_ms": 23.643999360501766,
+            "allreduce_dx_ms": 2.6867500273510814,
+            "up_gate_picotron_ms": 54.41080033779144,
+            "up_gate_shared_copy_ms": 49.415599554777145,
+            "up_gate_dx_max_abs_diff": 2.384185791015625e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 1024,
+            "fwd_ms": 26.743600144982338,
+            "fwd_gather_ms": 64.08464908599854,
+            "local_fwd_bwd_ms": 73.97520169615746,
+            "sync_fwd_bwd_ms": 93.69700029492378,
+            "async_fwd_bwd_ms": 83.28809961676598,
+            "allreduce_dx_ms": 8.73234961181879,
+            "up_gate_picotron_ms": 192.3603042960167,
+            "up_gate_shared_copy_ms": 171.81669920682907,
+            "up_gate_dx_max_abs_diff": 3.5762786865234375e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          },
+          {
+            "tokens": 4096,
+            "fwd_ms": 92.83380210399628,
+            "fwd_gather_ms": 261.2133026123047,
+            "local_fwd_bwd_ms": 289.49159383773804,
+            "sync_fwd_bwd_ms": 320.269912481308,
+            "async_fwd_bwd_ms": 297.38929867744446,
+            "allreduce_dx_ms": 43.6537005007267,
+            "up_gate_picotron_ms": 693.2060122489929,
+            "up_gate_shared_copy_ms": 634.8853707313538,
+            "up_gate_dx_max_abs_diff": 4.76837158203125e-07,
+            "up_gate_dx_bitwise_equal": false,
+            "sync_async_dx_bitwise_equal": true
+          }
+        ],
+        "allreduce": [
+          {
+            "mib": 0.25,
+            "ms": 1.887699996586889,
+            "algbw_gbps": 0.13886952401015898
+          },
+          {
+            "mib": 1,
+            "ms": 2.375899930484593,
+            "algbw_gbps": 0.44133845308296743
+          },
+          {
+            "mib": 4,
+            "ms": 7.63184973038733,
+            "algbw_gbps": 0.5495789550598413
+          },
+          {
+            "mib": 16,
+            "ms": 45.36909982562065,
+            "algbw_gbps": 0.3697938919767952
+          }
+        ],
+        "seconds": 58.896058320999146
+      }
+    ]
+  }
+}

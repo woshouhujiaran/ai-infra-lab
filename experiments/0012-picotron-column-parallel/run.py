@@ -38,6 +38,8 @@ ROOT = HERE.parents[1]
 PICOTRON_DIR = ROOT / "upstream" / "picotron"
 sys.path.insert(0, str(PICOTRON_DIR))
 os.environ.setdefault("USE_LIBUV", "0")
+# torch's Windows CPU allocator (mimalloc) otherwise keeps freed pages resident, hiding frees from RSS.
+os.environ.setdefault("MIMALLOC_PURGE_DELAY", "0")
 
 import psutil  # noqa: E402
 import torch  # noqa: E402
@@ -71,6 +73,7 @@ P_IN, P_OUT = 1024, 4096
 P_TOKENS = [256, 1024, 4096]
 P_BATCH = 4
 WARMUP = 2
+AR_SIZES_MIB = [0.25, 1, 4, 16]
 
 MiB = 2**20
 
@@ -336,6 +339,16 @@ def perf():
     return rows
 
 
+def allreduce_sweep():
+    tp, _, group = tp_info()
+    rows = []
+    for mib in AR_SIZES_MIB:
+        buf = torch.randn(int(mib * MiB) // 4)
+        ms = timed(lambda: dist.all_reduce(buf, group=group), 10) if tp > 1 else 0.0
+        rows.append({"mib": mib, "ms": ms, "algbw_gbps": (mib * MiB / 1e9) / (ms / 1e3) if ms else None})
+    return rows
+
+
 # ---------------------------------------------------------------- driver
 
 def worker(rank, tp, port):
@@ -348,6 +361,7 @@ def worker(rank, tp, port):
         res["init"] = init_equivalence()
         res["correctness"] = correctness()
         res["perf"] = perf()
+        res["allreduce"] = allreduce_sweep()
         res["seconds"] = time.time() - t0
         gathered = [None] * tp
         dist.all_gather_object(gathered, res)
@@ -421,6 +435,13 @@ def write_md(result):
               "", "sync vs async dX bitwise equal: "
               + "; ".join(f"TP {tp} T {p['tokens']}: {p['sync_async_dx_bitwise_equal']}"
                           for tp, ranks in runs.items() for p in ranks[0]["perf"])]
+    lines += ["", "## 5. gloo fp32 all-reduce (median ms / algorithm bandwidth GB/s)", "",
+              "| TP | " + " | ".join(f"{m} MiB" for m in AR_SIZES_MIB) + " |",
+              "|---|" + "---|" * len(AR_SIZES_MIB)]
+    for tp, ranks in runs.items():
+        if tp == "1":
+            continue
+        lines.append(f"| {tp} | " + " | ".join(f"{r['ms']:.2f} / {r['algbw_gbps']:.2f}" for r in ranks[0]["allreduce"]) + " |")
     (HERE / "results.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
 
