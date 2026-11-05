@@ -20,3 +20,6 @@
 [submodule "upstream/nanoGPT"]
 	path = upstream/nanoGPT
 	url = https://github.com/karpathy/nanoGPT.git
+[submodule "upstream/picotron"]
+	path = upstream/picotron
+	url = https://github.com/huggingface/picotron.git
