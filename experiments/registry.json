@@ -109,6 +109,16 @@
       "device": "cuda",
       "date": "2026-11-04",
       "status": "done"
+    },
+    {
+      "id": "0012",
+      "slug": "picotron-column-parallel",
+      "upstream": "huggingface/picotron",
+      "component": "picotron/tensor_parallel/tensor_parallel.py (ColumnParallelLinear) + tp_communications.py (CopyToModelParallelRegion, LinearWithAsyncAllReduce)",
+      "topic": "TP = 1/2/4 simulated with gloo processes on CPU: shard storage / RSS / torch.save size (dim-0 split views keep the master weight) vs a cloned shard, RowParallelLinear and VocabParallelEmbedding; init equivalence to nn.Linear under same / per-rank seeds; y / dX / dW / db vs single-process and fp64 in fp32 and bf16 for 2D / 3D / 4D inputs, sync vs async all-reduce; fwd / fwd+bwd latency, dX all-reduce and gloo all-reduce size sweep, async overlap, per-projection vs shared all-reduce for MLP up+gate, gather_output cost",
+      "device": "cpu",
+      "date": "2026-11-05",
+      "status": "done"
     }
   ]
 }
