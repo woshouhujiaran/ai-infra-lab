@@ -17,8 +17,9 @@ per-group bias on top of the per-expert one).
    imbalance (max / mean) for no EPLB (contiguous experts per GPU), hierarchical, global,
    and global + a pairwise-swap local search (run.py, not upstream), at 32 GPUs / 4 nodes
    and 64 GPUs / 8 nodes with 0, 1 or 2 redundant experts per GPU. Placements are built
-   from a history window and evaluated on a fresh window whose bias drifted by
-   delta * N(0, 1), against an oracle placement built on the evaluation window itself.
+   from a history window and evaluated on a fresh window whose bias drifted
+   (variance-preserving, correlation 1 / sqrt(1 + delta^2) with the history bias), against
+   an oracle placement built on the evaluation window itself.
 2. Token-level: each token-expert pair goes to a uniformly random replica; GPU imbalance
    per step vs tokens per step, and distinct nodes each token is sent to.
 3. Invariants of every placement, the upstream README example, and rebalance_experts wall
@@ -78,6 +79,11 @@ def make_biases(s_idx: int, sigma_e: float, sigma_g: float):
     drift = rng.standard_normal((NUM_LAYERS, NUM_EXPERTS))
     bias = sigma_e * z_e + sigma_g * np.repeat(z_g, GROUP_SIZE, axis=1)
     return bias, drift
+
+
+def drifted(bias: np.ndarray, drift: np.ndarray, delta: float) -> np.ndarray:
+    """Variance-preserving drift: corr(bias, result) = 1 / sqrt(1 + delta^2) per layer."""
+    return (bias + delta * bias.std(1, keepdims=True) * drift) / np.sqrt(1 + delta**2)
 
 
 def route(bias: np.ndarray, n_tokens: int, seed: int) -> np.ndarray:
@@ -304,7 +310,7 @@ def main():
         hist_weights[sname] = hist
         eval_ids, eval_counts = {}, {}
         for d_idx, delta in enumerate(DRIFTS):
-            b = bias + delta * drift
+            b = drifted(bias, drift, delta)
             ids = [route(b[l], EVAL_TOKENS, 1_000_000 + 10_000 * s_idx + 100 * l + d_idx) for l in range(NUM_LAYERS)]
             eval_ids[delta] = ids[:TOKEN_LAYERS]
             eval_counts[delta] = np.stack([counts_of(x) for x in ids])
@@ -414,8 +420,8 @@ def main():
     results["heap_equivalence"] = {"checks": eq_checks + len(runtime), "failures": eq_fail}
     results["total_seconds"] = time.time() - t_start
 
-    (HERE / "results.json").write_text(json.dumps(results, indent=1))
-    (HERE / "results.md").write_text(render_md(results))
+    (HERE / "results.json").write_text(json.dumps(results, indent=1), encoding="utf-8")
+    (HERE / "results.md").write_text(render_md(results), encoding="utf-8")
     print(f"done in {results['total_seconds']:.1f}s, invariant errors: {len(invariant_errors)}, "
           f"heap mismatches: {len(eq_fail)}")
 
@@ -442,7 +448,8 @@ def render_md(r: dict) -> str:
     L.append("")
     L.append("## GPU imbalance (fluid model, max/mean GPU load, mean over 58 layers)")
     L.append("")
-    L.append("`stale` = placement from the history window evaluated on the eval window with drift δ; "
+    L.append("`stale` = placement from the history window evaluated on the eval window with drift δ "
+             "(eval bias correlation with history bias 1, 0.958, 0.857 for δ = 0, 0.3, 0.6); "
              "`oracle` = placement built on the eval window itself. `LB` = replica lower bound "
              "max(1, heaviest replica / mean GPU load) of the stale global placement. 1.000 = perfect.")
     for s in r["scenario_stats"]:

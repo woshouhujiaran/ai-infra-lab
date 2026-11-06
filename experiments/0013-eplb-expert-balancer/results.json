@@ -1,0 +1,5492 @@
+{
+ "env": {
+  "python": "3.13.3",
+  "torch": "2.14.1+cu126",
+  "numpy": "2.5.4",
+  "cpu": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "torch_threads": 4
+ },
+ "params": {
+  "num_experts": 256,
+  "num_groups": 8,
+  "top_k": 8,
+  "topk_group": 4,
+  "num_layers": 58,
+  "hist_tokens": 32768,
+  "eval_tokens": 32768,
+  "scenarios": {
+   "mild": [
+    0.3,
+    0.0
+   ],
+   "skewed": [
+    1.0,
+    0.0
+   ],
+   "hot-groups": [
+    0.5,
+    0.7
+   ]
+  },
+  "drifts": [
+   0.0,
+   0.3,
+   0.6
+  ],
+  "configs": [
+   {
+    "name": "32gpu-4node",
+    "gpus": 32,
+    "nodes": 4,
+    "replicas": [
+     256,
+     288,
+     320
+    ]
+   },
+   {
+    "name": "64gpu-8node",
+    "gpus": 64,
+    "nodes": 8,
+    "replicas": [
+     256,
+     320
+    ]
+   }
+  ],
+  "token_layers": 16,
+  "batches": [
+   256,
+   1024,
+   4096,
+   32768
+  ],
+  "seed": 0
+ },
+ "readme_example": {
+  "phy2log": [
+   [
+    5,
+    6,
+    5,
+    7,
+    8,
+    4,
+    3,
+    4,
+    10,
+    9,
+    10,
+    2,
+    0,
+    1,
+    11,
+    1
+   ],
+   [
+    7,
+    10,
+    6,
+    8,
+    6,
+    11,
+    8,
+    9,
+    2,
+    4,
+    5,
+    1,
+    5,
+    0,
+    3,
+    1
+   ]
+  ],
+  "matches_readme": true
+ },
+ "scenario_stats": {
+  "mild": {
+   "sigma_expert": 0.3,
+   "sigma_group": 0.0,
+   "expert_max_over_mean": 2.158068426724138,
+   "expert_min_over_mean": 0.40448208512931033,
+   "expert_cv": 0.3004591482292211,
+   "group_max_share": 0.1388556381751751,
+   "hist_vs_eval_l1": {
+    "0.0": 0.034713350493332434,
+    "0.3": 0.07598863798996498,
+    "0.6": 0.12957605822332974
+   }
+  },
+  "skewed": {
+   "sigma_expert": 1.0,
+   "sigma_group": 0.0,
+   "expert_max_over_mean": 9.318628771551724,
+   "expert_min_over_mean": 0.03982017780172414,
+   "expert_cv": 1.1809714558421078,
+   "group_max_share": 0.18065505192197603,
+   "hist_vs_eval_l1": {
+    "0.0": 0.030934432457233298,
+    "0.3": 0.22379250362001615,
+    "0.6": 0.4059861281822468
+   }
+  },
+  "hot-groups": {
+   "sigma_expert": 0.5,
+   "sigma_group": 0.7,
+   "expert_max_over_mean": 6.916773302801724,
+   "expert_min_over_mean": 0.06532866379310345,
+   "expert_cv": 1.000656175633049,
+   "group_max_share": 0.3345371772503031,
+   "hist_vs_eval_l1": {
+    "0.0": 0.03112214187095905,
+    "0.3": 0.18613881078259698,
+    "0.6": 0.3351837684368265
+   }
+  }
+ },
+ "quality": [
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 1.262341729525862,
+    "gpu_imbalance_max": 1.5089111328125,
+    "node_imbalance_mean": 1.066473599137931,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 1.2511891332165948,
+    "gpu_imbalance_max": 1.4420166015625,
+    "node_imbalance_mean": 1.0659350691170528,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 1.2475964776400863,
+    "gpu_imbalance_max": 1.431640625,
+    "node_imbalance_mean": 1.0627241463496768,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.0489291487068966,
+    "gpu_imbalance_max": 1.11669921875,
+    "node_imbalance_mean": 1.0199500774515087,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0326432852909482,
+    "gpu_imbalance_max": 1.1016845703125,
+    "node_imbalance_mean": 1.0181471725990032,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.087286587419181,
+    "gpu_imbalance_max": 1.1993408203125,
+    "node_imbalance_mean": 1.0238652722588901,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0319782125538792,
+    "gpu_imbalance_max": 1.09375,
+    "node_imbalance_mean": 1.0181371754613415,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.1391938308189655,
+    "gpu_imbalance_max": 1.2398681640625,
+    "node_imbalance_mean": 1.0299958853886044,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0309237776131466,
+    "gpu_imbalance_max": 1.0701904296875,
+    "node_imbalance_mean": 1.0175512905778556,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0365326980064655,
+    "gpu_imbalance_max": 1.066162109375,
+    "node_imbalance_mean": 1.0064173731310615,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0162248282596982,
+    "gpu_imbalance_max": 1.05126953125,
+    "node_imbalance_mean": 1.0036650032832706,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0744923558728448,
+    "gpu_imbalance_max": 1.12451171875,
+    "node_imbalance_mean": 1.0124056585903825,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.015313510237069,
+    "gpu_imbalance_max": 1.046142578125,
+    "node_imbalance_mean": 1.003124894766972,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.123461493130388,
+    "gpu_imbalance_max": 1.1864013671875,
+    "node_imbalance_mean": 1.0216685327990302,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0159827922952587,
+    "gpu_imbalance_max": 1.0498046875,
+    "node_imbalance_mean": 1.0033961328966865,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0310311153017242,
+    "gpu_imbalance_max": 1.0439453125,
+    "node_imbalance_mean": 1.005199300831762,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002188846982758,
+    "gpu_imbalance_max": 1.0003662109375,
+    "node_imbalance_mean": 1.0000776093581627,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0754604997306034,
+    "gpu_imbalance_max": 1.119140625,
+    "node_imbalance_mean": 1.0133924813106143,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002125707165948,
+    "gpu_imbalance_max": 1.00048828125,
+    "node_imbalance_mean": 1.0000755046976024,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.1287063072467673,
+    "gpu_imbalance_max": 1.2183837890625,
+    "node_imbalance_mean": 1.0220815724339978,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002525592672413,
+    "gpu_imbalance_max": 1.0006103515625,
+    "node_imbalance_mean": 1.0000926050646552,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.0448404947916665,
+    "gpu_imbalance_max": 1.083984375,
+    "node_imbalance_mean": 1.0199500774515087,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0255600501751077,
+    "gpu_imbalance_max": 1.06622314453125,
+    "node_imbalance_mean": 1.0181471725990032,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.0787984913793103,
+    "gpu_imbalance_max": 1.1246337890625,
+    "node_imbalance_mean": 1.0238652722588901,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0261083142510776,
+    "gpu_imbalance_max": 1.0582275390625,
+    "node_imbalance_mean": 1.0181371754613415,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.1229847875134698,
+    "gpu_imbalance_max": 1.2418212890625,
+    "node_imbalance_mean": 1.0299958853886044,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.025000210466056,
+    "gpu_imbalance_max": 1.0645751953125,
+    "node_imbalance_mean": 1.0175512905778556,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.034199330998563,
+    "gpu_imbalance_max": 1.05169677734375,
+    "node_imbalance_mean": 1.005718932754692,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0083113045528018,
+    "gpu_imbalance_max": 1.01177978515625,
+    "node_imbalance_mean": 1.0032977400154903,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0757719894935345,
+    "gpu_imbalance_max": 1.1268310546875,
+    "node_imbalance_mean": 1.0131720619640132,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0087353936557113,
+    "gpu_imbalance_max": 1.01416015625,
+    "node_imbalance_mean": 1.0032215776114628,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.1244222706761853,
+    "gpu_imbalance_max": 1.2086181640625,
+    "node_imbalance_mean": 1.0209519835724228,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.008460033899066,
+    "gpu_imbalance_max": 1.0145263671875,
+    "node_imbalance_mean": 1.0031821590730514,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0302067899155891,
+    "gpu_imbalance_max": 1.04901123046875,
+    "node_imbalance_mean": 1.0049860724087418,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0001420645878232,
+    "gpu_imbalance_max": 1.0003662109375,
+    "node_imbalance_mean": 1.0000381031255612,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0714269177667026,
+    "gpu_imbalance_max": 1.1358642578125,
+    "node_imbalance_mean": 1.0121652449684582,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0001336459455819,
+    "gpu_imbalance_max": 1.000244140625,
+    "node_imbalance_mean": 1.0000394623855065,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.121930352572737,
+    "gpu_imbalance_max": 1.227294921875,
+    "node_imbalance_mean": 1.019738515218099,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0001308397315014,
+    "gpu_imbalance_max": 1.000244140625,
+    "node_imbalance_mean": 1.0000391116087464,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.042590612652658,
+    "gpu_imbalance_max": 1.07867431640625,
+    "node_imbalance_mean": 1.0199500774515087,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0225293389682113,
+    "gpu_imbalance_max": 1.05975341796875,
+    "node_imbalance_mean": 1.0181471725990032,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.071051235856681,
+    "gpu_imbalance_max": 1.11541748046875,
+    "node_imbalance_mean": 1.0238652722588901,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0230656766343391,
+    "gpu_imbalance_max": 1.05792236328125,
+    "node_imbalance_mean": 1.0181371754613415,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.1167507829337284,
+    "gpu_imbalance_max": 1.212890625,
+    "node_imbalance_mean": 1.0299958853886044,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.022319223688937,
+    "gpu_imbalance_max": 1.06396484375,
+    "node_imbalance_mean": 1.0175512905778556,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.03009033203125,
+    "gpu_imbalance_max": 1.0473022460937502,
+    "node_imbalance_mean": 1.0051468158590382,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0040483145878232,
+    "gpu_imbalance_max": 1.00732421875,
+    "node_imbalance_mean": 1.0021932755393543,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.06518694998204,
+    "gpu_imbalance_max": 1.1201985677083333,
+    "node_imbalance_mean": 1.011674595975328,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0042756179283405,
+    "gpu_imbalance_max": 1.00726318359375,
+    "node_imbalance_mean": 1.0022225653988193,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.113996133036997,
+    "gpu_imbalance_max": 1.2014973958333333,
+    "node_imbalance_mean": 1.019079624921426,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.004187572961566,
+    "gpu_imbalance_max": 1.00927734375,
+    "node_imbalance_mean": 1.0020733537345097,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0289232977505387,
+    "gpu_imbalance_max": 1.0516357421875,
+    "node_imbalance_mean": 1.0047328992821705,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0000897988505746,
+    "gpu_imbalance_max": 1.000244140625,
+    "node_imbalance_mean": 1.000030780660695,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0647691748608117,
+    "gpu_imbalance_max": 1.0976765950520833,
+    "node_imbalance_mean": 1.0118864212913075,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0000905004040948,
+    "gpu_imbalance_max": 1.000244140625,
+    "node_imbalance_mean": 1.0000283252233748,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.1138940569998204,
+    "gpu_imbalance_max": 1.18524169921875,
+    "node_imbalance_mean": 1.0196574419394306,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0001062853582974,
+    "gpu_imbalance_max": 1.0001831054687502,
+    "node_imbalance_mean": 1.0000336745689655,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 1.415906182650862,
+    "gpu_imbalance_max": 1.90185546875,
+    "node_imbalance_mean": 1.1098606504242996,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 1.4096637594288792,
+    "gpu_imbalance_max": 1.80615234375,
+    "node_imbalance_mean": 1.1083784432246768,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 1.4108465786637931,
+    "gpu_imbalance_max": 1.74169921875,
+    "node_imbalance_mean": 1.1094623434132542,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.1707847858297413,
+    "gpu_imbalance_max": 1.375732421875,
+    "node_imbalance_mean": 1.1098606504242996,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1556901602909482,
+    "gpu_imbalance_max": 1.35107421875,
+    "node_imbalance_mean": 1.1098606504242996,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.2077468345905173,
+    "gpu_imbalance_max": 1.4287109375,
+    "node_imbalance_mean": 1.1083784432246768,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1559174636314655,
+    "gpu_imbalance_max": 1.33984375,
+    "node_imbalance_mean": 1.1083784432246768,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.2575515220905173,
+    "gpu_imbalance_max": 1.46142578125,
+    "node_imbalance_mean": 1.1094623434132542,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1567761651400863,
+    "gpu_imbalance_max": 1.33447265625,
+    "node_imbalance_mean": 1.1094623434132542,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.080633755387931,
+    "gpu_imbalance_max": 1.17626953125,
+    "node_imbalance_mean": 1.0270990832098599,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.066540948275862,
+    "gpu_imbalance_max": 1.172119140625,
+    "node_imbalance_mean": 1.0252953891096444,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.130872002963362,
+    "gpu_imbalance_max": 1.26123046875,
+    "node_imbalance_mean": 1.0301166402882542,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0629840719288792,
+    "gpu_imbalance_max": 1.118896484375,
+    "node_imbalance_mean": 1.022619313207166,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.2164685479525863,
+    "gpu_imbalance_max": 1.376953125,
+    "node_imbalance_mean": 1.0434949151400863,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0669197871767242,
+    "gpu_imbalance_max": 1.134033203125,
+    "node_imbalance_mean": 1.024102572737069,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0523934199892242,
+    "gpu_imbalance_max": 1.145263671875,
+    "node_imbalance_mean": 1.0117082266971982,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0037505051185345,
+    "gpu_imbalance_max": 1.10400390625,
+    "node_imbalance_mean": 1.0023146004512393,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.1229248046875,
+    "gpu_imbalance_max": 1.225341796875,
+    "node_imbalance_mean": 1.0243219836004849,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0021635910560345,
+    "gpu_imbalance_max": 1.0166015625,
+    "node_imbalance_mean": 1.001153353987069,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.2113794787176724,
+    "gpu_imbalance_max": 1.38330078125,
+    "node_imbalance_mean": 1.0420679552801724,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0034811085668103,
+    "gpu_imbalance_max": 1.04931640625,
+    "node_imbalance_mean": 1.0017984324488147,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.1420652893767957,
+    "gpu_imbalance_max": 1.236328125,
+    "node_imbalance_mean": 1.1098606504242996,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1192942652209052,
+    "gpu_imbalance_max": 1.2242431640625,
+    "node_imbalance_mean": 1.1098606504242996,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.182098739448635,
+    "gpu_imbalance_max": 1.3172607421875,
+    "node_imbalance_mean": 1.1083784432246768,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1174505825700431,
+    "gpu_imbalance_max": 1.203857421875,
+    "node_imbalance_mean": 1.1083784432246768,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.2455949454471982,
+    "gpu_imbalance_max": 1.3995361328125,
+    "node_imbalance_mean": 1.1094623434132542,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1187898482399423,
+    "gpu_imbalance_max": 1.192626953125,
+    "node_imbalance_mean": 1.1094623434132542,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0504971208243534,
+    "gpu_imbalance_max": 1.072998046875,
+    "node_imbalance_mean": 1.0123873305046696,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0074722465427444,
+    "gpu_imbalance_max": 1.011474609375,
+    "node_imbalance_mean": 1.005286205774066,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.1098948511584052,
+    "gpu_imbalance_max": 1.16259765625,
+    "node_imbalance_mean": 1.023919642656699,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0073010674838363,
+    "gpu_imbalance_max": 1.0125732421875,
+    "node_imbalance_mean": 1.0050911738954742,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.200330010775862,
+    "gpu_imbalance_max": 1.3653564453125,
+    "node_imbalance_mean": 1.041589758862024,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0071151558010059,
+    "gpu_imbalance_max": 1.01220703125,
+    "node_imbalance_mean": 1.0048858817966506,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0468665813577587,
+    "gpu_imbalance_max": 1.07666015625,
+    "node_imbalance_mean": 1.0101228034359284,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0005303744612069,
+    "gpu_imbalance_max": 1.0009765625,
+    "node_imbalance_mean": 1.0002462452855603,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.1081374595905173,
+    "gpu_imbalance_max": 1.197998046875,
+    "node_imbalance_mean": 1.0226111576474946,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0005030138739224,
+    "gpu_imbalance_max": 1.0010986328125,
+    "node_imbalance_mean": 1.0002546639278018,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.1956597689924569,
+    "gpu_imbalance_max": 1.31298828125,
+    "node_imbalance_mean": 1.0410075571345188,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.000524762033046,
+    "gpu_imbalance_max": 1.0010986328125,
+    "node_imbalance_mean": 1.0002411590225395,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 2.3097828832165948,
+    "gpu_imbalance_max": 3.096923828125,
+    "node_imbalance_mean": 1.2043249196019665,
+    "replica_lower_bound_mean": 1.2181396484375
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 2.2834704168911637,
+    "gpu_imbalance_max": 3.153564453125,
+    "node_imbalance_mean": 1.2120616518217942,
+    "replica_lower_bound_mean": 1.1707658438846982
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 2.294928188981681,
+    "gpu_imbalance_max": 3.224609375,
+    "node_imbalance_mean": 1.2134057406721444,
+    "replica_lower_bound_mean": 1.1867781014278018
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.3267254007273708,
+    "gpu_imbalance_max": 1.9061279296875,
+    "node_imbalance_mean": 1.0851295734273976,
+    "replica_lower_bound_mean": 1.2181396484375
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.323980923356681,
+    "gpu_imbalance_max": 1.91748046875,
+    "node_imbalance_mean": 1.0848412349306304,
+    "replica_lower_bound_mean": 1.2181396484375
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.4410000505118534,
+    "gpu_imbalance_max": 1.978759765625,
+    "node_imbalance_mean": 1.1060651581862877,
+    "replica_lower_bound_mean": 1.1707658438846982
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2721515523976292,
+    "gpu_imbalance_max": 1.7435302734375,
+    "node_imbalance_mean": 1.082929150811557,
+    "replica_lower_bound_mean": 1.1707658438846982
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.6981474777747845,
+    "gpu_imbalance_max": 2.7349853515625,
+    "node_imbalance_mean": 1.14032061346646,
+    "replica_lower_bound_mean": 1.1867781014278018
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2894581761853448,
+    "gpu_imbalance_max": 2.0478515625,
+    "node_imbalance_mean": 1.0743439773033405,
+    "replica_lower_bound_mean": 1.1867781014278018
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.2753611597521552,
+    "gpu_imbalance_max": 1.881103515625,
+    "node_imbalance_mean": 1.0562762556404903,
+    "replica_lower_bound_mean": 1.2181396484375
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2700342638739224,
+    "gpu_imbalance_max": 1.8802490234375,
+    "node_imbalance_mean": 1.056377279347387,
+    "replica_lower_bound_mean": 1.2181396484375
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.3847087991648708,
+    "gpu_imbalance_max": 1.7196044921875,
+    "node_imbalance_mean": 1.062024346713362,
+    "replica_lower_bound_mean": 1.1707658438846982
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2207915207435345,
+    "gpu_imbalance_max": 1.7044677734375,
+    "node_imbalance_mean": 1.050732579724542,
+    "replica_lower_bound_mean": 1.1707658438846982
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.6495214001885776,
+    "gpu_imbalance_max": 2.3153076171875,
+    "node_imbalance_mean": 1.088696709994612,
+    "replica_lower_bound_mean": 1.1867781014278018
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2365196491109913,
+    "gpu_imbalance_max": 2.015869140625,
+    "node_imbalance_mean": 1.05096435546875,
+    "replica_lower_bound_mean": 1.1867781014278018
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.2720231681034482,
+    "gpu_imbalance_max": 1.881103515625,
+    "node_imbalance_mean": 1.053784074454472,
+    "replica_lower_bound_mean": 1.2181396484375
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2621354727909482,
+    "gpu_imbalance_max": 1.8802490234375,
+    "node_imbalance_mean": 1.0526575548895474,
+    "replica_lower_bound_mean": 1.2181396484375
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.3857800713900863,
+    "gpu_imbalance_max": 1.7196044921875,
+    "node_imbalance_mean": 1.0621506263469827,
+    "replica_lower_bound_mean": 1.1707658438846982
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2079236260775863,
+    "gpu_imbalance_max": 1.7044677734375,
+    "node_imbalance_mean": 1.0447229845770474,
+    "replica_lower_bound_mean": 1.1707658438846982
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.6495024582435345,
+    "gpu_imbalance_max": 2.3153076171875,
+    "node_imbalance_mean": 1.0904101667733028,
+    "replica_lower_bound_mean": 1.1867781014278018
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.2252576104525863,
+    "gpu_imbalance_max": 2.015869140625,
+    "node_imbalance_mean": 1.0456090466729526,
+    "replica_lower_bound_mean": 1.1867781014278018
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.1069274902343749,
+    "gpu_imbalance_max": 1.3710530598958333,
+    "node_imbalance_mean": 1.0851295734273976,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0894581060299928,
+    "gpu_imbalance_max": 1.3626302083333333,
+    "node_imbalance_mean": 1.0848412349306304,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.305627371250898,
+    "gpu_imbalance_max": 1.62103271484375,
+    "node_imbalance_mean": 1.1060651581862877,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0877186391545437,
+    "gpu_imbalance_max": 1.379730224609375,
+    "node_imbalance_mean": 1.082929150811557,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.5496237217694864,
+    "gpu_imbalance_max": 2.1538696289062504,
+    "node_imbalance_mean": 1.14032061346646,
+    "replica_lower_bound_mean": 1.0014669484105603
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0790875665072739,
+    "gpu_imbalance_max": 1.361083984375,
+    "node_imbalance_mean": 1.0743439773033405,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0298998502283458,
+    "gpu_imbalance_max": 1.048828125,
+    "node_imbalance_mean": 1.0054333760429093,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0049732678042256,
+    "gpu_imbalance_max": 1.0102539062500002,
+    "node_imbalance_mean": 1.0015103645512624,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.2539770718278556,
+    "gpu_imbalance_max": 1.4753417968750002,
+    "node_imbalance_mean": 1.0499256603823508,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0048992288523708,
+    "gpu_imbalance_max": 1.009765625,
+    "node_imbalance_mean": 1.0014707587231166,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.494250453203574,
+    "gpu_imbalance_max": 2.1185302734375,
+    "node_imbalance_mean": 1.0859582503245186,
+    "replica_lower_bound_mean": 1.0014669484105603
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.004872960684139,
+    "gpu_imbalance_max": 1.0098876953125,
+    "node_imbalance_mean": 1.0013594152892165,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0292851590562142,
+    "gpu_imbalance_max": 1.05242919921875,
+    "node_imbalance_mean": 1.0049178989454248,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0004204761022808,
+    "gpu_imbalance_max": 1.0009765625,
+    "node_imbalance_mean": 1.0001447956354552,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.2533638038071504,
+    "gpu_imbalance_max": 1.4997558593750002,
+    "node_imbalance_mean": 1.04888859766066,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0003320102033944,
+    "gpu_imbalance_max": 1.0006103515625,
+    "node_imbalance_mean": 1.0001108366867593,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.4973776881526455,
+    "gpu_imbalance_max": 2.110595703125,
+    "node_imbalance_mean": 1.0859469471698129,
+    "replica_lower_bound_mean": 1.0014669484105603
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0003251349788973,
+    "gpu_imbalance_max": 1.00067138671875,
+    "node_imbalance_mean": 1.0000958322108477,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.1051490595775284,
+    "gpu_imbalance_max": 1.3897705078125,
+    "node_imbalance_mean": 1.0851295734273976,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0893444593708308,
+    "gpu_imbalance_max": 1.3624267578125,
+    "node_imbalance_mean": 1.0848412349306304,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.2805101591965247,
+    "gpu_imbalance_max": 1.51666259765625,
+    "node_imbalance_mean": 1.1060651581862877,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0877285962034329,
+    "gpu_imbalance_max": 1.37945556640625,
+    "node_imbalance_mean": 1.082929150811557,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.4892265131908098,
+    "gpu_imbalance_max": 1.8077596028645835,
+    "node_imbalance_mean": 1.14032061346646,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0789658620048235,
+    "gpu_imbalance_max": 1.36063232421875,
+    "node_imbalance_mean": 1.0743439773033405,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.02908651918809,
+    "gpu_imbalance_max": 1.0445963541666667,
+    "node_imbalance_mean": 1.0051491068697522,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.005079269200384,
+    "gpu_imbalance_max": 1.0109659830729165,
+    "node_imbalance_mean": 1.001439570388836,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.234823585848503,
+    "gpu_imbalance_max": 1.415283203125,
+    "node_imbalance_mean": 1.0497753359414088,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0050469735181586,
+    "gpu_imbalance_max": 1.009521484375,
+    "node_imbalance_mean": 1.0014462807691353,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.4583029861324919,
+    "gpu_imbalance_max": 1.9380086263020835,
+    "node_imbalance_mean": 1.0901816908361877,
+    "replica_lower_bound_mean": 1.0014669484105603
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0049417212809377,
+    "gpu_imbalance_max": 1.0093180338541665,
+    "node_imbalance_mean": 1.0013299366784474,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0265493759380773,
+    "gpu_imbalance_max": 1.0479213169642856,
+    "node_imbalance_mean": 1.0045834436400967,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002556786748575,
+    "gpu_imbalance_max": 1.000823974609375,
+    "node_imbalance_mean": 1.0000770880997216,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.2419703148986447,
+    "gpu_imbalance_max": 1.40972900390625,
+    "node_imbalance_mean": 1.047129255627829,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002409285120972,
+    "gpu_imbalance_max": 1.00059814453125,
+    "node_imbalance_mean": 1.0000846506796317,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.47881837875124,
+    "gpu_imbalance_max": 1.9951171875000002,
+    "node_imbalance_mean": 1.0870747943621355,
+    "replica_lower_bound_mean": 1.0014669484105603
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.000250686787489,
+    "gpu_imbalance_max": 1.00054931640625,
+    "node_imbalance_mean": 1.000072661317889,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.405340786637931,
+    "gpu_imbalance_max": 5.146728515625,
+    "node_imbalance_mean": 1.4443327805091595,
+    "replica_lower_bound_mean": 2.330663220635776
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.3143015894396552,
+    "gpu_imbalance_max": 5.3466796875,
+    "node_imbalance_mean": 1.4217429325498383,
+    "replica_lower_bound_mean": 2.216064453125
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.3394059806034484,
+    "gpu_imbalance_max": 5.7509765625,
+    "node_imbalance_mean": 1.4172084413725754,
+    "replica_lower_bound_mean": 2.233928811961207
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 2.4441633553340516,
+    "gpu_imbalance_max": 3.705078125,
+    "node_imbalance_mean": 1.4443327805091595,
+    "replica_lower_bound_mean": 2.330663220635776
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.4429847454202585,
+    "gpu_imbalance_max": 3.705078125,
+    "node_imbalance_mean": 1.4443327805091595,
+    "replica_lower_bound_mean": 2.330663220635776
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 2.3771257071659484,
+    "gpu_imbalance_max": 3.437744140625,
+    "node_imbalance_mean": 1.4217429325498383,
+    "replica_lower_bound_mean": 2.216064453125
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.3232506061422415,
+    "gpu_imbalance_max": 3.408203125,
+    "node_imbalance_mean": 1.4217429325498383,
+    "replica_lower_bound_mean": 2.216064453125
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 2.555638806573276,
+    "gpu_imbalance_max": 4.701904296875,
+    "node_imbalance_mean": 1.4172084413725754,
+    "replica_lower_bound_mean": 2.233928811961207
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.3442677464978448,
+    "gpu_imbalance_max": 3.979736328125,
+    "node_imbalance_mean": 1.4172084413725754,
+    "replica_lower_bound_mean": 2.233928811961207
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 2.3742507408405173,
+    "gpu_imbalance_max": 3.672607421875,
+    "node_imbalance_mean": 1.5285739240975216,
+    "replica_lower_bound_mean": 2.330663220635776
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.3704539331896552,
+    "gpu_imbalance_max": 3.66455078125,
+    "node_imbalance_mean": 1.5286107556573276,
+    "replica_lower_bound_mean": 2.330663220635776
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 2.2895213160021552,
+    "gpu_imbalance_max": 3.357666015625,
+    "node_imbalance_mean": 1.447399797110722,
+    "replica_lower_bound_mean": 2.216064453125
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.257580987338362,
+    "gpu_imbalance_max": 3.342529296875,
+    "node_imbalance_mean": 1.5141648917362607,
+    "replica_lower_bound_mean": 2.216064453125
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 2.4126018655711206,
+    "gpu_imbalance_max": 4.095703125,
+    "node_imbalance_mean": 1.3193048937567349,
+    "replica_lower_bound_mean": 2.233928811961207
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.2750959725215516,
+    "gpu_imbalance_max": 3.942138671875,
+    "node_imbalance_mean": 1.4972544702990302,
+    "replica_lower_bound_mean": 2.233928811961207
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 2.3741412984913794,
+    "gpu_imbalance_max": 3.672607421875,
+    "node_imbalance_mean": 1.5285739240975216,
+    "replica_lower_bound_mean": 2.330663220635776
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.3703276535560347,
+    "gpu_imbalance_max": 3.66455078125,
+    "node_imbalance_mean": 1.5286107556573276,
+    "replica_lower_bound_mean": 2.330663220635776
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 2.289820177801724,
+    "gpu_imbalance_max": 3.357666015625,
+    "node_imbalance_mean": 1.447399797110722,
+    "replica_lower_bound_mean": 2.216064453125
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.2573410560344827,
+    "gpu_imbalance_max": 3.342529296875,
+    "node_imbalance_mean": 1.5141648917362607,
+    "replica_lower_bound_mean": 2.216064453125
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 2.413018588362069,
+    "gpu_imbalance_max": 4.095703125,
+    "node_imbalance_mean": 1.3193048937567349,
+    "replica_lower_bound_mean": 2.233928811961207
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.274792901400862,
+    "gpu_imbalance_max": 3.942138671875,
+    "node_imbalance_mean": 1.4972544702990302,
+    "replica_lower_bound_mean": 2.233928811961207
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.4817321777343753,
+    "gpu_imbalance_max": 2.2320963541666665,
+    "node_imbalance_mean": 1.4443327805091595,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4690675932785562,
+    "gpu_imbalance_max": 2.207275390625,
+    "node_imbalance_mean": 1.4443327805091595,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.7210818937455101,
+    "gpu_imbalance_max": 2.673095703125,
+    "node_imbalance_mean": 1.4217429325498383,
+    "replica_lower_bound_mean": 1.0083576070851292
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4476675450116738,
+    "gpu_imbalance_max": 2.21112060546875,
+    "node_imbalance_mean": 1.4217429325498383,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 2.062812471937859,
+    "gpu_imbalance_max": 3.35205078125,
+    "node_imbalance_mean": 1.4172084413725754,
+    "replica_lower_bound_mean": 1.1197671122934625
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4389242939565374,
+    "gpu_imbalance_max": 2.1072998046875004,
+    "node_imbalance_mean": 1.4172084413725754,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0501842981097342,
+    "gpu_imbalance_max": 1.072265625,
+    "node_imbalance_mean": 1.0149262689800294,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0157792716190732,
+    "gpu_imbalance_max": 1.0262451171875,
+    "node_imbalance_mean": 1.0094209605249864,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.393223433972188,
+    "gpu_imbalance_max": 1.6882731119791667,
+    "node_imbalance_mean": 1.1022712532131151,
+    "replica_lower_bound_mean": 1.0016879377693966
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.016238503542244,
+    "gpu_imbalance_max": 1.03179931640625,
+    "node_imbalance_mean": 1.0100929435642287,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.8018041551211001,
+    "gpu_imbalance_max": 2.71923828125,
+    "node_imbalance_mean": 1.1793044029198254,
+    "replica_lower_bound_mean": 1.0608773067079742
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0156530003372803,
+    "gpu_imbalance_max": 1.0297851562500002,
+    "node_imbalance_mean": 1.0083811266668912,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0463095478627875,
+    "gpu_imbalance_max": 1.0657958984375,
+    "node_imbalance_mean": 1.0110352495816737,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0017137549389368,
+    "gpu_imbalance_max": 1.0036214192708333,
+    "node_imbalance_mean": 1.0010677444132288,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.390459268003066,
+    "gpu_imbalance_max": 1.6572265625,
+    "node_imbalance_mean": 1.0881523602114522,
+    "replica_lower_bound_mean": 1.0016879377693966
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0017449891038717,
+    "gpu_imbalance_max": 1.005706787109375,
+    "node_imbalance_mean": 1.001044596279,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.7788617514624385,
+    "gpu_imbalance_max": 2.71923828125,
+    "node_imbalance_mean": 1.1611093041932057,
+    "replica_lower_bound_mean": 1.0608773067079742
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0017464506737053,
+    "gpu_imbalance_max": 1.0043538411458333,
+    "node_imbalance_mean": 1.0010518189395263,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.1599036907327585,
+    "gpu_imbalance_max": 4.8973388671875,
+    "node_imbalance_mean": 1.7326862729828933,
+    "replica_lower_bound_mean": 1.0551799905711208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.18048095703125,
+    "gpu_imbalance_max": 5.3692626953125,
+    "node_imbalance_mean": 1.7045524860250538,
+    "replica_lower_bound_mean": 1.0913527916217673
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.1238571693157327,
+    "gpu_imbalance_max": 5.89208984375,
+    "node_imbalance_mean": 1.6374459102235992,
+    "replica_lower_bound_mean": 1.1207969928609913
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.492852572737069,
+    "gpu_imbalance_max": 2.42822265625,
+    "node_imbalance_mean": 1.452380739409348,
+    "replica_lower_bound_mean": 1.0551799905711208
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4809338799838363,
+    "gpu_imbalance_max": 2.4603271484375,
+    "node_imbalance_mean": 1.452380739409348,
+    "replica_lower_bound_mean": 1.0551799905711208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.6885165510506466,
+    "gpu_imbalance_max": 2.718505859375,
+    "node_imbalance_mean": 1.4285291474441002,
+    "replica_lower_bound_mean": 1.0913527916217673
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4533438846982758,
+    "gpu_imbalance_max": 2.3494873046875,
+    "node_imbalance_mean": 1.4274810264850486,
+    "replica_lower_bound_mean": 1.0913527916217673
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.828729037580819,
+    "gpu_imbalance_max": 3.05419921875,
+    "node_imbalance_mean": 1.371045342807112,
+    "replica_lower_bound_mean": 1.1207969928609913
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4142350821659482,
+    "gpu_imbalance_max": 2.3245849609375,
+    "node_imbalance_mean": 1.3672219638166756,
+    "replica_lower_bound_mean": 1.1207969928609913
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.1078533304148708,
+    "gpu_imbalance_max": 1.6068115234375,
+    "node_imbalance_mean": 1.0228652954101562,
+    "replica_lower_bound_mean": 1.0551799905711208
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0961451037176724,
+    "gpu_imbalance_max": 1.6005859375,
+    "node_imbalance_mean": 1.0222333710769127,
+    "replica_lower_bound_mean": 1.0551799905711208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.3126010237068966,
+    "gpu_imbalance_max": 1.973388671875,
+    "node_imbalance_mean": 1.0429947951744343,
+    "replica_lower_bound_mean": 1.0913527916217673
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.131457098599138,
+    "gpu_imbalance_max": 1.966796875,
+    "node_imbalance_mean": 1.0260401758654365,
+    "replica_lower_bound_mean": 1.0913527916217673
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.5102097083782327,
+    "gpu_imbalance_max": 2.3984375,
+    "node_imbalance_mean": 1.0715479357489224,
+    "replica_lower_bound_mean": 1.1207969928609913
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1656662513469827,
+    "gpu_imbalance_max": 2.3245849609375,
+    "node_imbalance_mean": 1.034015260893723,
+    "replica_lower_bound_mean": 1.1207969928609913
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.1006006701239224,
+    "gpu_imbalance_max": 1.6068115234375,
+    "node_imbalance_mean": 1.0199595484240302,
+    "replica_lower_bound_mean": 1.0551799905711208
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0792320514547413,
+    "gpu_imbalance_max": 1.6005859375,
+    "node_imbalance_mean": 1.0162671845534752,
+    "replica_lower_bound_mean": 1.0551799905711208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.31207275390625,
+    "gpu_imbalance_max": 1.973388671875,
+    "node_imbalance_mean": 1.0418735372609105,
+    "replica_lower_bound_mean": 1.0913527916217673
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1132349474676724,
+    "gpu_imbalance_max": 1.966796875,
+    "node_imbalance_mean": 1.0189669378872575,
+    "replica_lower_bound_mean": 1.0913527916217673
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.5115882610452587,
+    "gpu_imbalance_max": 2.3934326171875,
+    "node_imbalance_mean": 1.0707781561489762,
+    "replica_lower_bound_mean": 1.1207969928609913
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.1464401771282327,
+    "gpu_imbalance_max": 2.3245849609375,
+    "node_imbalance_mean": 1.025586358432112,
+    "replica_lower_bound_mean": 1.1207969928609913
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.477763559626437,
+    "gpu_imbalance_max": 2.396484375,
+    "node_imbalance_mean": 1.452380739409348,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4609725776760056,
+    "gpu_imbalance_max": 2.36004638671875,
+    "node_imbalance_mean": 1.452380739409348,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.6450079556169181,
+    "gpu_imbalance_max": 2.916748046875,
+    "node_imbalance_mean": 1.4285291474441002,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4353060667542203,
+    "gpu_imbalance_max": 2.35076904296875,
+    "node_imbalance_mean": 1.4274810264850486,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.7681425248069327,
+    "gpu_imbalance_max": 3.291259765625,
+    "node_imbalance_mean": 1.371045342807112,
+    "replica_lower_bound_mean": 1.0124648521686423
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.3737499719378592,
+    "gpu_imbalance_max": 2.2257080078125,
+    "node_imbalance_mean": 1.3672219638166756,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0307234840831538,
+    "gpu_imbalance_max": 1.05133056640625,
+    "node_imbalance_mean": 1.005923019058403,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0046185723666488,
+    "gpu_imbalance_max": 1.0097656250000002,
+    "node_imbalance_mean": 1.0013241515762505,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.2136956927420077,
+    "gpu_imbalance_max": 1.4598388671875,
+    "node_imbalance_mean": 1.0373322322450835,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0053874048693427,
+    "gpu_imbalance_max": 1.0125732421875,
+    "node_imbalance_mean": 1.0013558179482644,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.40358781485722,
+    "gpu_imbalance_max": 1.94329833984375,
+    "node_imbalance_mean": 1.0677175894550894,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.004937586291083,
+    "gpu_imbalance_max": 1.010528564453125,
+    "node_imbalance_mean": 1.0014994391079606,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0290542076373923,
+    "gpu_imbalance_max": 1.0509033203125,
+    "node_imbalance_mean": 1.005992757863012,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0003225041531967,
+    "gpu_imbalance_max": 1.0010986328125,
+    "node_imbalance_mean": 1.0001078506995893,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.2027031207906789,
+    "gpu_imbalance_max": 1.45123291015625,
+    "node_imbalance_mean": 1.037164210177016,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0003156990840518,
+    "gpu_imbalance_max": 1.00091552734375,
+    "node_imbalance_mean": 1.0001023829668418,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 288,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.388403811399964,
+    "gpu_imbalance_max": 1.92266845703125,
+    "node_imbalance_mean": 1.0664936635686062,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0003572661301185,
+    "gpu_imbalance_max": 1.00079345703125,
+    "node_imbalance_mean": 1.0001191040565227,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.4761080687073456,
+    "gpu_imbalance_max": 2.37872314453125,
+    "node_imbalance_mean": 1.452380739409348,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.457831722566451,
+    "gpu_imbalance_max": 2.35791015625,
+    "node_imbalance_mean": 1.452380739409348,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.6098438131398167,
+    "gpu_imbalance_max": 2.6531982421875,
+    "node_imbalance_mean": 1.4285291474441002,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.4325484352550286,
+    "gpu_imbalance_max": 2.349466959635417,
+    "node_imbalance_mean": 1.4274810264850486,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 1.7009358022404815,
+    "gpu_imbalance_max": 2.7203369140625,
+    "node_imbalance_mean": 1.371045342807112,
+    "replica_lower_bound_mean": 1.0014459018049569
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.3726216634114583,
+    "gpu_imbalance_max": 2.22650146484375,
+    "node_imbalance_mean": 1.3672219638166756,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0265467150457974,
+    "gpu_imbalance_max": 1.0401123046875,
+    "node_imbalance_mean": 1.004483683669117,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0042378217324441,
+    "gpu_imbalance_max": 1.00909423828125,
+    "node_imbalance_mean": 1.0011235094618525,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.192982553065508,
+    "gpu_imbalance_max": 1.40673828125,
+    "node_imbalance_mean": 1.0369061405827062,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0050857368556931,
+    "gpu_imbalance_max": 1.01171875,
+    "node_imbalance_mean": 1.001297088522825,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.3698962282077431,
+    "gpu_imbalance_max": 1.9178466796875,
+    "node_imbalance_mean": 1.0662330934371071,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0049456716954022,
+    "gpu_imbalance_max": 1.0116475423177085,
+    "node_imbalance_mean": 1.0016038900917192,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.0250631448279068,
+    "gpu_imbalance_max": 1.0407918294270835,
+    "node_imbalance_mean": 1.0045839315956253,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002219013784126,
+    "gpu_imbalance_max": 1.0007731119791665,
+    "node_imbalance_mean": 1.0000667857027603,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.190478585780352,
+    "gpu_imbalance_max": 1.4030029296875,
+    "node_imbalance_mean": 1.0363764617243423,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002305480255478,
+    "gpu_imbalance_max": 1.000518798828125,
+    "node_imbalance_mean": 1.0000701775887528,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "gpus": 32,
+   "nodes": 4,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.3663909511221648,
+    "gpu_imbalance_max": 1.78135986328125,
+    "node_imbalance_mean": 1.0662789556193233,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0002236176789885,
+    "gpu_imbalance_max": 1.0009562174479167,
+    "node_imbalance_mean": 1.0000688736217023,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.7814436287715516,
+    "gpu_imbalance_max": 5.8828125,
+    "node_imbalance_mean": 2.6757854593211206,
+    "replica_lower_bound_mean": 1.7254975417564655
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.8599685142780173,
+    "gpu_imbalance_max": 6.50830078125,
+    "node_imbalance_mean": 2.610681994207974,
+    "replica_lower_bound_mean": 1.8048600821659482
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "none",
+   "history": {
+    "gpu_imbalance_mean": 3.8932221511314653,
+    "gpu_imbalance_max": 7.52294921875,
+    "node_imbalance_mean": 2.449683353818696,
+    "replica_lower_bound_mean": 1.9023479593211208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 2.882147427262931,
+    "gpu_imbalance_max": 4.810791015625,
+    "node_imbalance_mean": 2.6757854593211206,
+    "replica_lower_bound_mean": 1.7254975417564655
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.8770541487068964,
+    "gpu_imbalance_max": 4.87890625,
+    "node_imbalance_mean": 2.6757854593211206,
+    "replica_lower_bound_mean": 1.7254975417564655
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 3.1703175511853448,
+    "gpu_imbalance_max": 5.335693359375,
+    "node_imbalance_mean": 2.610681994207974,
+    "replica_lower_bound_mean": 1.8048600821659482
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.8596696524784484,
+    "gpu_imbalance_max": 4.637451171875,
+    "node_imbalance_mean": 2.610681994207974,
+    "replica_lower_bound_mean": 1.8048600821659482
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 3.358006970635776,
+    "gpu_imbalance_max": 6.049560546875,
+    "node_imbalance_mean": 2.449683353818696,
+    "replica_lower_bound_mean": 1.9023479593211208
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.7635792699353448,
+    "gpu_imbalance_max": 5.27880859375,
+    "node_imbalance_mean": 2.449683353818696,
+    "replica_lower_bound_mean": 1.9023479593211208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.7862380455280173,
+    "gpu_imbalance_max": 3.08203125,
+    "node_imbalance_mean": 1.2957837334994613,
+    "replica_lower_bound_mean": 1.7254975417564655
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.7832788927801724,
+    "gpu_imbalance_max": 3.08203125,
+    "node_imbalance_mean": 1.2957137535358298,
+    "replica_lower_bound_mean": 1.7254975417564655
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.9121304216056034,
+    "gpu_imbalance_max": 3.8837890625,
+    "node_imbalance_mean": 1.2619723615975216,
+    "replica_lower_bound_mean": 1.8048600821659482
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.8632181101831897,
+    "gpu_imbalance_max": 3.88232421875,
+    "node_imbalance_mean": 1.3094150937836746,
+    "replica_lower_bound_mean": 1.8048600821659482
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 2.1335491311961206,
+    "gpu_imbalance_max": 4.63916015625,
+    "node_imbalance_mean": 1.2194755817281788,
+    "replica_lower_bound_mean": 1.9023479593211208
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.9615225956357758,
+    "gpu_imbalance_max": 4.63134765625,
+    "node_imbalance_mean": 1.338506764379041,
+    "replica_lower_bound_mean": 1.9023479593211208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.7855729727909482,
+    "gpu_imbalance_max": 3.08203125,
+    "node_imbalance_mean": 1.2953354408001077,
+    "replica_lower_bound_mean": 1.7254975417564655
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.7814436287715518,
+    "gpu_imbalance_max": 3.08203125,
+    "node_imbalance_mean": 1.2947224584119073,
+    "replica_lower_bound_mean": 1.7254975417564655
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.912542935075431,
+    "gpu_imbalance_max": 3.8837890625,
+    "node_imbalance_mean": 1.261426202182112,
+    "replica_lower_bound_mean": 1.8048600821659482
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.8624435950969827,
+    "gpu_imbalance_max": 3.88232421875,
+    "node_imbalance_mean": 1.3094150937836746,
+    "replica_lower_bound_mean": 1.8048600821659482
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 256,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 2.134386786099138,
+    "gpu_imbalance_max": 4.63916015625,
+    "node_imbalance_mean": 1.2190804317079742,
+    "replica_lower_bound_mean": 1.9023479593211208
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.9599188442887931,
+    "gpu_imbalance_max": 4.63134765625,
+    "node_imbalance_mean": 1.3383699614426185,
+    "replica_lower_bound_mean": 1.9023479593211208
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 2.743694436961207,
+    "gpu_imbalance_max": 4.710937500000001,
+    "node_imbalance_mean": 2.6757854593211206,
+    "replica_lower_bound_mean": 1.021484375
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.7262208434357036,
+    "gpu_imbalance_max": 4.653198242187501,
+    "node_imbalance_mean": 2.6757854593211206,
+    "replica_lower_bound_mean": 1.0208824420797413
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 3.0317179361979165,
+    "gpu_imbalance_max": 5.716552734375,
+    "node_imbalance_mean": 2.610681994207974,
+    "replica_lower_bound_mean": 1.130070828843391
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.6658784712868173,
+    "gpu_imbalance_max": 4.6328125,
+    "node_imbalance_mean": 2.610681994207974,
+    "replica_lower_bound_mean": 1.0217320233926006
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "hierarchical",
+   "history": {
+    "gpu_imbalance_mean": 3.211284067438937,
+    "gpu_imbalance_max": 6.474853515625001,
+    "node_imbalance_mean": 2.449683353818696,
+    "replica_lower_bound_mean": 1.3221140894396552
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 2.506268450857579,
+    "gpu_imbalance_max": 4.3739013671875,
+    "node_imbalance_mean": 2.449683353818696,
+    "replica_lower_bound_mean": 1.0137886836610992
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.0487070067958488,
+    "gpu_imbalance_max": 1.08447265625,
+    "node_imbalance_mean": 1.0149272874854076,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0165871104974855,
+    "gpu_imbalance_max": 1.0406494140625002,
+    "node_imbalance_mean": 1.0105149104677398,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.3043789567618536,
+    "gpu_imbalance_max": 1.68359375,
+    "node_imbalance_mean": 1.078909735217666,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0171158012302444,
+    "gpu_imbalance_max": 1.0450846354166667,
+    "node_imbalance_mean": 1.0106244054333917,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global",
+   "history": {
+    "gpu_imbalance_mean": 1.6062292340158046,
+    "gpu_imbalance_max": 2.61376953125,
+    "node_imbalance_mean": 1.1451560097179194,
+    "replica_lower_bound_mean": 1.0316968895923133
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.016302525312051,
+    "gpu_imbalance_max": 1.03399658203125,
+    "node_imbalance_mean": 1.0092878144362876,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.042473523370151,
+    "gpu_imbalance_max": 1.0568847656250002,
+    "node_imbalance_mean": 1.0096037653279422,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0017724749685704,
+    "gpu_imbalance_max": 1.0061035156250002,
+    "node_imbalance_mean": 1.0010457444465024,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.2908478133979886,
+    "gpu_imbalance_max": 1.565185546875,
+    "node_imbalance_mean": 1.074057931383255,
+    "replica_lower_bound_mean": 1.0
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0017600574712644,
+    "gpu_imbalance_max": 1.0047607421875,
+    "node_imbalance_mean": 1.0010380624354571,
+    "replica_lower_bound_mean": 1.0
+   }
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "gpus": 64,
+   "nodes": 8,
+   "replicas": 320,
+   "policy": "global+swap",
+   "history": {
+    "gpu_imbalance_mean": 1.582281564295977,
+    "gpu_imbalance_max": 2.4757080078125,
+    "node_imbalance_mean": 1.139362357755013,
+    "replica_lower_bound_mean": 1.0316968895923133
+   },
+   "oracle": {
+    "gpu_imbalance_mean": 1.0015691246696685,
+    "gpu_imbalance_max": 1.003662109375,
+    "node_imbalance_mean": 1.0009253403236125,
+    "replica_lower_bound_mean": 1.0
+   }
+  }
+ ],
+ "token_level": [
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3935012817382812,
+    "1024": 1.3092498779296875,
+    "4096": 1.2879867553710938,
+    "32768": 1.2795333862304688
+   },
+   "nodes_per_token": 3.1250572204589844
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3902587890625,
+    "1024": 1.2981948852539062,
+    "4096": 1.27471923828125,
+    "32768": 1.2657089233398438
+   },
+   "nodes_per_token": 3.1247901916503906
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3922882080078125,
+    "1024": 1.305389404296875,
+    "4096": 1.2792739868164062,
+    "32768": 1.2699356079101562
+   },
+   "nodes_per_token": 3.1276168823242188
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2739181518554688,
+    "1024": 1.14044189453125,
+    "4096": 1.0772171020507812,
+    "32768": 1.0497283935546875
+   },
+   "nodes_per_token": 3.12994384765625
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2820968627929688,
+    "1024": 1.1578903198242188,
+    "4096": 1.1100082397460938,
+    "32768": 1.0916748046875
+   },
+   "nodes_per_token": 3.1286144256591797
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3039169311523438,
+    "1024": 1.1916961669921875,
+    "4096": 1.1539993286132812,
+    "32768": 1.14483642578125
+   },
+   "nodes_per_token": 3.128568649291992
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2643356323242188,
+    "1024": 1.1315994262695312,
+    "4096": 1.0702743530273438,
+    "32768": 1.0376968383789062
+   },
+   "nodes_per_token": 3.6145496368408203
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2752609252929688,
+    "1024": 1.1487808227539062,
+    "4096": 1.0955734252929688,
+    "32768": 1.07183837890625
+   },
+   "nodes_per_token": 3.614900588989258
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2908782958984375,
+    "1024": 1.1810684204101562,
+    "4096": 1.1407623291015625,
+    "32768": 1.1267471313476562
+   },
+   "nodes_per_token": 3.615570068359375
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.26531982421875,
+    "1024": 1.130096435546875,
+    "4096": 1.0670852661132812,
+    "32768": 1.0315628051757812
+   },
+   "nodes_per_token": 3.614187240600586
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2756500244140625,
+    "1024": 1.1494522094726562,
+    "4096": 1.0965652465820312,
+    "32768": 1.0739517211914062
+   },
+   "nodes_per_token": 3.6147537231445312
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2907257080078125,
+    "1024": 1.1800689697265625,
+    "4096": 1.141357421875,
+    "32768": 1.1286392211914062
+   },
+   "nodes_per_token": 3.6156044006347656
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2740631103515625,
+    "1024": 1.1397781372070312,
+    "4096": 1.0785064697265625,
+    "32768": 1.045440673828125
+   },
+   "nodes_per_token": 3.12994384765625
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.285736083984375,
+    "1024": 1.1565704345703125,
+    "4096": 1.1067276000976562,
+    "32768": 1.084320068359375
+   },
+   "nodes_per_token": 3.1286144256591797
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3041000366210938,
+    "1024": 1.187530517578125,
+    "4096": 1.1483154296875,
+    "32768": 1.1323623657226562
+   },
+   "nodes_per_token": 3.128568649291992
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.26416015625,
+    "1024": 1.1332168579101562,
+    "4096": 1.06866455078125,
+    "32768": 1.0350570678710938
+   },
+   "nodes_per_token": 3.614583969116211
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2731399536132812,
+    "1024": 1.15069580078125,
+    "4096": 1.0976028442382812,
+    "32768": 1.0748519897460938
+   },
+   "nodes_per_token": 3.6140918731689453
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2939224243164062,
+    "1024": 1.1791229248046875,
+    "4096": 1.13690185546875,
+    "32768": 1.12310791015625
+   },
+   "nodes_per_token": 3.613567352294922
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2637939453125,
+    "1024": 1.1314773559570312,
+    "4096": 1.0665817260742188,
+    "32768": 1.0304718017578125
+   },
+   "nodes_per_token": 3.615030288696289
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2730712890625,
+    "1024": 1.1483383178710938,
+    "4096": 1.0944366455078125,
+    "32768": 1.0686874389648438
+   },
+   "nodes_per_token": 3.6140594482421875
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.292144775390625,
+    "1024": 1.1784286499023438,
+    "4096": 1.1368789672851562,
+    "32768": 1.1242446899414062
+   },
+   "nodes_per_token": 3.614103317260742
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.275970458984375,
+    "1024": 1.1414947509765625,
+    "4096": 1.0763473510742188,
+    "32768": 1.0440216064453125
+   },
+   "nodes_per_token": 3.12994384765625
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2835769653320312,
+    "1024": 1.1521453857421875,
+    "4096": 1.0950164794921875,
+    "32768": 1.0721359252929688
+   },
+   "nodes_per_token": 3.1286144256591797
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2972183227539062,
+    "1024": 1.178497314453125,
+    "4096": 1.1348724365234375,
+    "32768": 1.1187057495117188
+   },
+   "nodes_per_token": 3.128568649291992
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2636566162109375,
+    "1024": 1.1331787109375,
+    "4096": 1.06951904296875,
+    "32768": 1.029144287109375
+   },
+   "nodes_per_token": 3.6123809814453125
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2721939086914062,
+    "1024": 1.1458663940429688,
+    "4096": 1.0920562744140625,
+    "32768": 1.0720748901367188
+   },
+   "nodes_per_token": 3.612520217895508
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2879257202148438,
+    "1024": 1.1736297607421875,
+    "4096": 1.1329421997070312,
+    "32768": 1.1173248291015625
+   },
+   "nodes_per_token": 3.6128597259521484
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2664031982421875,
+    "1024": 1.13134765625,
+    "4096": 1.0673294067382812,
+    "32768": 1.0268325805664062
+   },
+   "nodes_per_token": 3.6110000610351562
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2726287841796875,
+    "1024": 1.1454238891601562,
+    "4096": 1.0866241455078125,
+    "32768": 1.0653228759765625
+   },
+   "nodes_per_token": 3.611143112182617
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2874603271484375,
+    "1024": 1.1721878051757812,
+    "4096": 1.1280288696289062,
+    "32768": 1.115814208984375
+   },
+   "nodes_per_token": 3.6119613647460938
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 1.6202850341796875,
+    "1024": 1.468780517578125,
+    "4096": 1.4215087890625,
+    "32768": 1.4071807861328125
+   },
+   "nodes_per_token": 3.9721813201904297
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 1.6191558837890625,
+    "1024": 1.4639434814453125,
+    "4096": 1.4163360595703125,
+    "32768": 1.404632568359375
+   },
+   "nodes_per_token": 3.972738265991211
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 1.6172943115234375,
+    "1024": 1.4681549072265625,
+    "4096": 1.421966552734375,
+    "32768": 1.414459228515625
+   },
+   "nodes_per_token": 3.9728622436523438
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4832916259765625,
+    "1024": 1.2893829345703125,
+    "4096": 1.211578369140625,
+    "32768": 1.1771240234375
+   },
+   "nodes_per_token": 3.9721813201904297
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4996490478515625,
+    "1024": 1.3080902099609375,
+    "4096": 1.240325927734375,
+    "32768": 1.2186279296875
+   },
+   "nodes_per_token": 3.972738265991211
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.526031494140625,
+    "1024": 1.3465728759765625,
+    "4096": 1.283233642578125,
+    "32768": 1.269866943359375
+   },
+   "nodes_per_token": 3.9728622436523438
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.432708740234375,
+    "1024": 1.2180938720703125,
+    "4096": 1.1226806640625,
+    "32768": 1.0859832763671875
+   },
+   "nodes_per_token": 5.295886993408203
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4497222900390625,
+    "1024": 1.240234375,
+    "4096": 1.158355712890625,
+    "32768": 1.125335693359375
+   },
+   "nodes_per_token": 5.297830581665039
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.483001708984375,
+    "1024": 1.297271728515625,
+    "4096": 1.238525390625,
+    "32768": 1.21826171875
+   },
+   "nodes_per_token": 5.296663284301758
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.432830810546875,
+    "1024": 1.213287353515625,
+    "4096": 1.1066436767578125,
+    "32768": 1.05072021484375
+   },
+   "nodes_per_token": 5.295034408569336
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4505462646484375,
+    "1024": 1.242279052734375,
+    "4096": 1.156219482421875,
+    "32768": 1.1262359619140625
+   },
+   "nodes_per_token": 5.29759407043457
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4822845458984375,
+    "1024": 1.301605224609375,
+    "4096": 1.2425079345703125,
+    "32768": 1.2228851318359375
+   },
+   "nodes_per_token": 5.295373916625977
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4861602783203125,
+    "1024": 1.2847137451171875,
+    "4096": 1.1978607177734375,
+    "32768": 1.153289794921875
+   },
+   "nodes_per_token": 3.9721813201904297
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4945220947265625,
+    "1024": 1.299591064453125,
+    "4096": 1.2261199951171875,
+    "32768": 1.196502685546875
+   },
+   "nodes_per_token": 3.972738265991211
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.517913818359375,
+    "1024": 1.338134765625,
+    "4096": 1.279327392578125,
+    "32768": 1.2604217529296875
+   },
+   "nodes_per_token": 3.9728622436523438
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.43145751953125,
+    "1024": 1.2140960693359375,
+    "4096": 1.110870361328125,
+    "32768": 1.052215576171875
+   },
+   "nodes_per_token": 5.293102264404297
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4439849853515625,
+    "1024": 1.23480224609375,
+    "4096": 1.1453399658203125,
+    "32768": 1.1029205322265625
+   },
+   "nodes_per_token": 5.291723251342773
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4745941162109375,
+    "1024": 1.2826995849609375,
+    "4096": 1.2144775390625,
+    "32768": 1.1929168701171875
+   },
+   "nodes_per_token": 5.2903289794921875
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.430755615234375,
+    "1024": 1.21270751953125,
+    "4096": 1.106658935546875,
+    "32768": 1.0467376708984375
+   },
+   "nodes_per_token": 5.291877746582031
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4449462890625,
+    "1024": 1.2308807373046875,
+    "4096": 1.141693115234375,
+    "32768": 1.096282958984375
+   },
+   "nodes_per_token": 5.292671203613281
+  },
+  {
+   "scenario": "mild",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.47015380859375,
+    "1024": 1.2768707275390625,
+    "4096": 1.20635986328125,
+    "32768": 1.18377685546875
+   },
+   "nodes_per_token": 5.292095184326172
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 2.3049545288085938,
+    "1024": 2.2819671630859375,
+    "4096": 2.2773361206054688,
+    "32768": 2.2762451171875
+   },
+   "nodes_per_token": 3.1315536499023438
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 2.33795166015625,
+    "1024": 2.312225341796875,
+    "4096": 2.3057479858398438,
+    "32768": 2.3047256469726562
+   },
+   "nodes_per_token": 3.124940872192383
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 2.4303741455078125,
+    "1024": 2.4005889892578125,
+    "4096": 2.392974853515625,
+    "32768": 2.3904647827148438
+   },
+   "nodes_per_token": 3.124889373779297
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4186630249023438,
+    "1024": 1.3570938110351562,
+    "4096": 1.340911865234375,
+    "32768": 1.3358001708984375
+   },
+   "nodes_per_token": 3.158353805541992
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.5017776489257812,
+    "1024": 1.4467086791992188,
+    "4096": 1.4306259155273438,
+    "32768": 1.4249649047851562
+   },
+   "nodes_per_token": 3.156709671020508
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7958297729492188,
+    "1024": 1.7548065185546875,
+    "4096": 1.7428359985351562,
+    "32768": 1.7384796142578125
+   },
+   "nodes_per_token": 3.1513633728027344
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3837051391601562,
+    "1024": 1.3106155395507812,
+    "4096": 1.2901840209960938,
+    "32768": 1.2824325561523438
+   },
+   "nodes_per_token": 3.6338443756103516
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4573898315429688,
+    "1024": 1.3984756469726562,
+    "4096": 1.3799362182617188,
+    "32768": 1.373291015625
+   },
+   "nodes_per_token": 3.632112503051758
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.749603271484375,
+    "1024": 1.7130203247070312,
+    "4096": 1.7021560668945312,
+    "32768": 1.70025634765625
+   },
+   "nodes_per_token": 3.6316890716552734
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3838119506835938,
+    "1024": 1.310638427734375,
+    "4096": 1.2896347045898438,
+    "32768": 1.2800369262695312
+   },
+   "nodes_per_token": 3.633695602416992
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.459228515625,
+    "1024": 1.3997726440429688,
+    "4096": 1.3824615478515625,
+    "32768": 1.3754806518554688
+   },
+   "nodes_per_token": 3.632139205932617
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7531814575195312,
+    "1024": 1.7200469970703125,
+    "4096": 1.710845947265625,
+    "32768": 1.7085037231445312
+   },
+   "nodes_per_token": 3.631458282470703
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3043289184570312,
+    "1024": 1.1837844848632812,
+    "4096": 1.1289138793945312,
+    "32768": 1.10394287109375
+   },
+   "nodes_per_token": 3.158353805541992
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4041900634765625,
+    "1024": 1.3279571533203125,
+    "4096": 1.3049697875976562,
+    "32768": 1.3004531860351562
+   },
+   "nodes_per_token": 3.156709671020508
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.6590652465820312,
+    "1024": 1.6184768676757812,
+    "4096": 1.6085891723632812,
+    "32768": 1.6061859130859375
+   },
+   "nodes_per_token": 3.1513633728027344
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2631683349609375,
+    "1024": 1.1304702758789062,
+    "4096": 1.0675201416015625,
+    "32768": 1.0311660766601562
+   },
+   "nodes_per_token": 3.630819320678711
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3921279907226562,
+    "1024": 1.3180313110351562,
+    "4096": 1.300201416015625,
+    "32768": 1.293487548828125
+   },
+   "nodes_per_token": 3.6297359466552734
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.6615829467773438,
+    "1024": 1.6221771240234375,
+    "4096": 1.610931396484375,
+    "32768": 1.6066207885742188
+   },
+   "nodes_per_token": 3.6254539489746094
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2646484375,
+    "1024": 1.1327285766601562,
+    "4096": 1.0686721801757812,
+    "32768": 1.03363037109375
+   },
+   "nodes_per_token": 3.6291847229003906
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3938064575195312,
+    "1024": 1.3219833374023438,
+    "4096": 1.3030624389648438,
+    "32768": 1.297210693359375
+   },
+   "nodes_per_token": 3.628202438354492
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.664947509765625,
+    "1024": 1.6263504028320312,
+    "4096": 1.6186676025390625,
+    "32768": 1.616973876953125
+   },
+   "nodes_per_token": 3.6250762939453125
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3082962036132812,
+    "1024": 1.1854019165039062,
+    "4096": 1.1301498413085938,
+    "32768": 1.099822998046875
+   },
+   "nodes_per_token": 3.158353805541992
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3901748657226562,
+    "1024": 1.306121826171875,
+    "4096": 1.2808837890625,
+    "32768": 1.2723159790039062
+   },
+   "nodes_per_token": 3.156709671020508
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.5610275268554688,
+    "1024": 1.501556396484375,
+    "4096": 1.4844894409179688,
+    "32768": 1.4803009033203125
+   },
+   "nodes_per_token": 3.1513633728027344
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.264678955078125,
+    "1024": 1.1322860717773438,
+    "4096": 1.0687789916992188,
+    "32768": 1.0309906005859375
+   },
+   "nodes_per_token": 3.6281280517578125
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3685150146484375,
+    "1024": 1.2857284545898438,
+    "4096": 1.261260986328125,
+    "32768": 1.2549209594726562
+   },
+   "nodes_per_token": 3.6224288940429688
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.5744781494140625,
+    "1024": 1.5237884521484375,
+    "4096": 1.5120315551757812,
+    "32768": 1.5086669921875
+   },
+   "nodes_per_token": 3.6173343658447266
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2650527954101562,
+    "1024": 1.1313934326171875,
+    "4096": 1.0690536499023438,
+    "32768": 1.0278854370117188
+   },
+   "nodes_per_token": 3.6250991821289062
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3688201904296875,
+    "1024": 1.2891464233398438,
+    "4096": 1.2708282470703125,
+    "32768": 1.2676773071289062
+   },
+   "nodes_per_token": 3.6212005615234375
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.5979080200195312,
+    "1024": 1.561798095703125,
+    "4096": 1.5536651611328125,
+    "32768": 1.5514297485351562
+   },
+   "nodes_per_token": 3.6175785064697266
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.402862548828125,
+    "1024": 3.3536834716796875,
+    "4096": 3.3439483642578125,
+    "32768": 3.342529296875
+   },
+   "nodes_per_token": 3.971099853515625
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.4402313232421875,
+    "1024": 3.3966827392578125,
+    "4096": 3.379608154296875,
+    "32768": 3.375
+   },
+   "nodes_per_token": 3.9715824127197266
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.6433258056640625,
+    "1024": 3.6053466796875,
+    "4096": 3.596649169921875,
+    "32768": 3.5932769775390625
+   },
+   "nodes_per_token": 3.9721603393554688
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 2.54241943359375,
+    "1024": 2.492889404296875,
+    "4096": 2.4821929931640625,
+    "32768": 2.47857666015625
+   },
+   "nodes_per_token": 3.971099853515625
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 2.418365478515625,
+    "1024": 2.3626861572265625,
+    "4096": 2.35223388671875,
+    "32768": 2.3480987548828125
+   },
+   "nodes_per_token": 3.9715824127197266
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 2.74359130859375,
+    "1024": 2.68585205078125,
+    "4096": 2.669891357421875,
+    "32768": 2.6643218994140625
+   },
+   "nodes_per_token": 3.9721603393554688
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 2.45452880859375,
+    "1024": 2.4151611328125,
+    "4096": 2.4069671630859375,
+    "32768": 2.4039764404296875
+   },
+   "nodes_per_token": 5.275617599487305
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 2.3082733154296875,
+    "1024": 2.2588653564453125,
+    "4096": 2.247222900390625,
+    "32768": 2.244293212890625
+   },
+   "nodes_per_token": 5.277374267578125
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 2.60809326171875,
+    "1024": 2.5533905029296875,
+    "4096": 2.5362091064453125,
+    "32768": 2.527740478515625
+   },
+   "nodes_per_token": 5.298822402954102
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 2.454833984375,
+    "1024": 2.415435791015625,
+    "4096": 2.406890869140625,
+    "32768": 2.403900146484375
+   },
+   "nodes_per_token": 5.275617599487305
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 2.3092498779296875,
+    "1024": 2.2598419189453125,
+    "4096": 2.248138427734375,
+    "32768": 2.2454376220703125
+   },
+   "nodes_per_token": 5.277374267578125
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 2.6100921630859375,
+    "1024": 2.5553436279296875,
+    "4096": 2.5381927490234375,
+    "32768": 2.5295562744140625
+   },
+   "nodes_per_token": 5.298822402954102
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7791748046875,
+    "1024": 1.601806640625,
+    "4096": 1.5186920166015625,
+    "32768": 1.479736328125
+   },
+   "nodes_per_token": 3.971099853515625
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.9457855224609375,
+    "1024": 1.8303680419921875,
+    "4096": 1.7983551025390625,
+    "32768": 1.7816009521484375
+   },
+   "nodes_per_token": 3.9715824127197266
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 2.3265228271484375,
+    "1024": 2.24334716796875,
+    "4096": 2.218902587890625,
+    "32768": 2.2091217041015625
+   },
+   "nodes_per_token": 3.9721603393554688
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.435394287109375,
+    "1024": 1.2139892578125,
+    "4096": 1.1110687255859375,
+    "32768": 1.056915283203125
+   },
+   "nodes_per_token": 5.339284896850586
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.62158203125,
+    "1024": 1.490234375,
+    "4096": 1.447906494140625,
+    "32768": 1.433349609375
+   },
+   "nodes_per_token": 5.3336181640625
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 2.021087646484375,
+    "1024": 1.935699462890625,
+    "4096": 1.9132232666015625,
+    "32768": 1.9035797119140625
+   },
+   "nodes_per_token": 5.324251174926758
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.43115234375,
+    "1024": 1.2130126953125,
+    "4096": 1.10797119140625,
+    "32768": 1.049285888671875
+   },
+   "nodes_per_token": 5.32843017578125
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.619720458984375,
+    "1024": 1.490478515625,
+    "4096": 1.4553985595703125,
+    "32768": 1.44354248046875
+   },
+   "nodes_per_token": 5.327404022216797
+  },
+  {
+   "scenario": "skewed",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 2.0073699951171875,
+    "1024": 1.920074462890625,
+    "4096": 1.8990936279296875,
+    "32768": 1.8931732177734375
+   },
+   "nodes_per_token": 5.3162384033203125
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.282470703125,
+    "1024": 3.2486572265625,
+    "4096": 3.239471435546875,
+    "32768": 3.2346343994140625
+   },
+   "nodes_per_token": 3.050149917602539
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.2768478393554688,
+    "1024": 3.254302978515625,
+    "4096": 3.2477874755859375,
+    "32768": 3.2462692260742188
+   },
+   "nodes_per_token": 3.0591773986816406
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.2087249755859375,
+    "1024": 3.1915664672851562,
+    "4096": 3.1896591186523438,
+    "32768": 3.1896591186523438
+   },
+   "nodes_per_token": 3.076244354248047
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7011260986328125,
+    "1024": 1.5974655151367188,
+    "4096": 1.5499267578125,
+    "32768": 1.5228042602539062
+   },
+   "nodes_per_token": 3.2644214630126953
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.8017654418945312,
+    "1024": 1.7467880249023438,
+    "4096": 1.7298507690429688,
+    "32768": 1.7258071899414062
+   },
+   "nodes_per_token": 3.2654361724853516
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.9136734008789062,
+    "1024": 1.8790512084960938,
+    "4096": 1.8733749389648438,
+    "32768": 1.8723678588867188
+   },
+   "nodes_per_token": 3.257204055786133
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2716598510742188,
+    "1024": 1.155609130859375,
+    "4096": 1.1049270629882812,
+    "32768": 1.0833663940429688
+   },
+   "nodes_per_token": 3.62896728515625
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.382537841796875,
+    "1024": 1.3074264526367188,
+    "4096": 1.2861099243164062,
+    "32768": 1.2801132202148438
+   },
+   "nodes_per_token": 3.629545211791992
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.5623397827148438,
+    "1024": 1.5070114135742188,
+    "4096": 1.4915847778320312,
+    "32768": 1.486480712890625
+   },
+   "nodes_per_token": 3.624300003051758
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2722702026367188,
+    "1024": 1.1555023193359375,
+    "4096": 1.1016311645507812,
+    "32768": 1.0753707885742188
+   },
+   "nodes_per_token": 3.6295318603515625
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3795700073242188,
+    "1024": 1.3019256591796875,
+    "4096": 1.2803802490234375,
+    "32768": 1.27197265625
+   },
+   "nodes_per_token": 3.6296138763427734
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.5592422485351562,
+    "1024": 1.5049285888671875,
+    "4096": 1.4855575561523438,
+    "32768": 1.4781951904296875
+   },
+   "nodes_per_token": 3.6246337890625
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7006149291992188,
+    "1024": 1.5872421264648438,
+    "4096": 1.53167724609375,
+    "32768": 1.4990921020507812
+   },
+   "nodes_per_token": 3.2644214630126953
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7695999145507812,
+    "1024": 1.7076263427734375,
+    "4096": 1.68731689453125,
+    "32768": 1.6831512451171875
+   },
+   "nodes_per_token": 3.2654361724853516
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.86053466796875,
+    "1024": 1.812042236328125,
+    "4096": 1.7961044311523438,
+    "32768": 1.7929534912109375
+   },
+   "nodes_per_token": 3.257204055786133
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2623367309570312,
+    "1024": 1.1319122314453125,
+    "4096": 1.0688934326171875,
+    "32768": 1.0308074951171875
+   },
+   "nodes_per_token": 3.6281661987304688
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3493728637695312,
+    "1024": 1.257904052734375,
+    "4096": 1.2291412353515625,
+    "32768": 1.2175750732421875
+   },
+   "nodes_per_token": 3.6252803802490234
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.48822021484375,
+    "1024": 1.4232635498046875,
+    "4096": 1.404144287109375,
+    "32768": 1.39892578125
+   },
+   "nodes_per_token": 3.6237106323242188
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2642822265625,
+    "1024": 1.1314010620117188,
+    "4096": 1.067169189453125,
+    "32768": 1.0303192138671875
+   },
+   "nodes_per_token": 3.6283302307128906
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.34130859375,
+    "1024": 1.2443389892578125,
+    "4096": 1.2142181396484375,
+    "32768": 1.2007064819335938
+   },
+   "nodes_per_token": 3.6248931884765625
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 288,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4768218994140625,
+    "1024": 1.413299560546875,
+    "4096": 1.3952255249023438,
+    "32768": 1.3920364379882812
+   },
+   "nodes_per_token": 3.6234359741210938
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.6982650756835938,
+    "1024": 1.5867462158203125,
+    "4096": 1.5324554443359375,
+    "32768": 1.5028152465820312
+   },
+   "nodes_per_token": 3.2644214630126953
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7410125732421875,
+    "1024": 1.6644439697265625,
+    "4096": 1.6390457153320312,
+    "32768": 1.6318817138671875
+   },
+   "nodes_per_token": 3.2654361724853516
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7870254516601562,
+    "1024": 1.7354507446289062,
+    "4096": 1.722564697265625,
+    "32768": 1.7198944091796875
+   },
+   "nodes_per_token": 3.257204055786133
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2648544311523438,
+    "1024": 1.1328201293945312,
+    "4096": 1.0665512084960938,
+    "32768": 1.02789306640625
+   },
+   "nodes_per_token": 3.6247806549072266
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.3361358642578125,
+    "1024": 1.2402267456054688,
+    "4096": 1.21087646484375,
+    "32768": 1.2023696899414062
+   },
+   "nodes_per_token": 3.623655319213867
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.4878311157226562,
+    "1024": 1.4256210327148438,
+    "4096": 1.4101333618164062,
+    "32768": 1.4057464599609375
+   },
+   "nodes_per_token": 3.6198978424072266
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.2629776000976562,
+    "1024": 1.130767822265625,
+    "4096": 1.0666885375976562,
+    "32768": 1.0282669067382812
+   },
+   "nodes_per_token": 3.6235313415527344
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.33148193359375,
+    "1024": 1.2358322143554688,
+    "4096": 1.2076950073242188,
+    "32768": 1.19891357421875
+   },
+   "nodes_per_token": 3.6228694915771484
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "32gpu-4node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.46820068359375,
+    "1024": 1.4089279174804688,
+    "4096": 1.3938751220703125,
+    "32768": 1.3902816772460938
+   },
+   "nodes_per_token": 3.618703842163086
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.926666259765625,
+    "1024": 3.8726806640625,
+    "4096": 3.8633270263671875,
+    "32768": 3.8602142333984375
+   },
+   "nodes_per_token": 3.8426990509033203
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.9566650390625,
+    "1024": 3.9120635986328125,
+    "4096": 3.901519775390625,
+    "32768": 3.897491455078125
+   },
+   "nodes_per_token": 3.8602294921875
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "none",
+   "gpu_imbalance_by_batch": {
+    "256": 3.972503662109375,
+    "1024": 3.9459075927734375,
+    "4096": 3.9407958984375,
+    "32768": 3.9391937255859375
+   },
+   "nodes_per_token": 3.8902130126953125
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 3.24334716796875,
+    "1024": 3.0731048583984375,
+    "4096": 3.0176544189453125,
+    "32768": 2.99603271484375
+   },
+   "nodes_per_token": 3.8426990509033203
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 3.403778076171875,
+    "1024": 3.30877685546875,
+    "4096": 3.2823333740234375,
+    "32768": 3.27423095703125
+   },
+   "nodes_per_token": 3.8602294921875
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 3.5699005126953125,
+    "1024": 3.5128631591796875,
+    "4096": 3.49658203125,
+    "32768": 3.49127197265625
+   },
+   "nodes_per_token": 3.8902130126953125
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.9056549072265625,
+    "1024": 1.834503173828125,
+    "4096": 1.81500244140625,
+    "32768": 1.8079071044921875
+   },
+   "nodes_per_token": 5.29583740234375
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.94805908203125,
+    "1024": 1.87542724609375,
+    "4096": 1.8577423095703125,
+    "32768": 1.849700927734375
+   },
+   "nodes_per_token": 5.307024002075195
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 2.173248291015625,
+    "1024": 2.114013671875,
+    "4096": 2.095672607421875,
+    "32768": 2.0908355712890625
+   },
+   "nodes_per_token": 5.310003280639648
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.90570068359375,
+    "1024": 1.8342132568359375,
+    "4096": 1.81439208984375,
+    "32768": 1.8070220947265625
+   },
+   "nodes_per_token": 5.296010971069336
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.94793701171875,
+    "1024": 1.8747711181640625,
+    "4096": 1.8584747314453125,
+    "32768": 1.852447509765625
+   },
+   "nodes_per_token": 5.307498931884766
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 256,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 2.174346923828125,
+    "1024": 2.11639404296875,
+    "4096": 2.100006103515625,
+    "32768": 2.095428466796875
+   },
+   "nodes_per_token": 5.310125350952148
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 3.20306396484375,
+    "1024": 2.9908294677734375,
+    "4096": 2.8934326171875,
+    "32768": 2.8375091552734375
+   },
+   "nodes_per_token": 3.8426990509033203
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 3.3174896240234375,
+    "1024": 3.2007598876953125,
+    "4096": 3.1678619384765625,
+    "32768": 3.1601409912109375
+   },
+   "nodes_per_token": 3.8602294921875
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "hierarchical",
+   "gpu_imbalance_by_batch": {
+    "256": 3.4245758056640625,
+    "1024": 3.3378143310546875,
+    "4096": 3.3118896484375,
+    "32768": 3.306396484375
+   },
+   "nodes_per_token": 3.8902130126953125
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.430694580078125,
+    "1024": 1.2116851806640625,
+    "4096": 1.1092376708984375,
+    "32768": 1.0525360107421875
+   },
+   "nodes_per_token": 5.332988739013672
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.5495452880859375,
+    "1024": 1.393157958984375,
+    "4096": 1.3419952392578125,
+    "32768": 1.3278350830078125
+   },
+   "nodes_per_token": 5.329002380371094
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global",
+   "gpu_imbalance_by_batch": {
+    "256": 1.8273773193359375,
+    "1024": 1.721160888671875,
+    "4096": 1.6920013427734375,
+    "32768": 1.6867523193359375
+   },
+   "nodes_per_token": 5.321388244628906
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.0,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.431976318359375,
+    "1024": 1.2122955322265625,
+    "4096": 1.1063232421875,
+    "32768": 1.047760009765625
+   },
+   "nodes_per_token": 5.321418762207031
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.3,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.540618896484375,
+    "1024": 1.379974365234375,
+    "4096": 1.3202972412109375,
+    "32768": 1.30084228515625
+   },
+   "nodes_per_token": 5.316375732421875
+  },
+  {
+   "scenario": "hot-groups",
+   "drift": 0.6,
+   "config": "64gpu-8node",
+   "replicas": 320,
+   "policy": "global+swap",
+   "gpu_imbalance_by_batch": {
+    "256": 1.7938232421875,
+    "1024": 1.6810150146484375,
+    "4096": 1.644927978515625,
+    "32768": 1.635955810546875
+   },
+   "nodes_per_token": 5.3106842041015625
+  }
+ ],
+ "invariant_errors": [],
+ "swap_iters": {
+  "mean": 33.355172413793106,
+  "max": 89,
+  "cap": 5000
+ },
+ "runtime": [
+  {
+   "gpus": 8,
+   "replicas": 264,
+   "nodes": 1,
+   "policy": "global",
+   "upstream_s": 0.366613200001666,
+   "heap_s": 0.012777899999491638,
+   "speedup": 28.691193389856824,
+   "identical_output": true
+  },
+  {
+   "gpus": 8,
+   "replicas": 264,
+   "nodes": 1,
+   "policy": "hierarchical",
+   "upstream_s": 0.3550326999993558,
+   "heap_s": 0.018251199999212986,
+   "speedup": 19.452567503214325,
+   "identical_output": true
+  },
+  {
+   "gpus": 32,
+   "replicas": 288,
+   "nodes": 1,
+   "policy": "global",
+   "upstream_s": 0.8893768999987515,
+   "heap_s": 0.016815900000437978,
+   "speedup": 52.88904548526021,
+   "identical_output": true
+  },
+  {
+   "gpus": 32,
+   "replicas": 288,
+   "nodes": 4,
+   "policy": "hierarchical",
+   "upstream_s": 0.47461480000129086,
+   "heap_s": 0.01842199999919103,
+   "speedup": 25.76347845088116,
+   "identical_output": true
+  },
+  {
+   "gpus": 64,
+   "replicas": 320,
+   "nodes": 1,
+   "policy": "global",
+   "upstream_s": 1.6200212000003376,
+   "heap_s": 0.020257800000763382,
+   "speedup": 79.97024355750821,
+   "identical_output": true
+  },
+  {
+   "gpus": 64,
+   "replicas": 320,
+   "nodes": 8,
+   "policy": "hierarchical",
+   "upstream_s": 0.39916530000118655,
+   "heap_s": 0.014890800001012394,
+   "speedup": 26.80616890791953,
+   "identical_output": true
+  },
+  {
+   "gpus": 128,
+   "replicas": 384,
+   "nodes": 1,
+   "policy": "global",
+   "upstream_s": 3.053672000000006,
+   "heap_s": 0.026923599998553982,
+   "speedup": 113.41989927662026,
+   "identical_output": true
+  },
+  {
+   "gpus": 256,
+   "replicas": 512,
+   "nodes": 1,
+   "policy": "global",
+   "upstream_s": 5.996458099998563,
+   "heap_s": 0.037435499998537125,
+   "speedup": 160.18106076405786,
+   "identical_output": true
+  }
+ ],
+ "heap_equivalence": {
+  "checks": 38,
+  "failures": []
+ },
+ "total_seconds": 326.37507605552673
+}
