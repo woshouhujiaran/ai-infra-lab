@@ -14,3 +14,4 @@ Candidates for the daily run. Pick the first unchecked item that installs on Win
 - [x] triton-lang/triton tutorial: fused softmax kernel vs `torch.softmax` bandwidth (via `triton-windows`) (0010)
 - [x] karpathy/nanoGPT `CausalSelfAttention`: SDPA flash backend vs manual attention — memory/latency vs seq len (0011)
 - [x] picotron-style tensor parallel `ColumnParallelLinear` simulated with gloo on CPU (2 processes) — correctness vs single-process (0012)
+- [x] deepseek-ai/EPLB `rebalance_experts`: hierarchical vs global balance, redundancy, stale stats, runtime on synthetic DeepSeek-V3 routing (CPU) (0013)

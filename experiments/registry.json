@@ -119,6 +119,16 @@
       "device": "cpu",
       "date": "2026-11-05",
       "status": "done"
+    },
+    {
+      "id": "0013",
+      "slug": "eplb-expert-balancer",
+      "upstream": "deepseek-ai/EPLB",
+      "component": "eplb.py (rebalance_experts: replicate_experts + balanced_packing, hierarchical vs global policy)",
+      "topic": "synthetic DeepSeek-V3-style group-limited routing (256 experts, 8 groups, top-8, 58 layers) with mild / skewed / hot-group loads: GPU and node imbalance at 32 GPUs / 4 nodes and 64 GPUs / 8 nodes with 0-2 redundant experts per GPU for no EPLB vs hierarchical vs global vs global + pairwise-swap search; stale (variance-preserving drift) vs oracle statistics; token-level imbalance vs tokens per step and nodes per token with random replica choice; placement invariants; rebalance_experts runtime vs EP size, upstream vs heap balanced_packing (identical output)",
+      "device": "cpu",
+      "date": "2026-11-06",
+      "status": "done"
     }
   ]
 }
