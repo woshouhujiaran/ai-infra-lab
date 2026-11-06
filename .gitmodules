@@ -23,3 +23,6 @@
 [submodule "upstream/picotron"]
 	path = upstream/picotron
 	url = https://github.com/huggingface/picotron.git
+[submodule "upstream/EPLB"]
+	path = upstream/EPLB
+	url = https://github.com/deepseek-ai/EPLB.git
