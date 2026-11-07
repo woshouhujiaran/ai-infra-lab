@@ -26,3 +26,6 @@
 [submodule "upstream/EPLB"]
 	path = upstream/EPLB
 	url = https://github.com/deepseek-ai/EPLB.git
+[submodule "upstream/gpt-fast"]
+	path = upstream/gpt-fast
+	url = https://github.com/pytorch-labs/gpt-fast.git
