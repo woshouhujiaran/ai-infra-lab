@@ -21,7 +21,8 @@ llama2.c .bin checkpoints (same Llama-2 32k vocab) loaded into gpt-fast's Transf
 4. Acceptance on the real models: tokens per call vs k for two drafts and three sampling
    settings (bf16), against (1 - a^(k+1)) / (1 - a) from the measured per-position
    acceptance a = sum(min(p, q)); self-drafting in bf16 vs fp32.
-5. Eager bf16 wall clock: tokens/s vs plain decoding, and per-step costs that explain it.
+5. bf16 wall clock with only flex_attention compiled (the rest eager): tokens/s vs plain
+   decoding, and per-step costs that explain it.
 
 generate.py / model.py are imported unmodified; run.py patches module attributes
 (decode_n_tokens output shapes, model_forward's mask) and uses its own copy of generate()'s
@@ -55,6 +56,7 @@ from lab import gpu_guard  # noqa: E402
 GPU_INFO = gpu_guard.acquire()
 
 import generate as G  # noqa: E402
+import model as M  # noqa: E402
 from model import ModelArgs, Transformer  # noqa: E402
 from torch.nn.attention.flex_attention import create_block_mask as create_block_mask_eager  # noqa: E402
 
@@ -73,10 +75,12 @@ MAX_SEQ = 256  # stories15M was trained (and its RoPE table built) for 256 posit
 PROMPT_LEN = 16
 NEW_TOKENS = 200
 NUM_PROMPTS = 4
-KS = [1, 2, 3, 4, 6, 8]
+KS = [1, 2, 4, 8]
 ALPHA_K = 4
 TOY_V = 8
 TOY_TRIALS = 20000
+TOY_LONG_TRIALS = 1000
+TOY_LONG_TOKENS = 24
 TOY_SAMPLINGS = {"t1.0": dict(temperature=1.0, top_k=None), "t0.7-top3": dict(temperature=0.7, top_k=3)}
 VERIFY_OFFSETS = [64, 124, 200, 380]
 VERIFY_S = 9
@@ -446,7 +450,7 @@ def part_toy():
                 r = {"sampling": sname, "method": label, **chi_square(cnt, exact), "mean_alpha": alpha}
                 res["runs"].append(r)
                 print(f"  toy {sname:9s} {label:22s} chi2 {r['chi2']:7.1f}/{r['df']} p {r['p_value']:.3f} TV {r['tv']:.4f}")
-            for k, drop in [(1, False), (3, False), (1, True), (3, True)]:
+            for k, drop in [(1, False), (3, False), (1, True)]:
                 tgt = ToyTrigram(t_logits)
                 dft = ToyTrigram(d_logits, drop_fill=drop)
                 torch.manual_seed(SEED + 1)
@@ -466,6 +470,21 @@ def part_toy():
                 res["runs"].append(r)
                 print(f"  toy {sname:9s} {label:22s} chi2 {r['chi2']:7.1f}/{r['df']} p {r['p_value']:.3f} TV {r['tv']:.4f}"
                       f" tok/call {r['tokens_per_call']:.3f} fills {dft.fills} [{r['seconds']}s]")
+        # draft-cache fill: only matters when decoding continues after an all-accepted call
+        res["fill"] = []
+        sk = TOY_SAMPLINGS["t1.0"]
+        for k in [1, 3]:
+            for drop in [False, True]:
+                torch.manual_seed(SEED + 2)
+                acc = [0] * (k + 1)
+                for _ in range(TOY_LONG_TRIALS):
+                    _, c = speculative_generate(ToyTrigram(t_logits), ToyTrigram(d_logits, drop_fill=drop), prompt,
+                                                TOY_LONG_TOKENS, k, sk)
+                    acc = [a + b for a, b in zip(acc, c)]
+                r = {"k": k, "drop_fill": drop, "tokens": TOY_LONG_TOKENS, "trials": TOY_LONG_TRIALS,
+                     "tokens_per_call": mean_tokens_per_call(acc), "all_accepted_share": acc[-1] / sum(acc)}
+                res["fill"].append(r)
+                print(f"  toy fill k={k} drop={drop}: {r['tokens_per_call']:.3f} tok/call")
         # greedy: every prompt pair must reproduce target-only argmax decoding
         for k in [1, 3]:
             mism = 0
@@ -660,10 +679,14 @@ def write_md(R):
     for r in t["runs"]:
         L.append(f"| {r['sampling']} | {r['method']} | {r['chi2']} / {r['df']} | {r['p_value']:.3f} | {r['tv']:.4f} | "
                  f"{r.get('tokens_per_call', float('nan')):.3f} | {r.get('fills', '')} |")
+    L += ["", f"Draft-cache fill ablation (t1.0, {TOY_LONG_TOKENS} new tokens, {TOY_LONG_TRIALS} trials):", "",
+          "| k | fill | tokens/call | all-accepted calls |", "|---|---|---|---|"]
+    L += [f"| {r['k']} | {'dropped' if r['drop_fill'] else 'upstream'} | {r['tokens_per_call']:.3f} | {r['all_accepted_share']:.3f} |"
+          for r in t["fill"]]
     L += [""] + [f"- greedy k={g['k']}: {g['mismatches']} / {g['prompts']} sequences differ from target argmax decoding"
                  for g in t["greedy"]]
     rr = R["real"]
-    L += ["", "## 4. Acceptance on TinyStories (target stories110M, bf16)", "",
+    L += ["", "## 4. Acceptance on TinyStories (target stories110M, bf16, compiled flex_attention)", "",
           "| draft | sampling | k | tokens/call | pred. iid (mean a) | pred. position-wise | mean a | tok/s | speedup vs plain |",
           "|---|---|---|---|---|---|---|---|---|"]
     for r in rr["spec"]:
@@ -673,7 +696,7 @@ def write_md(R):
     L += ["", "| plain decoding | tok/s |", "|---|---|"] + [f"| {r['sampling']} | {r['tokens_per_s']:.1f} |" for r in rr["plain"]]
     L += ["", "### Self-drafting (draft = target, k = 4)", "", "| precision | sampling | tokens/call | calls with a rejection |", "|---|---|---|---|"]
     L += [f"| {r['precision']} | {r['sampling']} | {r['tokens_per_call']:.3f} | {r['calls_with_rejection']} / {r['calls']} |" for r in rr["self"]]
-    L += ["", "## 5. Eager bf16 per-step costs (position 100, median)", "", "| model | params | layers | decode step ms | other |", "|---|---|---|---|---|"]
+    L += ["", "## 5. bf16 per-step costs, compiled flex_attention (position 100, median)", "", "| model | params | layers | decode step ms | other |", "|---|---|---|---|---|"]
     for n, c in R["costs"].items():
         other = ", ".join(f"{k} {v:.2f}" for k, v in c.items() if k not in ("params_M", "layers", "decode_step_ms"))
         L.append(f"| {n} | {c['params_M']:.1f}M | {c['layers']} | {c['decode_step_ms']:.2f} | {other} |")
@@ -710,6 +733,9 @@ def main():
     t0 = time.time()
     R["toy"] = part_toy()
     print(f"   {time.time() - t0:.0f}s")
+    # Eager flex_attention runs an unfused, vmap-based reference path (~20 tok/s for stories110M);
+    # compile just the attention op so parts 4-5 measure the model, not that fallback.
+    M.flex_attention = torch.compile(M.flex_attention)
     print("4. real models")
     t0 = time.time()
     R["real"] = part_real(models, prompts, vocab)
