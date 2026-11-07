@@ -129,6 +129,16 @@
       "device": "cpu",
       "date": "2026-11-06",
       "status": "done"
+    },
+    {
+      "id": "0014",
+      "slug": "gptfast-speculative-decode",
+      "upstream": "meta-pytorch/gpt-fast",
+      "component": "generate.py (speculative_decode + generate() speculative loop) with model.py flex-attention Transformer",
+      "topic": "draft/verify speculative decoding with TinyStories stories15M / stories42M drafts for stories110M (llama2.c checkpoints): which upstream bugs break generate(draft_model=...) at HEAD; prefill-style vs offset-aware verify BlockMask vs sequential decode in eager vs torch.compile across the 128-token block edge; exactness of the rejection sampler on toy trigram models (chi-square vs analytic joint, draft-cache fill ablation, greedy); tokens per call vs k and sampling vs the (1 - a^(k+1)) / (1 - a) prediction; bf16 vs fp32 self-drafting; launch-bound per-step costs and tokens/s vs plain decoding",
+      "device": "cuda",
+      "date": "2026-11-07",
+      "status": "done"
     }
   ]
 }
