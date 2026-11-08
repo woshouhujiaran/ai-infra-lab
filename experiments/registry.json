@@ -139,6 +139,16 @@
       "device": "cuda",
       "date": "2026-11-07",
       "status": "done"
+    },
+    {
+      "id": "0015",
+      "slug": "nanovllm-store-kvcache",
+      "upstream": "GeeeekExplorer/nano-vllm",
+      "component": "layers/attention.py (store_kvcache_kernel + store_kvcache)",
+      "topic": "Triton paged KV-cache write: bit-exactness for fp32/fp16/bf16 with strided V from the fused qkv split and -1 CUDA-graph padding vs a naive torch index_put_ (writes padding into the last slot); compile failure for non-power-of-two num_kv_heads * head_dim; int32 slot * D overflow past 2^31 elements per layer silently landing in another layer of the shared kv_cache (int8 cache in a child process) and the per-model KV size where it starts; CUDA-graph GPU time, L2 vs DRAM bandwidth and eager launch cost vs D and token count for upstream vs masked int64 rewrite (1 / tiled tokens per program) vs index_put_ / index_copy_ / torch.compile / copy",
+      "device": "cuda",
+      "date": "2026-11-08",
+      "status": "done"
     }
   ]
 }

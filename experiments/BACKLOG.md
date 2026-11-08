@@ -16,4 +16,4 @@ Candidates for the daily run. Pick the first unchecked item that installs on Win
 - [x] picotron-style tensor parallel `ColumnParallelLinear` simulated with gloo on CPU (2 processes) — correctness vs single-process (0012)
 - [x] deepseek-ai/EPLB `rebalance_experts`: hierarchical vs global balance, redundancy, stale stats, runtime on synthetic DeepSeek-V3 routing (CPU) (0013)
 - [x] meta-pytorch/gpt-fast `speculative_decode`: HEAD breakage, verify-mask correctness, rejection-sampling exactness, acceptance vs k and speedup with TinyStories 15M/42M drafts for 110M (0014)
-- [ ] nano-vllm `store_kvcache` (Triton KV-cache write): exactness with strided V / -1 padding, non-power-of-two D, int32 `slot * D` overflow, bandwidth vs torch scatter ops, eager vs CUDA graph
+- [x] nano-vllm `store_kvcache` (Triton KV-cache write): exactness with strided V / -1 padding, non-power-of-two D, int32 `slot * D` overflow, bandwidth vs torch scatter ops, eager vs CUDA graph (0015)
