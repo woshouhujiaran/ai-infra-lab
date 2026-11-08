@@ -45,8 +45,9 @@ PERF_CACHE_BYTES = 128 * 2**20  # per K (and per V) cache, well above the 32 MB 
 PERF_DTYPE = torch.bfloat16
 PERF_SHAPES = [(2, 64), (8, 32), (8, 64), (8, 128), (32, 128), (5, 64), (32, 80)]  # (num_kv_heads, head_dim)
 PERF_TOKENS = [1, 16, 64, 256, 1024, 4096, 16384]  # <= 256: decode (random slots), else prefill (block runs)
-GRAPH_REPS = 20
-GRAPH_REPLAYS = 10
+GRAPH_REPLAYS = 15
+ROUNDS = 3  # methods interleaved per cell; medians over rounds
+L2_BYTES = 32 * 2**20
 CORRECT_SHAPES = [(2, 64), (8, 64), (8, 128), (32, 128)]
 CORRECT_DTYPES = [torch.float32, torch.float16, torch.bfloat16]
 CORRECT_SLOTS = 8192
@@ -332,7 +333,11 @@ def time_eager(fn, args, calls):
     return t_issue / calls * 1e6, t_wall / calls * 1e6
 
 
-def time_graph(fn, args):
+def graph_reps(N):
+    return 200 if N <= 256 else 100 if N <= 4096 else 20
+
+
+def time_graph(fn, args, reps):
     s = torch.cuda.Stream()
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
@@ -341,7 +346,7 @@ def time_graph(fn, args):
     torch.cuda.current_stream().wait_stream(s)
     g = torch.cuda.CUDAGraph()
     with torch.cuda.graph(g):
-        for _ in range(GRAPH_REPS):
+        for _ in range(reps):
             fn(*args)
     g.replay()
     torch.cuda.synchronize()
@@ -354,12 +359,22 @@ def time_graph(fn, args):
         e1.synchronize()
         times.append(e0.elapsed_time(e1))
     del g
-    return statistics.median(times) / GRAPH_REPS * 1e3
+    return statistics.median(times) / reps * 1e3
+
+
+def warm_gpu(seconds=2.0):
+    a = torch.randn(2048, 2048, device="cuda")
+    t0 = time.time()
+    while time.time() - t0 < seconds:
+        for _ in range(20):
+            a @ a
+        torch.cuda.synchronize()
 
 
 def perf(gen):
     rows = []
     item = torch.finfo(PERF_DTYPE).bits // 8
+    warm_gpu()
     for H, hd in PERF_SHAPES:
         D = H * hd
         num_slots = PERF_CACHE_BYTES // (D * item) // BLOCK_SIZE * BLOCK_SIZE
@@ -371,10 +386,13 @@ def perf(gen):
             key, value = make_qkv(N, H, hd, PERF_DTYPE, gen)
             nbytes = 4 * N * D * item + 4 * N
             args = (key, value, kc, vc, slots)
-            calls = 300 if N <= 256 else 60
+            calls = 200 if N <= 256 else 30
+            reps = graph_reps(N)
+            cell = {}
             for name, fn in METHODS.items():
                 row = {"kv_heads": H, "head_dim": hd, "D": D, "tokens": N, "pattern": pattern, "method": name,
-                       "bytes": nbytes}
+                       "bytes": nbytes, "l2_resident": 4 * N * D * item <= L2_BYTES, "graph_reps": reps,
+                       "issue": [], "wall": [], "graph": []}
                 kc.zero_()
                 vc.zero_()
                 try:
@@ -384,16 +402,35 @@ def perf(gen):
                         idx = slots.long()
                         row["exact"] = bool(torch.equal(kc.view(-1, D)[idx], key.reshape(N, D))
                                             and torch.equal(vc.view(-1, D)[idx], value.reshape(N, D)))
-                    issue, wall = time_eager(fn, args, calls)
-                    row.update(status="ok", issue_us=round(issue, 2), wall_us=round(wall, 2))
-                    try:
-                        gpu = time_graph(fn, args)
-                        row.update(graph_us=round(gpu, 2), graph_gbps=round(nbytes / gpu / 1e3, 1))
-                    except Exception as e:  # noqa: BLE001
-                        row.update(graph_us=None, graph_gbps=None, graph_error=short_error(e))
-                        torch.cuda.synchronize()
+                    row["status"] = "ok"
                 except Exception as e:  # noqa: BLE001
-                    row.update(status=short_error(e))
+                    row["status"] = short_error(e)
+                cell[name] = row
+            warm_gpu(0.3)  # torch.compile just compiled this shape with the GPU idle; restore clocks
+            for _ in range(ROUNDS):
+                for name, fn in METHODS.items():
+                    row = cell[name]
+                    if row["status"] != "ok":
+                        continue
+                    issue, wall = time_eager(fn, args, calls)
+                    row["issue"].append(issue)
+                    row["wall"].append(wall)
+                    try:
+                        row["graph"].append(time_graph(fn, args, reps))
+                    except Exception as e:  # noqa: BLE001
+                        row["graph_error"] = short_error(e)
+                        torch.cuda.synchronize()
+            for name, row in cell.items():
+                issue, wall, graph = row.pop("issue"), row.pop("wall"), row.pop("graph")
+                if row["status"] == "ok":
+                    row.update(issue_us=round(statistics.median(issue), 2),
+                               wall_us=round(statistics.median(wall), 2),
+                               wall_us_best=round(min(wall), 2),
+                               wall_us_rounds=[round(w, 2) for w in wall])
+                    if graph:
+                        gpu = statistics.median(graph)
+                        row.update(graph_us=round(gpu, 2), graph_gbps=round(nbytes / gpu / 1e3, 1),
+                                   graph_us_rounds=[round(x, 2) for x in graph])
                 rows.append(row)
                 print(f"perf {row}", flush=True)
         del kc, vc
@@ -472,8 +509,9 @@ def write_report(result):
               for r in result["overflow_thresholds"]]
     lines += [
         "",
-        f"## 4a. GPU time per call from CUDA-graph replay, us ({GRAPH_REPS} calls per graph, median of "
-        f"{GRAPH_REPLAYS} replays; bf16; K+V read and written)",
+        f"## 4a. GPU time per call from CUDA-graph replay, us (200 / 100 / 20 calls per graph for N <= 256 / "
+        f"<= 4096 / larger; median of {GRAPH_REPLAYS} replays, then median of {ROUNDS} interleaved rounds; "
+        "bf16; K+V read and written)",
         "",
         "| D (heads x dim) | tokens | " + " | ".join(names) + " | masked_tiled / upstream |",
         "|---|---|" + "---|" * (len(names) + 1),
@@ -492,22 +530,27 @@ def write_report(result):
         "",
         "## 4b. Effective bandwidth from CUDA-graph replay, GB/s (4 * N * D * 2 bytes + slot ids)",
         "",
-        "| D (heads x dim) | tokens | " + " | ".join(names) + " |",
-        "|---|---|" + "---|" * len(names),
+        "Back-to-back calls rewrite the same rows, so working sets <= 32 MB (the L2 size) are served from L2 "
+        "and can exceed the 256 GB/s DRAM peak.",
+        "",
+        "| D (heads x dim) | tokens | MiB moved | L2-resident | " + " | ".join(names) + " |",
+        "|---|---|---|---|" + "---|" * len(names),
     ]
     for H, hd in PERF_SHAPES:
         D = H * hd
         for N in PERF_TOKENS:
             if N < 1024:
                 continue
+            first = by[(D, H, N, "copy")]
             cells = [fmt(by[(D, H, N, n)].get("graph_gbps")) if by[(D, H, N, n)]["status"] == "ok" else "-"
                      for n in names]
-            lines.append(f"| {D} ({H}x{hd}) | {N} | " + " | ".join(cells) + " |")
+            lines.append(f"| {D} ({H}x{hd}) | {N} | {first['bytes'] / 2**20:.0f} | "
+                         f"{'yes' if first['l2_resident'] else 'no'} | " + " | ".join(cells) + " |")
     lines += [
         "",
-        "## 4c. Eager per-call cost, us (issue = CPU time to enqueue, wall = until the GPU finishes)",
+        f"## 4c. Eager per-call wall time, us (Python launch included; median / best of {ROUNDS} rounds)",
         "",
-        "| D (heads x dim) | tokens | " + " | ".join(f"{n} issue / wall" for n in names) + " |",
+        "| D (heads x dim) | tokens | " + " | ".join(names) + " |",
         "|---|---|" + "---|" * len(names),
     ]
     for H, hd in PERF_SHAPES:
@@ -516,7 +559,7 @@ def write_report(result):
             cells = []
             for n in names:
                 r = by[(D, H, N, n)]
-                cells.append(f"{fmt(r['issue_us'])} / {fmt(r['wall_us'])}" if r["status"] == "ok" else "-")
+                cells.append(f"{fmt(r['wall_us'])} / {fmt(r['wall_us_best'])}" if r["status"] == "ok" else "-")
             lines.append(f"| {D} ({H}x{hd}) | {N} | " + " | ".join(cells) + " |")
     bad = [r for r in perf_rows if r.get("exact") is False or r.get("graph_error")]
     lines += ["", f"Perf cells with a wrong result or a CUDA-graph error: {len(bad)}"]
@@ -557,8 +600,8 @@ def main():
         "block_size": BLOCK_SIZE,
         "perf_cache_bytes_per_tensor": PERF_CACHE_BYTES,
         "perf_dtype": str(PERF_DTYPE),
-        "graph_reps": GRAPH_REPS,
         "graph_replays": GRAPH_REPLAYS,
+        "rounds": ROUNDS,
         "triton": triton.__version__,
         "gpu": gpu,
         "correctness": corr,
