@@ -149,6 +149,16 @@
       "device": "cuda",
       "date": "2026-11-08",
       "status": "done"
+    },
+    {
+      "id": "0016",
+      "slug": "triton-tutorial-matmul",
+      "upstream": "triton-lang/triton",
+      "component": "python/tutorials/03-matrix-multiplication.py (matmul_kernel + CUDA autotune configs + matmul wrapper)",
+      "topic": "tutorial matmul on a 99 KiB-shared-memory Ada GPU: which of the 15 autotune configs fit / spill for fp16 and fp8; fp16 TFLOPS vs cuBLAS 256-8192; per-shape autotune cost incl. re-tuning for every new batch size M; GROUP_SIZE_M 1-64 with a DRAM re-streaming model; LLM x @ W.T with column-major W.T view vs row-major copy vs F.linear (M 1-4096); fused leaky_relu epilogue; fp16-accumulate MMA (2x rate on GeForce) and fp8 e5m2/e4m3 speed and error vs fp64 as K grows, in-MMA fp8 accumulation vs split add / max_num_imprecise_acc / runtime-scaled fp32 promotion vs torch._scaled_mm (fast accum on/off); cuBLAS fp16 reduced-precision reduction; unaligned K/N; int32 offset overflow past 2^31 elements of A vs int64 offsets",
+      "device": "cuda",
+      "date": "2026-11-09",
+      "status": "done"
     }
   ]
 }

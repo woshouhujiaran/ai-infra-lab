@@ -17,3 +17,4 @@ Candidates for the daily run. Pick the first unchecked item that installs on Win
 - [x] deepseek-ai/EPLB `rebalance_experts`: hierarchical vs global balance, redundancy, stale stats, runtime on synthetic DeepSeek-V3 routing (CPU) (0013)
 - [x] meta-pytorch/gpt-fast `speculative_decode`: HEAD breakage, verify-mask correctness, rejection-sampling exactness, acceptance vs k and speedup with TinyStories 15M/42M drafts for 110M (0014)
 - [x] nano-vllm `store_kvcache` (Triton KV-cache write): exactness with strided V / -1 padding, non-power-of-two D, int32 `slot * D` overflow, bandwidth vs torch scatter ops, eager vs CUDA graph (0015)
+- [x] triton-lang/triton tutorial matmul: autotune configs vs 99 KiB shared memory, re-tune cost per M, `GROUP_SIZE_M` L2 effect, fp16-accumulate and fp8 speed / accumulation error, unaligned shapes, int32 offset overflow (0016)
