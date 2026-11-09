@@ -17,7 +17,9 @@ leaky_relu epilogue and also runs on fp8 inputs.
    re-autotuning for every new batch size M.
 5. Fused leaky_relu epilogue vs matmul + F.leaky_relu.
 6. Error vs fp64 as K grows for fp32 / fp16 accumulation, cuBLAS with and without
-   reduced-precision reductions, and unscaled fp8 casts.
+   reduced-precision reductions, and unscaled fp8 casts: the tutorial's in-MMA fp8
+   accumulation vs a copy that adds each K block's dot into fp32 (`split_acc`) vs
+   torch._scaled_mm with and without use_fast_accum.
 7. Shapes that are not multiples of 16 (lost divisibility specialization).
 8. int32 overflow of `offs_am * stride_am` once M * K >= 2^31 (child processes).
 
@@ -56,7 +58,7 @@ from triton.runtime.errors import OutOfResources  # noqa: E402
 from triton.testing import do_bench  # noqa: E402
 
 SEED = 0
-ROUNDS = 3
+ROUNDS = 4
 SQUARE = [256, 512, 1024, 2048, 3072, 4096, 6144, 8192]
 GROUP_SHAPES = [(4096, 4096, 4096), (8192, 8192, 8192), (4096, 14336, 4096)]
 GROUP_SIZES = [1, 2, 4, 8, 16, 32, 64]
@@ -96,9 +98,13 @@ tut = load_tutorial()
 
 @triton.jit
 def variant_kernel(a_ptr, b_ptr, c_ptr, M, N, K, stride_am, stride_ak, stride_bk, stride_bn, stride_cm, stride_cn,
-                   BLOCK_SIZE_M: tl.constexpr, BLOCK_SIZE_N: tl.constexpr, BLOCK_SIZE_K: tl.constexpr,
-                   GROUP_SIZE_M: tl.constexpr, ACC_FP16: tl.constexpr, INT64_OFFSETS: tl.constexpr):
-    """tutorial matmul_kernel with an fp16 accumulator and / or int64 row / column offsets."""
+                   scale, BLOCK_SIZE_M: tl.constexpr, BLOCK_SIZE_N: tl.constexpr, BLOCK_SIZE_K: tl.constexpr,
+                   GROUP_SIZE_M: tl.constexpr, ACC: tl.constexpr, INT64_OFFSETS: tl.constexpr):
+    """tutorial matmul_kernel with another accumulation mode and / or int64 row / column offsets.
+
+    ACC: "fp32" (tutorial), "fp16" (fp16 MMA accumulator), "split" (acc += dot(a, b)),
+    "imprecise_limit" (dot(..., max_num_imprecise_acc=BLOCK_SIZE_K)), "scaled" (acc += dot(a, b) * scale).
+    """
     pid = tl.program_id(axis=0)
     num_pid_m = tl.cdiv(M, BLOCK_SIZE_M)
     num_pid_n = tl.cdiv(N, BLOCK_SIZE_N)
@@ -128,15 +134,21 @@ def variant_kernel(a_ptr, b_ptr, c_ptr, M, N, K, stride_am, stride_ak, stride_bk
     offs_k = tl.arange(0, BLOCK_SIZE_K)
     a_ptrs = a_ptr + (offs_am[:, None] * stride_am + offs_k[None, :] * stride_ak)
     b_ptrs = b_ptr + (offs_k[:, None] * stride_bk + offs_bn[None, :] * stride_bn)
-    if ACC_FP16:
+    if ACC == "fp16":
         accumulator = tl.zeros((BLOCK_SIZE_M, BLOCK_SIZE_N), dtype=tl.float16)
     else:
         accumulator = tl.zeros((BLOCK_SIZE_M, BLOCK_SIZE_N), dtype=tl.float32)
     for k in range(0, tl.cdiv(K, BLOCK_SIZE_K)):
         a = tl.load(a_ptrs, mask=offs_k[None, :] < K - k * BLOCK_SIZE_K, other=0.0)
         b = tl.load(b_ptrs, mask=offs_k[:, None] < K - k * BLOCK_SIZE_K, other=0.0)
-        if ACC_FP16:
+        if ACC == "fp16":
             accumulator = tl.dot(a, b, accumulator, out_dtype=tl.float16)
+        elif ACC == "split":
+            accumulator += tl.dot(a, b)
+        elif ACC == "imprecise_limit":
+            accumulator = tl.dot(a, b, accumulator, max_num_imprecise_acc=BLOCK_SIZE_K)
+        elif ACC == "scaled":
+            accumulator += tl.dot(a, b) * scale
         else:
             accumulator = tl.dot(a, b, accumulator)
         a_ptrs += BLOCK_SIZE_K * stride_ak
@@ -157,9 +169,15 @@ TUNERS = {
     "tutorial_rowmajor_b": autotuned(tut.matmul_kernel.fn),
     "acc16": autotuned(variant_kernel),
     "int64": autotuned(variant_kernel),
+    "split_acc": autotuned(variant_kernel),
+    "imprecise_limit": autotuned(variant_kernel),
+    "promote": autotuned(variant_kernel),
 }
-VARIANT_META = {"acc16": dict(ACC_FP16=True, INT64_OFFSETS=False),
-                "int64": dict(ACC_FP16=False, INT64_OFFSETS=True)}
+VARIANT_META = {"acc16": dict(ACC="fp16", INT64_OFFSETS=False),
+                "int64": dict(ACC="fp32", INT64_OFFSETS=True),
+                "split_acc": dict(ACC="split", INT64_OFFSETS=False),
+                "imprecise_limit": dict(ACC="imprecise_limit", INT64_OFFSETS=False),
+                "promote": dict(ACC="scaled", INT64_OFFSETS=False)}
 
 
 def launch(kernel, a, b, **meta):
@@ -174,7 +192,7 @@ def launch(kernel, a, b, **meta):
 
 
 def variant(name):
-    return lambda a, b: launch(TUNERS[name], a, b, **VARIANT_META[name])
+    return lambda a, b: launch(TUNERS[name], a, b, scale=1.0, **VARIANT_META[name])
 
 
 def tutorial_rowmajor(a, b):
@@ -184,8 +202,8 @@ def tutorial_rowmajor(a, b):
 ONE = None
 
 
-def scaled_mm(a8, b8):
-    return torch._scaled_mm(a8, b8, scale_a=ONE, scale_b=ONE, out_dtype=torch.float16)
+def scaled_mm(a8, b8, fast_accum=False):
+    return torch._scaled_mm(a8, b8, scale_a=ONE, scale_b=ONE, out_dtype=torch.float16, use_fast_accum=fast_accum)
 
 
 def cfg_str(cfg):
@@ -200,6 +218,26 @@ def tflops(M, N, K, ms):
 
 def bench(fn):
     return do_bench(fn, return_mode="median")
+
+
+def bench_rounds(fns: dict) -> dict:
+    """{name: {"best_ms", "median_ms", "rounds_ms"}}; order alternates per round so clock drift cancels."""
+    warm_gpu(2.0)
+    names = list(fns)
+    times = {n: [] for n in names}
+    for r in range(ROUNDS):
+        for n in (names if r % 2 == 0 else names[::-1]):
+            times[n].append(bench(fns[n]))
+    return {n: {"best_ms": round(min(t), 4), "median_ms": round(statistics.median(t), 4),
+                "rounds_ms": [round(x, 4) for x in t]} for n, t in times.items()}
+
+
+def probe_tflops():
+    """cuBLAS fp16 4096^3 after a short warm-up: a per-section reference for the GPU's clock state."""
+    a = torch.randn((4096, 4096), device="cuda", dtype=torch.float16)
+    warm_gpu(2.0)
+    ms = min(bench(lambda: a @ a) for _ in range(3))
+    return tflops(4096, 4096, 4096, ms)
 
 
 def first_call(fn, tuner=None):
@@ -274,9 +312,10 @@ def config_table():
 
 # ---------------------------------------------------------------- 2. square sizes
 
-SQUARE_VARIANTS = ["cublas", "tutorial", "acc16", "int64", "tutorial_e5m2", "tutorial_e4m3", "scaled_mm_e4m3"]
+SQUARE_VARIANTS = ["cublas", "tutorial", "acc16", "int64", "tutorial_e5m2", "tutorial_e4m3", "promote_e4m3",
+                   "scaled_mm_e4m3", "scaled_mm_e4m3_fast"]
 SQUARE_TUNER = {"tutorial": "tutorial", "acc16": "acc16", "int64": "int64", "tutorial_e5m2": "tutorial",
-                "tutorial_e4m3": "tutorial"}
+                "tutorial_e4m3": "tutorial", "promote_e4m3": "promote"}
 
 
 def square():
@@ -293,7 +332,9 @@ def square():
             "int64": lambda: variant("int64")(a, b),
             "tutorial_e5m2": lambda: tut.matmul(a8["e5m2"], b8["e5m2"]),
             "tutorial_e4m3": lambda: tut.matmul(a8["e4m3"], b8["e4m3"]),
+            "promote_e4m3": lambda: variant("promote")(a8["e4m3"], b8["e4m3"]),
             "scaled_mm_e4m3": lambda: scaled_mm(a8["e4m3"], b8["e4m3"]),
+            "scaled_mm_e4m3_fast": lambda: scaled_mm(a8["e4m3"], b8["e4m3"], fast_accum=True),
         }
         row = {"S": S}
         ref = None
@@ -305,13 +346,8 @@ def square():
                 ref = out.float()
             elif name in ("tutorial", "acc16", "int64"):
                 info["max_abs_diff_vs_cublas"] = round((out.float() - ref).abs().max().item(), 4)
-        times = {n: [] for n in SQUARE_VARIANTS}
-        for _ in range(ROUNDS):
-            for name in SQUARE_VARIANTS:
-                times[name].append(bench(fns[name]))
-        for name in SQUARE_VARIANTS:
-            ms = statistics.median(times[name])
-            row[name].update(ms=round(ms, 4), tflops=tflops(S, S, S, ms))
+        for name, t in bench_rounds(fns).items():
+            row[name].update(t, tflops=tflops(S, S, S, t["best_ms"]), tflops_median=tflops(S, S, S, t["median_ms"]))
         rows.append(row)
         print(f"square S={S}: " + ", ".join(f"{n}={row[n]['tflops']}" for n in SQUARE_VARIANTS) + " TFLOPS; "
               + ", ".join(f"{n}:{row[n].get('config')} ({row[n]['first_call_s']}s)" for n in SQUARE_TUNER), flush=True)
@@ -337,15 +373,10 @@ def group_sweep():
             fns[g] = (lambda g=g: launch(tut.matmul_kernel.fn, a, b, GROUP_SIZE_M=g, ACTIVATION="",
                                          num_warps=cfg.num_warps, num_stages=cfg.num_stages, **base))
             assert torch.equal(fns[g](), ref)
-        times = {g: [] for g in GROUP_SIZES}
-        for _ in range(ROUNDS):
-            for g in GROUP_SIZES:
-                times[g].append(bench(fns[g]))
-        for g in GROUP_SIZES:
-            ms = statistics.median(times[g])
+        for g, t in bench_rounds(fns).items():
             rows.append({"M": M, "N": N, "K": K, "tile_config": info["config"], "tiles_mn": tiles,
-                         "group_size_m": g, "ms": round(ms, 4), "tflops": tflops(M, N, K, ms),
-                         "ms_rounds": [round(t, 4) for t in times[g]]})
+                         "group_size_m": g, **t, "tflops": tflops(M, N, K, t["best_ms"]),
+                         "tflops_median": tflops(M, N, K, t["median_ms"])})
         print(f"group {M}x{N}x{K} ({info['config']}, tiles {tiles}): "
               + ", ".join(f"g{r['group_size_m']}={r['tflops']}" for r in rows[-len(GROUP_SIZES):]), flush=True)
         del a, b, ref, fns
@@ -376,13 +407,9 @@ def llm_linear():
                 else:
                     info["max_abs_diff_vs_cublas"] = round((out.float() - ref).abs().max().item(), 4)
                 row[name] = info
-            times = {n: [] for n in fns}
-            for _ in range(ROUNDS):
-                for name, (fn, _) in fns.items():
-                    times[name].append(bench(fn))
-            for name in fns:
-                ms = statistics.median(times[name])
-                row[name].update(us=round(ms * 1e3, 2), tflops=tflops(M, N, K, ms),
+            for name, t in bench_rounds({n: f for n, (f, _) in fns.items()}).items():
+                ms = t["best_ms"]
+                row[name].update(t, us=round(ms * 1e3, 2), tflops=tflops(M, N, K, ms),
                                  weight_gbps=round(N * K * 2 * 1e-9 / (ms * 1e-3), 1))
             rows.append(row)
             print(f"llm M={M} N={N} K={K}: " + ", ".join(
@@ -436,12 +463,9 @@ def epilogue():
         for n in ("tutorial_fused", "tutorial_then_leaky_relu"):
             row[n + "_err"] = rel_err(outs[n], ref)
         del outs, ref
-        times = {n: [] for n in fns}
-        for _ in range(ROUNDS):
-            for n, fn in fns.items():
-                times[n].append(bench(fn))
-        for n in fns:
-            row[n + "_ms"] = round(statistics.median(times[n]), 4)
+        for n, t in bench_rounds(fns).items():
+            row[n + "_ms"] = t["best_ms"]
+            row[n + "_median_ms"] = t["median_ms"]
         rows.append(row)
         print(f"epilogue {row}", flush=True)
         del a, b, fns
@@ -471,12 +495,15 @@ def numerics():
         for n, dt in FP8.items():
             a8, b8 = a.to(dt), b.T.contiguous().T.to(dt)
             ref8 = a8.to(torch.float64) @ b8.to(torch.float64)
-            c = tut.matmul(a8, b8)
-            row[f"tutorial_{n}"] = dict(rel_err(c, ref), accumulation_only=rel_err(c, ref8)["rel_rms"])
+            outs = {f"tutorial_{n}": tut.matmul(a8, b8)}
+            for v in ("split_acc", "imprecise_limit", "promote"):
+                outs[f"{v}_{n}"] = variant(v)(a8, b8)
             if n == "e4m3":
-                row["scaled_mm_e4m3"] = dict(rel_err(scaled_mm(a8, b8), ref),
-                                             accumulation_only=rel_err(scaled_mm(a8, b8), ref8)["rel_rms"])
-            del a8, b8, ref8, c
+                outs["scaled_mm_e4m3"] = scaled_mm(a8, b8)
+                outs["scaled_mm_e4m3_fast"] = scaled_mm(a8, b8, fast_accum=True)
+            for name, c in outs.items():
+                row[name] = dict(rel_err(c, ref), accumulation_only=rel_err(c, ref8)["rel_rms"])
+            del a8, b8, ref8, outs
         rows.append(row)
         print(f"numerics K={K}: " + ", ".join(
             f"{k}={v['rel_rms']}" for k, v in row.items() if isinstance(v, dict)), flush=True)
@@ -500,13 +527,8 @@ def odd_shapes():
             info.pop("config_ms", None)
             info["err"] = rel_err(out, ref)
             row[n] = info
-        times = {n: [] for n in fns}
-        for _ in range(ROUNDS):
-            for n, (fn, _) in fns.items():
-                times[n].append(bench(fn))
-        for n in fns:
-            ms = statistics.median(times[n])
-            row[n].update(ms=round(ms, 4), tflops=tflops(M, N, K, ms))
+        for n, t in bench_rounds({n: f for n, (f, _) in fns.items()}).items():
+            row[n].update(t, tflops=tflops(M, N, K, t["best_ms"]), tflops_median=tflops(M, N, K, t["median_ms"]))
         rows.append(row)
         print(f"odd {M}x{N}x{K}: cublas={row['cublas']['tflops']} tutorial={row['tutorial']['tflops']} "
               f"({row['tutorial']['config']}) err={row['tutorial']['err']['rel_rms']}", flush=True)
@@ -530,7 +552,7 @@ def overflow_child(case: str) -> dict:
     if kernel_name == "tutorial":
         c = launch(tut.matmul_kernel.fn, a, b, ACTIVATION="", **OVERFLOW_CFG)
     else:
-        c = launch(variant_kernel, a, b, ACC_FP16=False, INT64_OFFSETS=True, **OVERFLOW_CFG)
+        c = launch(variant_kernel, a, b, scale=1.0, ACC="fp32", INT64_OFFSETS=True, **OVERFLOW_CFG)
     torch.cuda.synchronize()
     bad = torch.cat([((c[i:i + 65536].float() - ref[i:i + 65536].float()).abs().amax(1) > 0.05).nonzero().flatten() + i
                      for i in range(0, M, 65536)])
@@ -549,7 +571,7 @@ def overflow_tests():
         if proc.returncode == 0 and line:
             rows.append(json.loads(line[-1][len("OVERFLOW "):]))
         else:
-            err = [ln for ln in proc.stderr.strip().splitlines() if ln.strip()]
+            err = [ln.strip() for ln in proc.stderr.splitlines() if "Error" in ln or "error:" in ln]
             rows.append({"case": case, "returncode": proc.returncode,
                          "error": (err or ["?"])[-1][:240]})
         print(f"overflow {rows[-1]}", flush=True)
@@ -572,8 +594,12 @@ def write_report(result):
     lines = [
         f"triton {result['upstream_commit'][:10]} `03-matrix-multiplication.py`, triton-windows {triton.__version__}, "
         f"torch {torch.__version__}, {gpu.get('name', 'cuda')} (memory cap {gpu.get('memory_fraction_cap')}). "
-        f"Times are medians of `triton.testing.do_bench` (L2 flushed before each rep), median of {ROUNDS} "
-        "interleaved rounds.",
+        f"Times are `triton.testing.do_bench` medians (L2 flushed before each rep), best of {ROUNDS} interleaved "
+        "rounds whose order alternates (medians of rounds are in results.json). Each timed block starts after "
+        "2 s of GPU warm-up.",
+        "",
+        "Clock-state reference, cuBLAS fp16 4096^3 TFLOPS at the start of each section: "
+        + ", ".join(f"{k} {v}" for k, v in result["probe_cublas_4096_tflops"].items()),
         "",
         "## 1. Tutorial CUDA autotune configs at 4096^3 (99 KiB = 101,376 B shared memory per block)",
         "",
@@ -664,29 +690,34 @@ def write_report(result):
                      f"{r['tutorial_no_activation_ms']:.3f} | {r['fused_vs_separate_differing_elems']} / "
                      f"{r['fused_vs_separate_max_abs_diff']} | {r['tutorial_fused_err']['rel_rms']:.3g} / "
                      f"{r['tutorial_then_leaky_relu_err']['rel_rms']:.3g} |")
-    num_names = ["fp16_output_rounding", "tutorial", "acc16", "cublas", "cublas_no_reduced_reduction",
-                 "tutorial_e5m2", "tutorial_e4m3", "scaled_mm_e4m3"]
+    fp16_names = ["fp16_output_rounding", "tutorial", "acc16", "cublas", "cublas_no_reduced_reduction"]
+    fp8_names = [f"{v}_{n}" for n in FP8 for v in ("tutorial", "split_acc", "imprecise_limit", "promote")]
+    fp8_names += ["scaled_mm_e4m3", "scaled_mm_e4m3_fast"]
     lines += [
         "",
-        f"## 6. Relative RMS error vs fp64, {NUMERICS_MN}x{NUMERICS_MN} output, N(0, 1) fp16 inputs",
+        f"## 6a. fp16 inputs: relative RMS error vs fp64, {NUMERICS_MN}x{NUMERICS_MN} output, N(0, 1) inputs",
         "",
-        "fp8 inputs are plain casts of the fp16 inputs (no scaling, as in the tutorial); in brackets: error vs fp64 "
-        "of the already-quantized fp8 inputs (accumulation + output rounding only).",
-        "",
-        "| K | " + " | ".join(num_names) + " |",
-        "|---|" + "---|" * len(num_names),
+        "| K | " + " | ".join(fp16_names) + " |",
+        "|---|" + "---|" * len(fp16_names),
     ]
     for r in result["numerics"]:
-        cells = []
-        for n in num_names:
-            v = r[n]
-            cell = f"{v['rel_rms']:.3g}"
-            if "accumulation_only" in v:
-                cell += f" ({v['accumulation_only']:.3g})"
-            if v["nonfinite"]:
-                cell += f", {v['nonfinite']} non-finite"
-            cells.append(cell)
-        lines.append(f"| {r['K']} | " + " | ".join(cells) + " |")
+        lines.append(f"| {r['K']} | " + " | ".join(
+            f"{r[n]['rel_rms']:.3g}" + (f", {r[n]['nonfinite']} non-finite" if r[n]["nonfinite"] else "")
+            for n in fp16_names) + " |")
+    lines += [
+        "",
+        "## 6b. fp8 inputs: relative RMS error vs fp64 of the quantized fp8 inputs (accumulation + fp16 output "
+        "rounding only)",
+        "",
+        "fp8 inputs are plain casts of the same fp16 inputs (no scaling, as in the tutorial). Total error vs the "
+        "original fp16 inputs is dominated by quantization and given in the last two columns.",
+        "",
+        "| K | " + " | ".join(fp8_names) + " | total err tutorial e5m2 | total err tutorial e4m3 |",
+        "|---|" + "---|" * (len(fp8_names) + 2),
+    ]
+    for r in result["numerics"]:
+        lines.append(f"| {r['K']} | " + " | ".join(f"{r[n]['accumulation_only']:.3g}" for n in fp8_names)
+                     + f" | {r['tutorial_e5m2']['rel_rms']:.3g} | {r['tutorial_e4m3']['rel_rms']:.3g} |")
     lines += [
         "",
         "## 7. Shapes not divisible by 16, TFLOPS",
@@ -740,13 +771,19 @@ def main():
     sections = [("overflow", overflow_tests), ("configs", config_table), ("warm", warm_gpu), ("square", square),
                 ("group", group_sweep), ("llm", llm_linear), ("retune", retune_cost), ("epilogue", epilogue),
                 ("numerics", numerics), ("odd", odd_shapes)]
+    probes = {}
     for name, fn in sections:
+        if name in ("square", "group", "llm", "epilogue", "odd"):
+            probes[name] = probe_tflops()
+            print(f"probe before {name}: cuBLAS 4096^3 {probes[name]} TFLOPS", flush=True)
+            free()
         t = time.time()
         out = fn()
         timings[name + "_s"] = round(time.time() - t, 1)
         if out is not None:
             result[name] = out
         free()
+    result["probe_cublas_4096_tflops"] = probes
     result["peak_memory_mib"] = gpu_guard.peak_memory_mib()
     result["timings"] = timings
     result["runtime_s"] = round(time.time() - t_start, 1)
