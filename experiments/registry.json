@@ -159,6 +159,16 @@
       "device": "cuda",
       "date": "2026-11-09",
       "status": "done"
+    },
+    {
+      "id": "0017",
+      "slug": "gptfast-weight-only-quant",
+      "upstream": "meta-pytorch/gpt-fast",
+      "component": "quantize.py (WeightOnlyInt8QuantHandler / WeightOnlyInt8Linear, WeightOnlyInt4QuantHandler / WeightOnlyInt4Linear on aten._weight_int4pack_mm)",
+      "topic": "weight-only int8 per-channel and int4 groupwise (g32-256) at HEAD with torch 2.14: int4 handler breakage from the uint8 _convert_weight_to_int4pack format and repack nibble-order check, GPTQ helper dtype mismatch, pad-to-1024 storage blow-up on 288-wide layers; per-layer output error vs fp64 on stories110M with real activations (bf16 scales, bf16 quantization arithmetic / non-nearest codes, outlier-heavy shared head); whole-model KL / top-1 / perplexity vs fp32; linear latency vs M 1-2048 for stories110M and Llama-2-7B shapes, bf16 vs int8 eager / torch.compile (fused only at M = 1) vs aten._weight_int8pack_mm vs int4 tinygemm (g32 / g128, inner_k_tiles 2-8), eager vs CUDA graph, DRAM bandwidth with L2-busting weight rotation",
+      "device": "cuda",
+      "date": "2026-11-10",
+      "status": "done"
     }
   ]
 }

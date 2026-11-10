@@ -18,3 +18,4 @@ Candidates for the daily run. Pick the first unchecked item that installs on Win
 - [x] meta-pytorch/gpt-fast `speculative_decode`: HEAD breakage, verify-mask correctness, rejection-sampling exactness, acceptance vs k and speedup with TinyStories 15M/42M drafts for 110M (0014)
 - [x] nano-vllm `store_kvcache` (Triton KV-cache write): exactness with strided V / -1 padding, non-power-of-two D, int32 `slot * D` overflow, bandwidth vs torch scatter ops, eager vs CUDA graph (0015)
 - [x] triton-lang/triton tutorial matmul: autotune configs vs 99 KiB shared memory, re-tune cost per M, `GROUP_SIZE_M` L2 effect, fp16-accumulate and fp8 speed / accumulation error, unaligned shapes, int32 offset overflow (0016)
+- [x] meta-pytorch/gpt-fast `quantize.py` weight-only int8 / int4: HEAD breakage with current torch int4 packing, per-layer and whole-model error on stories110M, latency vs token count for bf16 / int8 eager / compiled / int4 tinygemm (0017)
