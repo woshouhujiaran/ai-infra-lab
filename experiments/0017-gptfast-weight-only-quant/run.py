@@ -15,8 +15,9 @@ Component:
 3. Whole model: KL to the fp32 model, top-1 agreement and perplexity on 8 x 256 tokens
    sampled from the fp32 model, for bf16 / int8 / int4 g32-256.
 4. Linear latency vs token count M for stories110M and Llama-2-7B shapes: bf16 vs int8
-   eager / torch.compile vs int4 tinygemm (g32 / g128, inner_k_tiles 2-8), weights rotated
-   past L2, eager launches and CUDA-graph replay; effective weight bandwidth.
+   eager / torch.compile (gpt-fast's inductor flags) vs torch's _weight_int8pack_mm vs int4
+   tinygemm (g32 / g128, inner_k_tiles 2-8), weights rotated past L2, eager launches and
+   CUDA-graph replay; effective weight bandwidth.
 
 quantize.py / model.py are imported unmodified. run.py swaps quantize's
 prepare_int4_weight_and_scales_and_zeros for a repacking copy (finding 1) and replaces
@@ -63,7 +64,7 @@ EVAL_T = 256
 ACT_SEQS = 4
 GROUPS = [32, 64, 128, 256]
 INNER_K_TILES = [2, 4, 8]
-M_LIST = [1, 4, 16, 64, 256, 1024, 2048]
+M_LIST = [1, 2, 4, 8, 16, 32, 64, 256, 1024, 2048]
 ITK_M = [1, 16]
 SHAPES = [  # (model, layer, out_features N, in_features K)
     ("110M", "wqkv", 2304, 768),
@@ -83,6 +84,7 @@ GRAPH_MAX_CALLS = 400
 for _k in ("cache_size_limit", "recompile_limit"):
     if hasattr(torch._dynamo.config, _k):
         setattr(torch._dynamo.config, _k, 512)
+torch._inductor.config.coordinate_descent_tuning = True  # as in gpt-fast's generate.py
 torch.backends.cuda.matmul.allow_tf32 = False
 torch.backends.cudnn.allow_tf32 = False
 
@@ -108,7 +110,9 @@ def where(e: BaseException) -> str:
 
 
 def err_text(e: BaseException) -> str:
-    return f"{type(e).__name__}: {str(e).splitlines()[0][:160]}"
+    lines = str(e).splitlines()
+    msg = lines[0][:160] if lines else f"`{traceback.extract_tb(e.__traceback__)[-1].line}`"
+    return f"{type(e).__name__}: {msg}"
 
 
 # ---------------------------------------------------------------- model
@@ -299,7 +303,7 @@ def part_upstream():
         add({"attempt": "group_dequantize_tensor(*group_quantize_tensor(w))", "ok": True})
     except Exception as e:
         add({"attempt": "group_dequantize_tensor(*group_quantize_tensor(w))", "ok": False,
-             "error": err_text(e) or "AssertionError", "where": where(e)})
+             "error": err_text(e), "where": where(e)})
 
     q8, s8, _ = Q.dynamically_quantize_per_channel(w.float(), -128, 127, torch.int8)
     try:
@@ -479,7 +483,8 @@ def int8_linear(x, weight, scales):
     return F.linear(x, weight.to(dtype=x.dtype)) * scales
 
 
-int8_linear_compiled = torch.compile(int8_linear, dynamic=False)
+int8_linear_compiled = torch.compile(int8_linear, dynamic=False, fullgraph=True)
+SPEED_METHODS = ["bf16", "int8-eager", "int8-compile", "int8-native", "int4-g32", "int4-g128"]
 
 
 def bench(call, n_rot):
@@ -534,8 +539,19 @@ def uses_extern_mm(x, w, s) -> bool | None:
         return None
 
 
+def warm_gpu(seconds=3.0):
+    """Laptop GPU clocks ramp up under load; without this the first shape is measured cold."""
+    a = torch.randn(4096, 4096, device=DEVICE, dtype=torch.bfloat16)
+    t0 = time.perf_counter()
+    while time.perf_counter() - t0 < seconds:
+        for _ in range(10):
+            a @ a
+        sync()
+
+
 def part_speed():
     rows, itk_rows = [], []
+    warm_gpu()
     for model_name, layer, N, K in SHAPES:
         torch.manual_seed(SEED)
         W = (torch.randn(N, K, device=DEVICE) * 0.02).bfloat16()
@@ -564,6 +580,7 @@ def part_speed():
                 "bf16": ("bf16", lambda S, i: F.linear(x, S[i][0])),
                 "int8-eager": ("int8", lambda S, i: int8_linear(x, *S[i])),
                 "int8-compile": ("int8", lambda S, i: int8_linear_compiled(x, *S[i])),
+                "int8-native": ("int8", lambda S, i: torch.ops.aten._weight_int8pack_mm(x, *S[i])),
                 "int4-g32": ("int4-g32-itk8", lambda S, i: Q.linear_forward_int4(x, *S[i], N, 32)),
                 "int4-g128": ("int4-g128-itk8", lambda S, i: Q.linear_forward_int4(x, *S[i], N, 128)),
             }
@@ -591,7 +608,7 @@ def part_speed():
 def per_layer_sums(speed):
     """Sum of one transformer layer's linears (w1/w3 counted twice); 110M also x12 + output."""
     out = []
-    meths = ["bf16", "int8-eager", "int8-compile", "int4-g32", "int4-g128"]
+    meths = SPEED_METHODS
     for model_name in ("110M", "7B"):
         for Mtok in M_LIST:
             rs = {r["layer"]: r for r in speed["rows"] if r["model"] == model_name and r["M"] == Mtok}
@@ -645,7 +662,7 @@ def write_md(R):
                  f"{r.get('top1_agree', 1):.4f} | {r['ppl']:.3f} |")
 
     sp = R["speed"]
-    meths = ["bf16", "int8-eager", "int8-compile", "int4-g32", "int4-g128"]
+    meths = SPEED_METHODS
     for timing, title in (("graph_us", "CUDA-graph replay (GPU time)"), ("eager_us", "eager launches (wall per call)")):
         L += ["", f"## 4. Linear latency, {title}, µs; weights rotated past L2", "",
               "| model | layer | N x K | M | " + " | ".join(meths) + " | int8-compile uses extern mm |",
