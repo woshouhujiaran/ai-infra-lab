@@ -14,12 +14,13 @@ w1[expert_indices] -> [T, A, I, D], and runs three einsums over the gathered cop
    router; output error of the routing difference.
 3. One MoE layer vs token count T (Mixtral-8x7B and OLMoE-1B-7B shapes, synthetic bf16
    weights): extra peak memory (incl. OOM under the 60% cap) and latency, eager launches and
-   CUDA-graph replay, for upstream eager / torch.compile (gpt-fast's inductor flags, static
-   shapes) / loop / grouped / dense; which extern kernels Inductor emits; bandwidth against
-   the bytes of the experts actually touched.
+   CUDA-graph replay, for upstream eager / torch.compile (gpt-fast's inductor flags; static
+   shapes as for decode, dynamic=True as --compile_prefill) / loop / grouped / dense; which
+   extern kernels Inductor emits; bandwidth against the bytes of the experts actually touched.
 
 model.py is imported unmodified.
 """
+import gc
 import importlib.util
 import json
 import math
@@ -58,12 +59,14 @@ T_LIST = {
     "OLMoE-1B-7B": [1, 2, 4, 8, 16, 32, 64, 256, 1024, 4096],
 }
 COMPILE_T = {"Mixtral-8x7B": [1, 2, 4], "OLMoE-1B-7B": [1, 2, 4, 16, 64]}
+DYN_T = {"Mixtral-8x7B": [2, 4, 8, 16, 64], "OLMoE-1B-7B": [2, 4, 8, 16, 32, 64, 256]}
 ROUTE_TOKENS = 65536
 ROUTE_CHUNK = 8192
 LOGIT_STD = [0.5, 1.0, 2.0, 4.0]
 IMPACT_T = {"Mixtral-8x7B": 1024, "OLMoE-1B-7B": 4096}
-METHODS = ["upstream-eager", "upstream-compile", "loop", "grouped", "dense"]
-GRAPHABLE = {"upstream-eager", "upstream-compile", "dense"}
+METHODS = ["upstream-eager", "upstream-compile", "upstream-compile-dyn", "loop", "grouped", "dense"]
+GRAPHABLE = {"upstream-eager", "upstream-compile", "upstream-compile-dyn", "dense"}
+COMPILED_T = {"upstream-compile": COMPILE_T, "upstream-compile-dyn": DYN_T}
 TARGET_S = 0.05
 MAX_REPS = 200
 
@@ -223,21 +226,27 @@ def batch_shape_check():
         model = MX.Transformer(cfg)
         for p in model.parameters():
             torch.nn.init.normal_(p, 0, 0.1)
-        model.setup_caches(max_batch_size=2, max_seq_length=16)
     model = model.to(torch.bfloat16)
     model.requires_grad_(False)
+
+    def run(idx, pos):
+        model.max_batch_size = -1
+        with torch.device(DEVICE):
+            model.setup_caches(max_batch_size=idx.shape[0], max_seq_length=16)
+        return model(idx, pos)
+
     rows = []
     for S in (1, 4):
         idx = torch.randint(0, 128, (2, S), device=DEVICE)
         pos = torch.arange(S, device=DEVICE)
         row = {"B": 2, "S": S}
         try:
-            single = torch.cat([model(idx[b:b + 1], pos) for b in range(2)])
+            single = torch.cat([run(idx[b:b + 1], pos) for b in range(2)])
             row["B1_out_shape"] = list(single.shape)
         except Exception as e:
             row["B1_error"] = err_text(e)
         try:
-            out = model(idx, pos)
+            out = run(idx, pos)
             row["B2_out_shape"] = list(out.shape)
             if "B1_out_shape" in row and out.shape == single.shape:
                 row["B2_matches_B1"] = rel(out, single)
@@ -256,36 +265,46 @@ def batch_shape_check():
     return rows
 
 
+def release():
+    gc.collect()
+    torch._dynamo.reset()
+    torch.cuda.empty_cache()
+    print(f"   allocated after release: {torch.cuda.memory_allocated() / 2**20:.0f} MiB")
+
+
+def check_config(name):
+    torch.manual_seed(SEED)
+    m = build_moe(name)
+    T = CHECK_T[name]
+    x = torch.randn(T, m.dim, device=DEVICE, dtype=torch.bfloat16)
+    w, idx = route(m, x)
+    ref = ref_ffn(m.cond_ffn, x, w, idx)
+    bf16_ref = None
+    row = {"config": name, "T": T, "unique_experts": int(idx.unique().numel()), "errors_vs_fp32_ref": {}}
+    compiled = torch.compile(m, fullgraph=True, dynamic=False)
+    fns = {"upstream-eager": lambda: m(x), "upstream-compile": lambda: compiled(x)}
+    fns.update({k: (lambda f=f: f(m, x)) for k, f in VARIANTS.items()})
+    for k, fn in fns.items():
+        try:
+            y = fn()
+            row["errors_vs_fp32_ref"][k] = rel(y, ref)
+            if k == "upstream-eager":
+                bf16_ref = y
+            else:
+                row.setdefault("max_abs_diff_vs_upstream_eager", {})[k] = (y.float() - bf16_ref.float()).abs().max().item()
+        except Exception as e:
+            row["errors_vs_fp32_ref"][k] = err_text(e)
+    row["graph_capture"] = {k: graph_capture_error(fns[k]) or "ok" for k in ("upstream-eager", "grouped", "dense")}
+    return row
+
+
 def part_correctness():
     out = {"configs": [], "batch_shapes": batch_shape_check()}
     for name in CONFIGS:
-        torch.manual_seed(SEED)
-        m = build_moe(name)
-        T = CHECK_T[name]
-        x = torch.randn(T, m.dim, device=DEVICE, dtype=torch.bfloat16)
-        w, idx = route(m, x)
-        ref = ref_ffn(m.cond_ffn, x, w, idx)
-        bf16_ref = None
-        row = {"config": name, "T": T, "unique_experts": int(idx.unique().numel()), "errors_vs_fp32_ref": {}}
-        compiled = torch.compile(m, fullgraph=True, dynamic=False)
-        fns = {"upstream-eager": lambda: m(x), "upstream-compile": lambda: compiled(x)}
-        fns.update({k: (lambda f=f: f(m, x)) for k, f in VARIANTS.items()})
-        for k, fn in fns.items():
-            try:
-                y = fn()
-                row["errors_vs_fp32_ref"][k] = rel(y, ref)
-                if k == "upstream-eager":
-                    bf16_ref = y
-                else:
-                    row.setdefault("max_abs_diff_vs_upstream_eager", {})[k] = (y.float() - bf16_ref.float()).abs().max().item()
-            except Exception as e:
-                row["errors_vs_fp32_ref"][k] = err_text(e)
-        row["graph_capture"] = {k: graph_capture_error(fns[k]) or "ok" for k in ("upstream-eager", "grouped", "dense")}
+        row = check_config(name)
         out["configs"].append(row)
         print(f"  {name}: {row}")
-        del m, compiled
-        torch._dynamo.reset()
-        torch.cuda.empty_cache()
+        release()
     return out
 
 
@@ -362,8 +381,8 @@ def part_impact():
                "upstream_routing_on_matched": rel(y_up[~mm], ref[~mm])}
         rows.append(row)
         print(f"  impact {row}")
-        del m
-        torch.cuda.empty_cache()
+        del m, x, w_up, idx_up, p64, v64, idx64, w64, ref, mm, y_floor, y_up
+        release()
     return rows
 
 
@@ -423,11 +442,13 @@ def peak_extra(call) -> int:
     return peak
 
 
-def extern_kernels(fn, *args) -> list[str] | None:
+def extern_kernels(fn, *args) -> dict[str, int] | None:
+    """Extern (cuBLAS etc.) calls in the generated wrapper; everything else is Triton."""
     try:
         from torch._inductor.utils import run_and_get_code
         _, codes = run_and_get_code(fn, *args)
-        return sorted({k for c in codes for k in re.findall(r"extern_kernels\.(\w+)", c)})
+        calls = [k for c in codes for k in re.findall(r"extern_kernels\.(\w+)\(", c)]
+        return {k: calls.count(k) for k in sorted(set(calls))}
     except Exception:
         return None
 
@@ -458,6 +479,7 @@ def part_speed():
         eb = expert_bytes(m)
         A = m.num_activated_experts
         compiled = torch.compile(m, fullgraph=True, dynamic=False)
+        compiled_dyn = torch.compile(m, fullgraph=True, dynamic=True)  # as --compile_prefill
         dead = set()
         for T in T_LIST[name]:
             g = torch.Generator(device=DEVICE).manual_seed(SEED + T)
@@ -466,20 +488,21 @@ def part_speed():
             u = int(idx.unique().numel())
             row = {"config": name, "T": T, "unique_experts": u, "touched_expert_bytes": u * eb,
                    "gathered_bytes": T * A * eb, "weights_bytes": m.cond_ffn.w1.shape[0] * eb}
-            fns = {"upstream-eager": lambda: m(x), "upstream-compile": lambda: compiled(x)}
+            fns = {"upstream-eager": lambda: m(x), "upstream-compile": lambda: compiled(x),
+                   "upstream-compile-dyn": lambda: compiled_dyn(x)}
             fns.update({k: (lambda f=f: f(m, x)) for k, f in VARIANTS.items()})
             for k in METHODS:
                 if k in dead:
                     row[k] = {"status": "OOM at smaller T"}
                     continue
-                if k == "upstream-compile" and T not in COMPILE_T[name]:
-                    row[k] = {"status": "not compiled at this T"}
+                if k in COMPILED_T and T not in COMPILED_T[k][name]:
+                    row[k] = {"status": "not run"}
                     continue
                 r = {}
                 try:
-                    if k == "upstream-compile":
+                    if k in COMPILED_T:
                         t0 = time.perf_counter()
-                        r["extern_kernels"] = extern_kernels(compiled, x)
+                        r["extern_kernels"] = extern_kernels(compiled if k == "upstream-compile" else compiled_dyn, x)
                         sync()
                         r["first_call_s"] = round(time.perf_counter() - t0, 1)
                     r["peak_extra_bytes"] = peak_extra(fns[k])
@@ -498,9 +521,8 @@ def part_speed():
                 torch.cuda.empty_cache()
             rows.append(row)
             print(f"  {name} T={T:5d} u={u:2d} " + " ".join(f"{k}:{short(row[k])}" for k in METHODS))
-        del m, compiled
-        torch._dynamo.reset()
-        torch.cuda.empty_cache()
+        del m, compiled, compiled_dyn, fns, x, idx
+        release()
     return rows
 
 
@@ -561,13 +583,17 @@ def write_md(R):
         L += ["", "### Bandwidth against the touched experts' bytes (best of graph / eager), GB/s", "", "| T | " + " | ".join(METHODS) + " |", "|---|" + "---|" * len(METHODS)]
         for r in rows:
             L.append(f"| {r['T']} | " + " | ".join(fmt_cell(r[k], "touched_GBps") for k in METHODS) + " |")
-        L += ["", "### torch.compile(upstream): first call (compile + tuning) and Inductor extern kernels", "", "| T | first call s | extern kernels |", "|---|---|---|"]
+        L += ["", "### torch.compile(upstream): first call (compile + tuning; ~0.3 s = Inductor cache hit) and extern kernel calls", "",
+              "| T | variant | first call s | extern kernel calls |", "|---|---|---|---|"]
         for r in rows:
-            k = r["upstream-compile"]
-            if "extern_kernels" in k:
-                L.append(f"| {r['T']} | {k.get('first_call_s', '')} | {', '.join(k['extern_kernels'] or []) or 'none'} |")
-            elif k.get("status") == "OOM":
-                L.append(f"| {r['T']} | | OOM |")
+            for v in COMPILED_T:
+                k = r[v]
+                if "extern_kernels" in k:
+                    ek = k["extern_kernels"]
+                    ek_s = "?" if ek is None else (", ".join(f"{n} x{c}" for n, c in ek.items()) or "none")
+                    L.append(f"| {r['T']} | {v} | {k.get('first_call_s', '')} | {ek_s} |")
+                elif k.get("status") == "OOM":
+                    L.append(f"| {r['T']} | {v} | | OOM |")
     (HERE / "results.md").write_text("\n".join(L) + "\n", encoding="utf-8")
 
 

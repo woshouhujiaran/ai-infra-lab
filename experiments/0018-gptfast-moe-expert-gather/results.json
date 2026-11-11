@@ -1,0 +1,1280 @@
+{
+ "meta": {
+  "gpu": {
+   "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+   "memory_total_mib": 8188,
+   "memory_used_mib": 0,
+   "utilization_percent": 0,
+   "temperature_c": 45,
+   "memory_fraction_cap": 0.6,
+   "torch": "2.14.1+cu126",
+   "cuda": "12.6"
+  },
+  "python": "3.13.3",
+  "torch": "2.14.1+cu126",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "seed": 0,
+  "configs": {
+   "Mixtral-8x7B": {
+    "dim": 4096,
+    "intermediate_size": 14336,
+    "num_experts": 8,
+    "num_activated_experts": 2
+   },
+   "OLMoE-1B-7B": {
+    "dim": 2048,
+    "intermediate_size": 1024,
+    "num_experts": 64,
+    "num_activated_experts": 8
+   }
+  },
+  "wall_seconds": 190.1,
+  "peak_memory_mib": 2597.4
+ },
+ "correctness": {
+  "configs": [
+   {
+    "config": "Mixtral-8x7B",
+    "T": 2,
+    "unique_experts": 3,
+    "errors_vs_fp32_ref": {
+     "upstream-eager": 0.0041878955879171105,
+     "upstream-compile": 0.0022029692659235388,
+     "loop": 0.0047366250967768005,
+     "grouped": 0.0042742245807878875,
+     "dense": 0.004198346646331087
+    },
+    "max_abs_diff_vs_upstream_eager": {
+     "upstream-compile": 0.0078125,
+     "loop": 0.01171875,
+     "grouped": 0.0078125,
+     "dense": 0.0078125
+    },
+    "graph_capture": {
+     "upstream-eager": "ok",
+     "grouped": "RuntimeError: Cannot copy between CPU and CUDA tensors during CUDA graph capture unless the CPU tensor is pinned. Please use tensor.pin_memory() or allocate the tensor with pin_memory=True.",
+     "dense": "ok"
+    }
+   },
+   {
+    "config": "OLMoE-1B-7B",
+    "T": 16,
+    "unique_experts": 58,
+    "errors_vs_fp32_ref": {
+     "upstream-eager": 0.004317853216261105,
+     "upstream-compile": 0.0021478038468820005,
+     "loop": 0.0055889157660136855,
+     "grouped": 0.004322535800745095,
+     "dense": 0.004320840931073815
+    },
+    "max_abs_diff_vs_upstream_eager": {
+     "upstream-compile": 0.00390625,
+     "loop": 0.0078125,
+     "grouped": 0.00390625,
+     "dense": 0.00390625
+    },
+    "graph_capture": {
+     "upstream-eager": "ok",
+     "grouped": "RuntimeError: Cannot copy between CPU and CUDA tensors during CUDA graph capture unless the CPU tensor is pinned. Please use tensor.pin_memory() or allocate the tensor with pin_memory=True.",
+     "dense": "ok"
+    }
+   }
+  ],
+  "batch_shapes": [
+   {
+    "B": 2,
+    "S": 1,
+    "B1_out_shape": [
+     2,
+     1,
+     128
+    ],
+    "B2_error": "RuntimeError: shape '[1, 2, 1, 8, 2]' is invalid for input of size 16",
+    "moe_in_shape": [
+     2,
+     1,
+     64
+    ],
+    "moe_out_shape": [
+     2,
+     64
+    ],
+    "h_plus_moe_shape": [
+     2,
+     2,
+     64
+    ]
+   },
+   {
+    "B": 2,
+    "S": 4,
+    "B1_out_shape": [
+     2,
+     4,
+     128
+    ],
+    "B2_error": "RuntimeError: The size of tensor a (4) must match the size of tensor b (8) at non-singleton dimension 1",
+    "moe_in_shape": [
+     2,
+     4,
+     64
+    ],
+    "moe_out_shape": [
+     8,
+     64
+    ],
+    "h_plus_moe_error": "RuntimeError: The size of tensor a (4) must match the size of tensor b (8) at non-singleton dimension 1"
+   }
+  ]
+ },
+ "routing": [
+  {
+   "config": "Mixtral-8x7B",
+   "E": 8,
+   "A": 2,
+   "logit_std": 0.5,
+   "tokens": 65536,
+   "mean_max_prob": 0.23340080788758988,
+   "mean_entropy_nats": 1.9756227329206597,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.0071868896484375,
+    "boundary_tie": 0.01409912109375,
+    "set_mismatch_vs_hf": 0.00543212890625,
+    "combine_weight_abs_err": 0.0011470263771985324
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.00177001953125,
+    "boundary_tie": 0.003692626953125,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.00027661293204309974
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 0.0,
+    "set_mismatch_vs_hf": 0.00177001953125,
+    "combine_weight_abs_err": 3.637572178390517e-08
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "E": 8,
+   "A": 2,
+   "logit_std": 1.0,
+   "tokens": 65536,
+   "mean_max_prob": 0.3609307793918158,
+   "mean_entropy_nats": 1.72287447964995,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.003326416015625,
+    "boundary_tie": 0.006744384765625,
+    "set_mismatch_vs_hf": 0.001556396484375,
+    "combine_weight_abs_err": 0.0012332107050581859
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.00177001953125,
+    "boundary_tie": 0.003692626953125,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0004998619641250224
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 0.0,
+    "set_mismatch_vs_hf": 0.00177001953125,
+    "combine_weight_abs_err": 6.045367724055726e-08
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "E": 8,
+   "A": 2,
+   "logit_std": 2.0,
+   "tokens": 65536,
+   "mean_max_prob": 0.5664524571104386,
+   "mean_entropy_nats": 1.1930835126915373,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.002166748046875,
+    "boundary_tie": 0.00439453125,
+    "set_mismatch_vs_hf": 0.000396728515625,
+    "combine_weight_abs_err": 0.001297439527152984
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.00177001953125,
+    "boundary_tie": 0.003692626953125,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0007803157659617705
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 0.0,
+    "set_mismatch_vs_hf": 0.00177001953125,
+    "combine_weight_abs_err": 9.411214598564818e-08
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "E": 8,
+   "A": 2,
+   "logit_std": 4.0,
+   "tokens": 65536,
+   "mean_max_prob": 0.7593052860442852,
+   "mean_entropy_nats": 0.6422296967728858,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.0018768310546875,
+    "boundary_tie": 0.00390625,
+    "set_mismatch_vs_hf": 0.0001068115234375,
+    "combine_weight_abs_err": 0.0013847616806491444
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.00177001953125,
+    "boundary_tie": 0.003692626953125,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0010166495700322728
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 0.0,
+    "set_mismatch_vs_hf": 0.00177001953125,
+    "combine_weight_abs_err": 1.2717355638402748e-07
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "E": 64,
+   "A": 8,
+   "logit_std": 0.5,
+   "tokens": 65536,
+   "mean_max_prob": 0.04560934703734103,
+   "mean_entropy_nats": 4.036437403376977,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.0362396240234375,
+    "boundary_tie": 0.0688629150390625,
+    "set_mismatch_vs_hf": 0.01483154296875,
+    "combine_weight_abs_err": 0.0003125539630498584
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.02227783203125,
+    "boundary_tie": 0.0430755615234375,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.00013803103458412823
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 1.52587890625e-05,
+    "set_mismatch_vs_hf": 0.02227783203125,
+    "combine_weight_abs_err": 8.966361509134221e-09
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "E": 64,
+   "A": 8,
+   "logit_std": 1.0,
+   "tokens": 65536,
+   "mean_max_prob": 0.10735435307743647,
+   "mean_entropy_nats": 3.6840910787016288,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.0233306884765625,
+    "boundary_tie": 0.045379638671875,
+    "set_mismatch_vs_hf": 0.0011749267578125,
+    "combine_weight_abs_err": 0.0003920270369743015
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.02227783203125,
+    "boundary_tie": 0.0430755615234375,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0002859450876428925
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 0.0,
+    "set_mismatch_vs_hf": 0.02227783203125,
+    "combine_weight_abs_err": 1.4479110672382028e-08
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "E": 64,
+   "A": 8,
+   "logit_std": 2.0,
+   "tokens": 65536,
+   "mean_max_prob": 0.3029544322312122,
+   "mean_entropy_nats": 2.6417638744083405,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.02227783203125,
+    "boundary_tie": 0.0430755615234375,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0006184697331438224
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.02227783203125,
+    "boundary_tie": 0.0430755615234375,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0005593977724920358
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 0.0,
+    "set_mismatch_vs_hf": 0.02227783203125,
+    "combine_weight_abs_err": 2.559622876405089e-08
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "E": 64,
+   "A": 8,
+   "logit_std": 4.0,
+   "tokens": 65536,
+   "mean_max_prob": 0.5936725701583239,
+   "mean_entropy_nats": 1.30859261114529,
+   "bf16-softmax": {
+    "set_mismatch_vs_fp64": 0.02227783203125,
+    "boundary_tie": 0.0430755615234375,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0008991253244543027
+   },
+   "fp32-softmax": {
+    "set_mismatch_vs_fp64": 0.02227783203125,
+    "boundary_tie": 0.0430755615234375,
+    "set_mismatch_vs_hf": 0.0,
+    "combine_weight_abs_err": 0.0008641151944129942
+   },
+   "fp32-logits": {
+    "set_mismatch_vs_fp64": 0.0,
+    "boundary_tie": 0.0,
+    "set_mismatch_vs_hf": 0.02227783203125,
+    "combine_weight_abs_err": 3.792031684733999e-08
+   }
+  }
+ ],
+ "impact": [
+  {
+   "config": "Mixtral-8x7B",
+   "T": 1024,
+   "mismatch_tokens": 7,
+   "bf16_ffn_fp64_routing": 0.005020948432705618,
+   "bf16_ffn_upstream_routing": 0.05334091983531725,
+   "upstream_routing_on_mismatched": 0.6198702683965412,
+   "upstream_routing_on_matched": 0.005708850644846654
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 4096,
+   "mismatch_tokens": 95,
+   "bf16_ffn_fp64_routing": 0.005227887058105855,
+   "bf16_ffn_upstream_routing": 0.04121967040043598,
+   "upstream_routing_on_mismatched": 0.260852960414407,
+   "upstream_routing_on_matched": 0.006800322311719154
+  }
+ ],
+ "speed": [
+  {
+   "config": "Mixtral-8x7B",
+   "T": 1,
+   "unique_experts": 2,
+   "touched_expert_bytes": 704643072,
+   "gathered_bytes": 704643072,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "peak_extra_bytes": 704833024,
+    "status": "ok",
+    "eager_us": 8986.969757080078,
+    "graph_us": 8903.065490722656,
+    "touched_GBps": 79.14611801230326
+   },
+   "upstream-compile": {
+    "extern_kernels": {},
+    "first_call_s": 0.5,
+    "peak_extra_bytes": 263168,
+    "status": "ok",
+    "eager_us": 2854.4342041015625,
+    "graph_us": 2794.8267618815103,
+    "touched_GBps": 252.12406064325288
+   },
+   "upstream-compile-dyn": {
+    "status": "not run"
+   },
+   "loop": {
+    "peak_extra_bytes": 132608,
+    "status": "ok",
+    "eager_us": 4272.753282026811,
+    "graph_us": null,
+    "touched_GBps": 164.9154597725211
+   },
+   "grouped": {
+    "peak_extra_bytes": 190464,
+    "status": "ok",
+    "eager_us": 3169.6229662214005,
+    "graph_us": null,
+    "touched_GBps": 222.3113220434623
+   },
+   "dense": {
+    "peak_extra_bytes": 689664,
+    "status": "ok",
+    "eager_us": 11347.455978393555,
+    "graph_us": 11149.552345275879,
+    "touched_GBps": 63.19922541989418
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 2,
+   "unique_experts": 4,
+   "touched_expert_bytes": 1409286144,
+   "gathered_bytes": 1409286144,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "peak_extra_bytes": 1409664512,
+    "status": "ok",
+    "eager_us": 18025.472005208332,
+    "graph_us": 17822.64582316081,
+    "touched_GBps": 79.07277954032001
+   },
+   "upstream-compile": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.2,
+    "peak_extra_bytes": 525312,
+    "status": "ok",
+    "eager_us": 5690.368175506592,
+    "graph_us": 5590.400218963623,
+    "touched_GBps": 252.09038508896967
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 18.3,
+    "peak_extra_bytes": 525312,
+    "status": "ok",
+    "eager_us": 7729.834874471028,
+    "graph_us": 5598.378499348958,
+    "touched_GBps": 251.73112967690332
+   },
+   "loop": {
+    "peak_extra_bytes": 140800,
+    "status": "ok",
+    "eager_us": 7474.331447056362,
+    "graph_us": null,
+    "touched_GBps": 188.55012705584838
+   },
+   "grouped": {
+    "peak_extra_bytes": 378880,
+    "status": "ok",
+    "eager_us": 5985.408238002232,
+    "graph_us": null,
+    "touched_GBps": 235.45363790764284
+   },
+   "dense": {
+    "peak_extra_bytes": 1377792,
+    "status": "ok",
+    "eager_us": 11507.967948913574,
+    "graph_us": 11310.848236083984,
+    "touched_GBps": 124.59597322719624
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 3,
+   "unique_experts": 4,
+   "touched_expert_bytes": 1409286144,
+   "gathered_bytes": 2113929216,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "status": "OOM"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "status": "not run"
+   },
+   "loop": {
+    "peak_extra_bytes": 271872,
+    "status": "ok",
+    "eager_us": 7080.959865025112,
+    "graph_us": null,
+    "touched_GBps": 199.0247326440682
+   },
+   "grouped": {
+    "peak_extra_bytes": 567296,
+    "status": "ok",
+    "eager_us": 6119.428362165178,
+    "graph_us": null,
+    "touched_GBps": 230.29702459027823
+   },
+   "dense": {
+    "peak_extra_bytes": 2065920,
+    "status": "ok",
+    "eager_us": 11489.784240722656,
+    "graph_us": 11336.959838867188,
+    "touched_GBps": 124.3090002990448
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 4,
+   "unique_experts": 5,
+   "touched_expert_bytes": 1761607680,
+   "gathered_bytes": 2818572288,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.3,
+    "peak_extra_bytes": 1049600,
+    "status": "ok",
+    "eager_us": 11346.912384033203,
+    "graph_us": 11144.960403442383,
+    "touched_GBps": 158.0631618445128
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.6,
+    "peak_extra_bytes": 1049600,
+    "status": "ok",
+    "eager_us": 11309.247970581055,
+    "graph_us": 11144.66381072998,
+    "touched_GBps": 158.06736837623941
+   },
+   "loop": {
+    "peak_extra_bytes": 345600,
+    "status": "ok",
+    "eager_us": 8992.3583984375,
+    "graph_us": null,
+    "touched_GBps": 195.90051930159888
+   },
+   "grouped": {
+    "peak_extra_bytes": 755712,
+    "status": "ok",
+    "eager_us": 7716.6015625,
+    "graph_us": null,
+    "touched_GBps": 228.28801846667847
+   },
+   "dense": {
+    "peak_extra_bytes": 2754048,
+    "status": "ok",
+    "eager_us": 11559.42440032959,
+    "graph_us": 11354.368209838867,
+    "touched_GBps": 155.14801417779628
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 8,
+   "unique_experts": 7,
+   "touched_expert_bytes": 2466250752,
+   "gathered_bytes": 5637144576,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.3,
+    "peak_extra_bytes": 2098176,
+    "status": "ok",
+    "eager_us": 22487.040201822918,
+    "graph_us": 22245.035807291668,
+    "touched_GBps": 110.8674660434393
+   },
+   "loop": {
+    "peak_extra_bytes": 472576,
+    "status": "ok",
+    "eager_us": 12119.551658630371,
+    "graph_us": null,
+    "touched_GBps": 203.4935632494107
+   },
+   "grouped": {
+    "peak_extra_bytes": 1509376,
+    "status": "ok",
+    "eager_us": 10490.1123046875,
+    "graph_us": null,
+    "touched_GBps": 235.10241648203873
+   },
+   "dense": {
+    "peak_extra_bytes": 5506560,
+    "status": "ok",
+    "eager_us": 11613.183975219727,
+    "graph_us": 11399.344444274902,
+    "touched_GBps": 216.3502264587352
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 16,
+   "unique_experts": 8,
+   "touched_expert_bytes": 2818572288,
+   "gathered_bytes": 11274289152,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.4,
+    "peak_extra_bytes": 4195328,
+    "status": "ok",
+    "eager_us": 44703.01818847656,
+    "graph_us": 44448.04382324219,
+    "touched_GBps": 63.412740934307415
+   },
+   "loop": {
+    "peak_extra_bytes": 812544,
+    "status": "ok",
+    "eager_us": 13686.442057291666,
+    "graph_us": null,
+    "touched_GBps": 205.93900709924543
+   },
+   "grouped": {
+    "peak_extra_bytes": 3016704,
+    "status": "ok",
+    "eager_us": 11993.599891662598,
+    "graph_us": null,
+    "touched_GBps": 235.00636284851745
+   },
+   "dense": {
+    "peak_extra_bytes": 11011584,
+    "status": "ok",
+    "eager_us": 11683.832168579102,
+    "graph_us": 11506.400108337402,
+    "touched_GBps": 244.95691627807167
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 64,
+   "unique_experts": 8,
+   "touched_expert_bytes": 2818572288,
+   "gathered_bytes": 45097156608,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 52.1,
+    "peak_extra_bytes": 16778752,
+    "status": "ok",
+    "eager_us": 177773.5595703125,
+    "graph_us": 177598.7345377604,
+    "touched_GBps": 15.870452541995592
+   },
+   "loop": {
+    "peak_extra_bytes": 3094528,
+    "status": "ok",
+    "eager_us": 13956.095377604166,
+    "graph_us": null,
+    "touched_GBps": 201.95994737346533
+   },
+   "grouped": {
+    "peak_extra_bytes": 12061696,
+    "status": "ok",
+    "eager_us": 12434.431711832682,
+    "graph_us": null,
+    "touched_GBps": 226.67479731444658
+   },
+   "dense": {
+    "peak_extra_bytes": 44042752,
+    "status": "ok",
+    "eager_us": 12331.9460550944,
+    "graph_us": 12014.25043741862,
+    "touched_GBps": 234.60242506860862
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 256,
+   "unique_experts": 8,
+   "touched_expert_bytes": 2818572288,
+   "gathered_bytes": 180388626432,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "status": "not run"
+   },
+   "loop": {
+    "peak_extra_bytes": 10975744,
+    "status": "ok",
+    "eager_us": 15820.799509684244,
+    "graph_us": null,
+    "touched_GBps": 178.156122026241
+   },
+   "grouped": {
+    "peak_extra_bytes": 48244224,
+    "status": "ok",
+    "eager_us": 14542.826334635416,
+    "graph_us": null,
+    "touched_GBps": 193.81186456770413
+   },
+   "dense": {
+    "peak_extra_bytes": 176169984,
+    "status": "ok",
+    "eager_us": 26331.817626953125,
+    "graph_us": 26193.557739257812,
+    "touched_GBps": 107.60555385630725
+   }
+  },
+  {
+   "config": "Mixtral-8x7B",
+   "T": 1024,
+   "unique_experts": 8,
+   "touched_expert_bytes": 2818572288,
+   "gathered_bytes": 721554505728,
+   "weights_bytes": 2818572288,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "status": "not run"
+   },
+   "loop": {
+    "peak_extra_bytes": 43405824,
+    "status": "ok",
+    "eager_us": 33124.99237060547,
+    "graph_us": null,
+    "touched_GBps": 85.08899432988703
+   },
+   "grouped": {
+    "peak_extra_bytes": 192975360,
+    "status": "ok",
+    "eager_us": 31381.16200764974,
+    "graph_us": null,
+    "touched_GBps": 89.81733331968144
+   },
+   "dense": {
+    "peak_extra_bytes": 704679936,
+    "status": "ok",
+    "eager_us": 103303.1717936198,
+    "graph_us": 102967.29532877605,
+    "touched_GBps": 27.37347114926403
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 1,
+   "unique_experts": 8,
+   "touched_expert_bytes": 100663296,
+   "gathered_bytes": 100663296,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "peak_extra_bytes": 100746752,
+    "status": "ok",
+    "eager_us": 1270.6327727346709,
+    "graph_us": 1238.0780306729403,
+    "touched_GBps": 81.30609986293501
+   },
+   "upstream-compile": {
+    "extern_kernels": {},
+    "first_call_s": 0.5,
+    "peak_extra_bytes": 132608,
+    "status": "ok",
+    "eager_us": 432.044597154253,
+    "graph_us": 412.3613593283664,
+    "touched_GBps": 244.1142791942372
+   },
+   "upstream-compile-dyn": {
+    "status": "not run"
+   },
+   "loop": {
+    "peak_extra_bytes": 20480,
+    "status": "ok",
+    "eager_us": 7295.5902099609375,
+    "graph_us": null,
+    "touched_GBps": 13.797827605854383
+   },
+   "grouped": {
+    "peak_extra_bytes": 120832,
+    "status": "ok",
+    "eager_us": 1525.8061218261719,
+    "graph_us": null,
+    "touched_GBps": 65.97384461894832
+   },
+   "dense": {
+    "peak_extra_bytes": 398848,
+    "status": "ok",
+    "eager_us": 3299.920082092285,
+    "graph_us": 3235.151926676432,
+    "touched_GBps": 31.11547719597033
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 2,
+   "unique_experts": 16,
+   "touched_expert_bytes": 201326592,
+   "gathered_bytes": 201326592,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "peak_extra_bytes": 201491968,
+    "status": "ok",
+    "eager_us": 2628.7285299862133,
+    "graph_us": 2585.223478429458,
+    "touched_GBps": 77.87589493899667
+   },
+   "upstream-compile": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.4,
+    "peak_extra_bytes": 263168,
+    "status": "ok",
+    "eager_us": 839.5170731977983,
+    "graph_us": 815.8486973155628,
+    "touched_GBps": 246.76952069965577
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 18.3,
+    "peak_extra_bytes": 263168,
+    "status": "ok",
+    "eager_us": 1303.5519917805989,
+    "graph_us": 1240.268834431966,
+    "touched_GBps": 162.32496246848456
+   },
+   "loop": {
+    "peak_extra_bytes": 24576,
+    "status": "ok",
+    "eager_us": 13096.960067749023,
+    "graph_us": null,
+    "touched_GBps": 15.37200930281236
+   },
+   "grouped": {
+    "peak_extra_bytes": 239616,
+    "status": "ok",
+    "eager_us": 1678.7946065266926,
+    "graph_us": null,
+    "touched_GBps": 119.9233016458937
+   },
+   "dense": {
+    "peak_extra_bytes": 796160,
+    "status": "ok",
+    "eager_us": 3841.4896184747868,
+    "graph_us": 3749.2363669655538,
+    "touched_GBps": 53.69802602308154
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 4,
+   "unique_experts": 25,
+   "touched_expert_bytes": 314572800,
+   "gathered_bytes": 402653184,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "peak_extra_bytes": 402982400,
+    "status": "ok",
+    "eager_us": 4801.194508870442,
+    "graph_us": 4720.977783203125,
+    "touched_GBps": 66.6329761430409
+   },
+   "upstream-compile": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.4,
+    "peak_extra_bytes": 525312,
+    "status": "ok",
+    "eager_us": 1639.9138077445652,
+    "graph_us": 1609.2827838400135,
+    "touched_GBps": 195.4739112099227
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.5,
+    "peak_extra_bytes": 525312,
+    "status": "ok",
+    "eager_us": 1644.9891795282779,
+    "graph_us": 1609.0155891750169,
+    "touched_GBps": 195.50637179425306
+   },
+   "loop": {
+    "peak_extra_bytes": 61440,
+    "status": "ok",
+    "eager_us": 10251.605351765951,
+    "graph_us": null,
+    "touched_GBps": 30.685223358292017
+   },
+   "grouped": {
+    "peak_extra_bytes": 477184,
+    "status": "ok",
+    "eager_us": 2202.4973233540854,
+    "graph_us": null,
+    "touched_GBps": 142.82550841921164
+   },
+   "dense": {
+    "peak_extra_bytes": 1590784,
+    "status": "ok",
+    "eager_us": 3334.2903682163783,
+    "graph_us": 3273.791994367327,
+    "touched_GBps": 96.08820613564743
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 8,
+   "unique_experts": 43,
+   "touched_expert_bytes": 541065216,
+   "gathered_bytes": 805306368,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "peak_extra_bytes": 805963776,
+    "status": "ok",
+    "eager_us": 9141.657257080078,
+    "graph_us": 8994.175720214844,
+    "touched_GBps": 60.15728765271172
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.3,
+    "peak_extra_bytes": 1049600,
+    "status": "ok",
+    "eager_us": 3196.6353825160436,
+    "graph_us": 3150.2628326416016,
+    "touched_GBps": 171.7524044005873
+   },
+   "loop": {
+    "peak_extra_bytes": 77824,
+    "status": "ok",
+    "eager_us": 18724.45805867513,
+    "graph_us": null,
+    "touched_GBps": 28.896174954944662
+   },
+   "grouped": {
+    "peak_extra_bytes": 952320,
+    "status": "ok",
+    "eager_us": 3060.5653127034507,
+    "graph_us": null,
+    "touched_GBps": 176.7860381068188
+   },
+   "dense": {
+    "peak_extra_bytes": 3180544,
+    "status": "ok",
+    "eager_us": 3366.4395258976865,
+    "graph_us": 3304.1255657489482,
+    "touched_GBps": 163.75443524567032
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 16,
+   "unique_experts": 56,
+   "touched_expert_bytes": 704643072,
+   "gathered_bytes": 1610612736,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "peak_extra_bytes": 1611927040,
+    "status": "ok",
+    "eager_us": 16367.530822753906,
+    "graph_us": 16183.979034423828,
+    "touched_GBps": 43.539544292611986
+   },
+   "upstream-compile": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.2,
+    "peak_extra_bytes": 2098688,
+    "status": "ok",
+    "eager_us": 6437.595367431641,
+    "graph_us": 6363.282339913504,
+    "touched_GBps": 110.73578608639549
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.3,
+    "peak_extra_bytes": 2098688,
+    "status": "ok",
+    "eager_us": 6479.286738804409,
+    "graph_us": 6365.76897757394,
+    "touched_GBps": 110.69252976072448
+   },
+   "loop": {
+    "peak_extra_bytes": 154112,
+    "status": "ok",
+    "eager_us": 20442.208607991535,
+    "graph_us": null,
+    "touched_GBps": 34.47000691131445
+   },
+   "grouped": {
+    "peak_extra_bytes": 1903616,
+    "status": "ok",
+    "eager_us": 5375.590515136719,
+    "graph_us": null,
+    "touched_GBps": 131.08198439145409
+   },
+   "dense": {
+    "peak_extra_bytes": 6360576,
+    "status": "ok",
+    "eager_us": 3414.173419658954,
+    "graph_us": 3348.479931171124,
+    "touched_GBps": 210.43670157328748
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 32,
+   "unique_experts": 64,
+   "touched_expert_bytes": 805306368,
+   "gathered_bytes": 3221225472,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "peak_extra_bytes": 3223853568,
+    "status": "ok",
+    "eager_us": 30528.854370117188,
+    "graph_us": 30401.194254557293,
+    "touched_GBps": 26.48930042869222
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.4,
+    "peak_extra_bytes": 4196864,
+    "status": "ok",
+    "eager_us": 12878.84775797526,
+    "graph_us": 12717.056274414062,
+    "touched_GBps": 63.32490402045535
+   },
+   "loop": {
+    "peak_extra_bytes": 235008,
+    "status": "ok",
+    "eager_us": 23587.839762369793,
+    "graph_us": null,
+    "touched_GBps": 34.14074269254292
+   },
+   "grouped": {
+    "peak_extra_bytes": 3806208,
+    "status": "ok",
+    "eager_us": 5494.169616699219,
+    "graph_us": null,
+    "touched_GBps": 146.57471905350658
+   },
+   "dense": {
+    "peak_extra_bytes": 12720640,
+    "status": "ok",
+    "eager_us": 3510.7445350060098,
+    "graph_us": 3454.660855806791,
+    "touched_GBps": 233.10721417021156
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 64,
+   "unique_experts": 64,
+   "touched_expert_bytes": 805306368,
+   "gathered_bytes": 6442450944,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "status": "OOM"
+   },
+   "upstream-compile": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.3,
+    "peak_extra_bytes": 8393728,
+    "status": "ok",
+    "eager_us": 25598.304748535156,
+    "graph_us": 25361.32303873698,
+    "touched_GBps": 31.753326384825115
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 0.3,
+    "peak_extra_bytes": 8393728,
+    "status": "ok",
+    "eager_us": 25605.120340983074,
+    "graph_us": 25364.756266276043,
+    "touched_GBps": 31.749028437174573
+   },
+   "loop": {
+    "peak_extra_bytes": 468992,
+    "status": "ok",
+    "eager_us": 21327.51973470052,
+    "graph_us": null,
+    "touched_GBps": 37.759025804099586
+   },
+   "grouped": {
+    "peak_extra_bytes": 7611904,
+    "status": "ok",
+    "eager_us": 6674.425506591797,
+    "graph_us": null,
+    "touched_GBps": 120.65553315482556
+   },
+   "dense": {
+    "peak_extra_bytes": 25441280,
+    "status": "ok",
+    "eager_us": 3741.525332132975,
+    "graph_us": 3663.954734802246,
+    "touched_GBps": 219.7915712087706
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 256,
+   "unique_experts": 64,
+   "touched_expert_bytes": 805306368,
+   "gathered_bytes": 25769803776,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "extern_kernels": {
+     "mm": 1
+    },
+    "first_call_s": 45.1,
+    "peak_extra_bytes": 33574912,
+    "status": "ok",
+    "eager_us": 102101.25732421875,
+    "graph_us": 101840.8203125,
+    "touched_GBps": 7.907500799079446
+   },
+   "loop": {
+    "peak_extra_bytes": 1687040,
+    "status": "ok",
+    "eager_us": 23643.1147257487,
+    "graph_us": null,
+    "touched_GBps": 34.0609254466365
+   },
+   "grouped": {
+    "peak_extra_bytes": 30446080,
+    "status": "ok",
+    "eager_us": 7111.346108572824,
+    "graph_us": null,
+    "touched_GBps": 113.24246573081182
+   },
+   "dense": {
+    "peak_extra_bytes": 101765120,
+    "status": "ok",
+    "eager_us": 7983.103942871094,
+    "graph_us": 7819.673919677734,
+    "touched_GBps": 102.9846482438987
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 1024,
+   "unique_experts": 64,
+   "touched_expert_bytes": 805306368,
+   "gathered_bytes": 103079215104,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "status": "not run"
+   },
+   "loop": {
+    "peak_extra_bytes": 6587904,
+    "status": "ok",
+    "eager_us": 24892.415364583332,
+    "graph_us": null,
+    "touched_GBps": 32.35147558825415
+   },
+   "grouped": {
+    "peak_extra_bytes": 121782784,
+    "status": "ok",
+    "eager_us": 7878.867340087891,
+    "graph_us": null,
+    "touched_GBps": 102.2109312467516
+   },
+   "dense": {
+    "peak_extra_bytes": 407060480,
+    "status": "ok",
+    "eager_us": 31911.25233968099,
+    "graph_us": 31576.065063476562,
+    "touched_GBps": 25.503696118598473
+   }
+  },
+  {
+   "config": "OLMoE-1B-7B",
+   "T": 4096,
+   "unique_experts": 64,
+   "touched_expert_bytes": 805306368,
+   "gathered_bytes": 412316860416,
+   "weights_bytes": 805306368,
+   "upstream-eager": {
+    "status": "OOM at smaller T"
+   },
+   "upstream-compile": {
+    "status": "not run"
+   },
+   "upstream-compile-dyn": {
+    "status": "not run"
+   },
+   "loop": {
+    "peak_extra_bytes": 26722816,
+    "status": "ok",
+    "eager_us": 35025.238037109375,
+    "graph_us": null,
+    "touched_GBps": 22.99217401882536
+   },
+   "grouped": {
+    "peak_extra_bytes": 487129600,
+    "status": "ok",
+    "eager_us": 22050.816853841145,
+    "graph_us": null,
+    "touched_GBps": 36.52047782800027
+   },
+   "dense": {
+    "peak_extra_bytes": 1628241920,
+    "status": "ok",
+    "eager_us": 126462.97200520833,
+    "graph_us": 126263.97705078125,
+    "touched_GBps": 6.3779582016184975
+   }
+  }
+ ]
+}
