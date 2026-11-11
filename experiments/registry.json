@@ -169,6 +169,16 @@
       "device": "cuda",
       "date": "2026-11-10",
       "status": "done"
+    },
+    {
+      "id": "0018",
+      "slug": "gptfast-moe-expert-gather",
+      "upstream": "meta-pytorch/gpt-fast",
+      "component": "mixtral-moe/model.py (MOEFeedForward router + ConditionalFeedForward per-token w1/w2/w3[expert_indices] gather)",
+      "topic": "one MoE layer with Mixtral-8x7B (8 experts, top-2) and OLMoE-1B-7B (64, top-8) shapes, synthetic bf16 weights: exactness vs fp32 per-expert reference for upstream eager / torch.compile vs HF-style per-expert loop, sort + F.grouped_mm and dense all-expert bmm; batch > 1 shape bug in TransformerBlock; extra peak memory / OOM point and latency vs token count 1-4096, eager and CUDA-graph replay, static vs dynamic=True compile, Inductor extern calls, bandwidth vs touched experts; grouped_mm CUDA-graph capture on sm89; bf16 vs fp32 router softmax / logits: top-A ties, set mismatch vs fp64 and HF-style routing vs logit scale, output error of flipped tokens",
+      "device": "cuda",
+      "date": "2026-11-11",
+      "status": "done"
     }
   ]
 }
