@@ -179,6 +179,16 @@
       "device": "cuda",
       "date": "2026-11-11",
       "status": "done"
+    },
+    {
+      "id": "0019",
+      "slug": "bnb-8bit-optimizer",
+      "upstream": "bitsandbytes-foundation/bitsandbytes",
+      "component": "bitsandbytes/optim/optimizer.py (Optimizer2State, Optimizer8bit.step) + csrc/kernels.cu (kOptimizerStatic8bit2StateBlockwise) + functional.py (create_dynamic_map, get_paged)",
+      "topic": "8-bit blockwise dynamic-map Adam/AdamW states vs 32-bit: torch re-implementation checked code by code against the CUDA kernel; signed map asymmetry; Adam(weight_decay) = decoupled AdamW vs torch L2; GPT-2-124M state bytes / torch-allocator vs nvidia-smi view of paged (managed) states, checkpoint size, managed memory left after delete; step() latency vs size for fp32/bf16 params vs torch fused Adam and the per-parameter torch.cuda.synchronize(); update error vs in-block gradient dynamic range 0-6 decades (v underflow to code 0 and exploding updates) vs tensor-wise dynamic, blockwise/tensor-wise linear int8 and a sqrt(v)-storage fix; byte-level nanoGPT 6x384 training val loss at lr 1e-3 / 3e-3 with real-gradient v underflow statistics",
+      "device": "cuda",
+      "date": "2026-11-12",
+      "status": "done"
     }
   ]
 }
