@@ -56,12 +56,15 @@ REF_CHUNK = 2048
 DET_SHAPES = [(4096, 1024), (32768, 1024), (4096, 4096), (32768, 4096)]
 DET_REPEATS = 20
 GROUP_SHAPES = [(16384, 1024), (16384, 4096)]
-GROUPS = [1, 4, 16, 64, 256, 1024]
+GROUPS = [1, 4, 16, 64, 128, 256, 1024]
 GROUP_REPEATS = 10
 PERF_M = 4096
 PERF_NS = [512, 1024, 2048, 3072, 4096, 8192, 16384, 32768]
+PERF_ROUNDS = 3
 
 torch._dynamo.config.recompile_limit = 64
+# Donated buffers make compiled backward reject retain_graph=True, which the timing loop needs.
+torch._functorch.config.donated_buffer = False
 
 
 def load_tutorial() -> types.ModuleType:
@@ -159,8 +162,14 @@ def _bwd_rows_fp32(DX, DY, PDW, PDB, X, W, Mean, Rstd, N, M, ROWS_PER_PROG, BLOC
     tl.store(PDB + pid * N + cols, db_acc, mask=mask)
 
 
+def lockfree_warps(block, warps):
+    """Three extra fp32 row vectors live in registers, so wide rows need more warps to avoid spilling."""
+    return min(max(block // 512, warps), 32)
+
+
 def lockfree_bwd(x2, dy2, w, mean, rstd, block, warps):
     m, n = x2.shape
+    warps = lockfree_warps(block, warps)
     rows_per_prog = triton.cdiv(m, min(m, 4 * NUM_SM))
     progs = triton.cdiv(m, rows_per_prog)
     pdw = torch.empty((progs, n), dtype=torch.float32, device=w.device)
@@ -268,9 +277,10 @@ def rel(err_sq, ref_sq):
 def layout_child(case, variant):
     fn = LAYOUT_FNS[variant]
     g = cuda_gen()
-    m, n, dtype = LAYOUT_M, LAYOUT_N, torch.float16
+    # fp16 cannot hold the 1 / numel grad of y.mean(), so that case runs in fp32.
+    m, n, dtype = LAYOUT_M, LAYOUT_N, torch.float32 if case == "mean_loss_dy" else torch.float16
     w, b = params(n, dtype, g)
-    out = {"case": case, "variant": variant}
+    out = {"case": case, "variant": variant, "dtype": str(dtype).removeprefix("torch.")}
     canary = None
     if case == "contiguous_2d":
         x = (-2.3 + 0.5 * torch.randn(m, n, device="cuda", generator=g)).to(dtype)
@@ -288,7 +298,7 @@ def layout_child(case, variant):
         if case == "sum_loss_dy":
             return y.sum()
         if case == "mean_loss_dy":
-            return y.mean() * y.numel()
+            return y.mean()
         if case == "permuted_dy":
             return (y.transpose(0, 1) * gy_t).sum()
         return (y * gy).sum()
@@ -537,13 +547,29 @@ def group_sweep():
 
 # ---------------------------------------------------------------- 6. bandwidth
 
-def kernel_snapshot():
-    out = {}
-    for kname, k in (("fwd", tut._layer_norm_fwd_fused), ("bwd_locked", tut._layer_norm_bwd_dx_fused),
-                     ("bwd_lockfree", _bwd_rows_fp32)):
-        for cache in k.device_caches.values():
-            for key, ck in cache[0].items():
-                out[(kname, str(key))] = ck
+def kernel_resources(x2, w):
+    """Compiled kernels for this shape (warmup() returns the cached binary the timed calls used)."""
+    m, n = x2.shape
+    block, warps = launch_params(n, x2.element_size())
+    group = tutorial_group_size(n)
+    rows_per_prog = triton.cdiv(m, min(m, 4 * NUM_SM))
+    mean = torch.empty(m, dtype=torch.float32, device="cuda")
+    locks = torch.zeros(2 * group, dtype=torch.int32, device="cuda")
+    pdw = torch.empty(1, dtype=torch.float32, device="cuda")
+    ks = {
+        "fwd": tut._layer_norm_fwd_fused.warmup(x2, x2, w, w, mean, mean, x2.stride(0), n, EPS, BLOCK_SIZE=block,
+                                                num_warps=warps, num_ctas=1, grid=(1, )),
+        "bwd_locked": tut._layer_norm_bwd_dx_fused.warmup(x2, x2, x2, x2, x2, w, mean, mean, locks, x2.stride(0), n,
+                                                          BLOCK_SIZE_N=block, GROUP_SIZE_M=group, num_warps=warps,
+                                                          grid=(1, )),
+        "bwd_lockfree": _bwd_rows_fp32.warmup(x2, x2, pdw, pdw, x2, w, mean, mean, n, m, rows_per_prog,
+                                              BLOCK_SIZE_N=block, num_warps=lockfree_warps(block, warps), grid=(1, )),
+    }
+    out = []
+    for kname, ck in ks.items():
+        ck._init_handles()
+        out.append({"kernel": kname, "num_warps": ck.metadata.num_warps, "n_regs": ck.n_regs,
+                    "n_spills": ck.n_spills, "shared_bytes": ck.metadata.shared})
     return out
 
 
@@ -571,35 +597,36 @@ def perf():
             dy = (0.1 * torch.randn(PERF_M, n, device="cuda", generator=g)).to(dtype)
             numel, es = x.numel(), x.element_size()
             row = {"dtype": dname, "M": PERF_M, "N": n, "MiB_per_tensor": round(numel * es / 2**20, 1)}
+            for _ in range(2):
+                torch.autograd.grad(torch_compiled(x, w, b), (x, w, b), dy)
             out = torch.empty_like(x)
-            ms = do_bench(lambda: out.copy_(x), return_mode="median")
-            row["copy_gbps"] = round(2 * numel * es * 1e-9 / (ms * 1e-3), 1)
-            del out
-            before = set(kernel_snapshot())
-            for name, fn in fns.items():
-                if name == "torch_compile":
-                    for _ in range(2):
-                        torch.autograd.grad(fn(x, w, b), (x, w, b), dy)
-                ms, status = safe_bench(lambda: fn(x, w, b))
-                row[name + "_fwd_gbps"] = round(2 * numel * es * 1e-9 / (ms * 1e-3), 1) if ms else status
-                try:
+            copy = lambda: out.copy_(x)  # noqa: E731
+            do_bench(copy, rep=500)  # the GPU idles while Inductor compiles; ramp clocks back up first
+            times = {k: [] for k in ["copy"] + [f"{v}_{p}" for v in fns for p in ("fwd", "bwd")]}
+            status = {}
+            for _ in range(PERF_ROUNDS):
+                times["copy"].append(do_bench(copy, return_mode="median"))
+                for name, fn in fns.items():
+                    ms, status[name + "_fwd"] = safe_bench(lambda: fn(x, w, b))
+                    times[name + "_fwd"].append(ms)
                     y = fn(x, w, b)
-                    ms, status = safe_bench(lambda: torch.autograd.grad(y, (x, w, b), dy, retain_graph=True))
+                    ms, status[name + "_bwd"] = safe_bench(
+                        lambda: torch.autograd.grad(y, (x, w, b), dy, retain_graph=True))
+                    times[name + "_bwd"].append(ms)
                     del y
-                except Exception as e:  # noqa: BLE001
-                    ms, status = None, type(e).__name__
-                row[name + "_bwd_gbps"] = round(3 * numel * es * 1e-9 / (ms * 1e-3), 1) if ms else status
-                row[name + "_bwd_ms"] = round(ms, 4) if ms else None
+            del out
+            for k, ts in times.items():
+                ts = [t for t in ts if t is not None]
+                ms = sorted(ts)[len(ts) // 2] if ts else None
+                nbytes = (3 if k.endswith("_bwd") else 2) * numel * es
+                row[k + "_gbps"] = round(nbytes * 1e-9 / (ms * 1e-3), 1) if ms else status.get(k)
+                row[k + "_ms"] = round(ms, 4) if ms else None
             for name in ("tutorial", "lockfree", "torch_compile"):
                 t, base = row[name + "_bwd_ms"], row["torch_bwd_ms"]
                 row[name + "_bwd_speedup_vs_torch"] = round(base / t, 2) if t and base else None
             rows.append(row)
             print("perf", row, flush=True)
-            for (kname, _), ck in kernel_snapshot().items():
-                if (kname, _) in before:
-                    continue
-                kernels.append({"dtype": dname, "N": n, "kernel": kname, "num_warps": ck.metadata.num_warps,
-                                "n_regs": ck.n_regs, "n_spills": ck.n_spills, "shared_bytes": ck.metadata.shared})
+            kernels += [{"dtype": dname, "N": n, **k} for k in kernel_resources(x.detach(), w.detach())]
             del x, dy, w, b
             gc.collect()
             torch.cuda.empty_cache()
@@ -618,18 +645,18 @@ def write_md(result):
         f"torch {torch.__version__}, {gpu.get('name', 'cuda')} ({NUM_SM} SMs, memory cap {gpu.get('memory_fraction_cap')}), "
         f"runtime {result['runtime_s']} s",
         "",
-        f"## 1. Layouts ({LAYOUT_M} x {LAYOUT_N} fp16 rows; rel L2 error vs fp64 autograd on the same logical tensors; "
+        f"## 1. Layouts ({LAYOUT_M} x {LAYOUT_N} rows; rel L2 error vs fp64 autograd on the same logical tensors; "
         "`fixed` = contiguous x / y / dy + lock-free backward)",
         "",
-        "| case | variant | error | y strides | y rows wrong | y rel err | dx rel err | dw rel err | db rel err | canary |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| case | dtype | variant | error | y strides | y rows wrong | y rel err | dx rel err | dw rel err | db rel err | canary |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in result["layouts"]:
         canary = ""
         if "canary_elements_overwritten" in r:
             canary = (f"{r['canary_elements_overwritten']} / {r['canary_elements']} overwritten "
                       f"(adjacent {r.get('canary_adjacent_to_freed_block')}, y reuses block {r.get('y_reuses_freed_block')})")
-        lines.append(f"| {r['case']} | {r['variant']} | {r.get('error') or ''} | {r.get('y_strides', '')} | "
+        lines.append(f"| {r['case']} | {r.get('dtype', '')} | {r['variant']} | {r.get('error') or ''} | {r.get('y_strides', '')} | "
                      f"{'' if 'y_rows_wrong' not in r else str(r['y_rows_wrong']) + ' / ' + str(r['rows'])} | "
                      f"{r.get('y_rel_err', '')} | {r.get('dx_rel_err', '')} | {r.get('dw_rel_err', '')} | "
                      f"{r.get('db_rel_err', '')} | {canary} |")
