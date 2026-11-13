@@ -189,6 +189,16 @@
       "device": "cuda",
       "date": "2026-11-12",
       "status": "done"
+    },
+    {
+      "id": "0020",
+      "slug": "triton-tutorial-layernorm",
+      "upstream": "triton-lang/triton",
+      "component": "python/tutorials/05-layer-norm.py (_layer_norm_fwd_fused, _layer_norm_bwd_dx_fused spin-lock GROUP_SIZE_M partial dW/db reduction, _layer_norm_bwd_dwdb, LayerNorm autograd wrapper)",
+      "topic": "wrapper stride handling for row-strided / permuted x and autograd grads (stride-0 dy from y.sum(), permuted dy) incl. out-of-bounds writes into a canary next to y; 64 KB row limit; fp16/bf16 x.dtype partial-buffer dW/db error vs fp64 as rows per buffer grow (zero-mean / biased dy) vs fp32 buffers, a lock-free fixed-order fp32 rewrite and torch native; bitwise determinism over repeated backward vs GROUP_SIZE_M and co-resident programs; GROUP_SIZE_M 1-1024 time / error; fwd / bwd bandwidth vs N 512-32768 for tutorial vs torch native vs torch.compile vs rewrite with registers / spills",
+      "device": "cuda",
+      "date": "2026-11-13",
+      "status": "done"
     }
   ]
 }

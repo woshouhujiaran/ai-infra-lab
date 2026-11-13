@@ -46,7 +46,7 @@ The tutorial claims to be faster than PyTorch's layer norm, and its backward pas
    - Below those counts the result changes with every call. G ≤ 128 at N = 1024 and G ≤ 16 at N = 4096 gave 10 distinct patterns in 10 calls, and G = 64 at N = 4096 gave 1–3.
    - Torch native and the lock-free rewrite were bit-identical everywhere.
 5. **Small G is a cliff for both speed and accuracy.**
-   - At M = 16384, G = 1 serializes every row through one lock. Backward takes 31–43 ms instead of 0.5–2.0 ms, and the bf16 db is 84% wrong: once the running sum reaches a few hundred, adding 0.05 no longer changes a bf16 value (fp16: 30% wrong). G = 4 is still 5–15× slower than the default, with a bf16 db error of 54%.
+   - At M = 16384, G = 1 serializes every row through one lock. Backward takes 31–43 ms instead of 0.5–2.0 ms (22–60× slower), and the bf16 db is 84% wrong: once the running sum reaches a few hundred, adding 0.05 no longer changes a bf16 value (fp16: 30% wrong). G = 4 is still 5–15× slower than the default, with a bf16 db error of 54%.
    - From G = 64 up, time is flat. At N = 4096, G = 1024 is 2× slower again, from zeroing and re-reading 2 × 8 MiB of buffers.
    - The lock-free rewrite is 1.01–1.10× faster than the default G, deterministic, and at the floor.
    - Contended cells (G ≤ 16) varied by up to 2× between runs; the rest varied by 10–15%.
