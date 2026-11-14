@@ -61,7 +61,7 @@ from liger_kernel.ops.utils import calculate_settings, ensure_contiguous  # noqa
 SEED = 0
 DTYPES = {"fp32": torch.float32, "fp16": torch.float16, "bf16": torch.bfloat16}
 ALIAS_T, ALIAS_H, ALIAS_I = 256, 512, 1536
-AUX_WEIGHT = 0.1
+AUX_WEIGHT = 0.5
 NUM_T, NUM_I = 2048, 8192
 GATE_SCALES = [1.0, 4.0]
 MULTIPLIERS = (0.5, 2.0)
@@ -94,6 +94,27 @@ def _swiglu_bwd_oop_kernel(dc_ptr, a_ptr, b_ptr, da_ptr, db_ptr, stride, n_cols:
     silu_a = a * sig
     tl.store(da_ptr + off, dc * (silu_a * (1 - sig) + sig) * b, mask=mask)
     tl.store(db_ptr + off, dc * silu_a, mask=mask)
+
+
+@triton.jit
+def _swiglu_fwd_fp32_kernel(a_ptr, b_ptr, c_ptr, stride, n_cols: tl.constexpr, BLOCK_SIZE: tl.constexpr):
+    row = tl.program_id(0).to(tl.int64)
+    cols = tl.arange(0, BLOCK_SIZE)
+    mask = cols < n_cols
+    off = row * stride + cols
+    a = tl.load(a_ptr + off, mask=mask, other=0).to(tl.float32)
+    b = tl.load(b_ptr + off, mask=mask, other=0).to(tl.float32)
+    tl.store(c_ptr + off, a * tl.sigmoid(a) * b, mask=mask)
+
+
+def swiglu_forward_fp32(a, b):
+    """Upstream forward without rounding silu(a) to the input dtype before the multiply."""
+    n = a.shape[-1]
+    a2, b2 = a.view(-1, n), b.view(-1, n)
+    c = torch.empty_like(a2)
+    block, warps = calculate_settings(n)
+    _swiglu_fwd_fp32_kernel[(a2.shape[0],)](a2, b2, c, a2.stride(0), n_cols=n, BLOCK_SIZE=block, num_warps=warps)
+    return c.view(a.shape)
 
 
 def swiglu_backward_oop(a, b, dc):
@@ -157,7 +178,7 @@ def cuda_gen(seed=SEED):
 
 
 def rel(x, ref):
-    x, ref = x.double(), ref.double()
+    x, ref = x.detach().double(), ref.detach().double()
     return float((x - ref).norm() / ref.norm().clamp_min(1e-300))
 
 
@@ -218,10 +239,10 @@ def case_gate_l2(before):
     def case(v, p, w):
         g, u = F.linear(p["x"], p["wg"]), F.linear(p["x"], p["wu"])
         if before:
-            aux = g.pow(2).to(w["r"].dtype).mean()
+            aux = g.pow(2).to(w["r"].dtype).sum()
         c = v["act"](g, u)
         if not before:
-            aux = g.pow(2).to(w["r"].dtype).mean()
+            aux = g.pow(2).to(w["r"].dtype).sum()
         y = F.linear(c, p["wd"])
         return {"loss": weighted(y, w["r"]) + AUX_WEIGHT * aux, "wrt": ["x", "wg", "wu", "wd"]}
     return case
@@ -254,8 +275,8 @@ ALIAS_CASES = [
     ("mlp", "HF LlamaMLP graph: down(act(gate(x), up(x)))", case_mlp, ACT_VARIANTS),
     ("stash_gate_up_outputs", "same, gate/up outputs kept (forward hook / activation logging)", case_stash, ACT_VARIANTS),
     ("leaf_inputs", "act(a, b) on leaf tensors", case_leaf, ACT_VARIANTS),
-    ("gate_l2_before", "aux = gate.pow(2).mean() built before act", case_gate_l2(True), ACT_VARIANTS),
-    ("gate_l2_after", "aux = gate.pow(2).mean() built after act", case_gate_l2(False), ACT_VARIANTS),
+    ("gate_l2_before", "aux = 0.5 * gate.pow(2).sum() built before act", case_gate_l2(True), ACT_VARIANTS),
+    ("gate_l2_after", "aux = 0.5 * gate.pow(2).sum() built after act", case_gate_l2(False), ACT_VARIANTS),
     ("retain_graph_twice", "MLP, autograd.grad twice with retain_graph=True", case_retain, ACT_VARIANTS),
     ("checkpoint", "MLP under torch.utils.checkpoint (non-reentrant)", case_checkpoint, ACT_VARIANTS),
     ("gate_up_stash", "fused gate_up Linear (Phi3 / Megatron), output kept", case_gate_up_stash, GATE_UP_VARIANTS),
@@ -339,6 +360,7 @@ def numerics():
             c = LigerFusedGateUpSiLUMulFunction.apply(y, False)
             dy = torch.autograd.grad(c, y, dc)[0]
             row["liger_fused"] = {"c": rel(c, c64), "da": rel(dy[:, :NUM_I], da64), "db": rel(dy[:, NUM_I:], db64)}
+            row["fp32_mul_fwd_c"] = rel(swiglu_forward_fp32(a, b), c64)
             ua, ub = a.clone(), b.clone()
             dao, dbo = swiglu_backward_oop(ua, ub, dc)
             dau, dbu = swiglu_backward(ua, ub, dc)
@@ -477,6 +499,7 @@ def bandwidth():
             "copy": (lambda: out.copy_(a), 2),
             "fwd_liger": (lambda: swiglu_forward(a, b), 3),
             "fwd_liger_fused": (lambda: swiglu_fused_gate_up_forward(y), 3),
+            "fwd_fp32_mul": (lambda: swiglu_forward_fp32(a, b), 3),
             "fwd_eager": (lambda: eager_act(a, b), 3),
             "fwd_compile": (lambda: compiled(a, b), 3),
             "bwd_liger": (lambda: swiglu_backward(aw, bw, dc), 5),
@@ -497,7 +520,7 @@ def bandwidth():
             ms = sorted(times[k])[len(times[k]) // 2]
             row[k + "_ms"] = round(ms, 4)
             row[k + "_gbps"] = round(mult * nbytes * 1e-9 / (ms * 1e-3), 1)
-        for k in ("fwd_liger", "fwd_liger_fused", "fwd_compile"):
+        for k in ("fwd_liger", "fwd_liger_fused", "fwd_fp32_mul", "fwd_compile"):
             row[k + "_vs_eager"] = round(row["fwd_eager_ms"] / row[k + "_ms"], 2)
         for k in ("bwd_liger", "bwd_liger_oop", "bwd_liger_fused", "bwd_liger_fused_inplace", "bwd_compile"):
             row[k + "_vs_eager"] = round(row["bwd_eager_ms"] / row[k + "_ms"], 2)
@@ -538,13 +561,13 @@ def write_md(result):
     lines += ["", "Cases:", ""] + [f"- `{c}`: {d}" for c, d, _, _ in ALIAS_CASES]
     lines += ["", f"## 2. Error vs fp64 (T = {NUM_T}, I = {NUM_I}; a = std * N(0,1), b, dc ~ N(0,1); rel L2; "
               "`floor` = fp64 result rounded to the dtype)", "",
-              "| dtype | gate std | output | floor | eager | torch.compile | liger | liger_oop | liger_fused |",
-              "|---|---|---|---|---|---|---|---|---|"]
+              "| dtype | gate std | output | floor | eager | torch.compile | liger | liger_oop | liger_fused | fp32-mul fwd |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
     for r in result["numerics"]:
         for o in ("c", "da", "db"):
             lines.append(f"| {r['dtype']} | {r['gate_std']} | {o} | {fmt(r['floor'][o])} | {fmt(r['eager'][o])} | "
                          f"{fmt(r['torch_compile'][o])} | {fmt(r['liger'][o])} | {fmt(r['liger_oop'][o])} | "
-                         f"{fmt(r['liger_fused'][o])} |")
+                         f"{fmt(r['liger_fused'][o])} | {fmt(r['fp32_mul_fwd_c']) if o == 'c' else ''} |")
     lines += ["", "Out-of-place backward bit-identical to upstream: "
               + ", ".join(f"{r['dtype']}/{r['gate_std']} {r['oop_bit_identical_to_upstream']}" for r in result["numerics"])]
     lines += ["", f"Multipliers (bf16, gate {MULTIPLIERS[0]}, down {MULTIPLIERS[1]}): "
@@ -565,12 +588,14 @@ def write_md(result):
         lines.append("")
     lines += [f"## 4. Elementwise bandwidth (bf16, T = {BW_T}; fwd 3 * T * I * 2 bytes, bwd 5 * T * I * 2 bytes; "
               "do_bench median of 3 rounds; `xE` = speedup vs eager)", "",
-              "| I | BLOCK | lanes used | copy | fwd liger | fwd fused | fwd eager | fwd compile | bwd liger | bwd oop | "
-              "bwd fused | bwd fused in-place | bwd eager | bwd compile | fwd liger xE | bwd liger xE | bwd compile xE |",
-              "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+              "| I | BLOCK | lanes used | copy | fwd liger | fwd fused | fwd fp32-mul | fwd eager | fwd compile | bwd liger | "
+              "bwd oop | bwd fused | bwd fused in-place | bwd eager | bwd compile | fwd liger xE | bwd liger xE | "
+              "bwd compile xE |",
+              "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in result["bandwidth"]:
         lines.append(f"| {r['I']} | {r['BLOCK_SIZE']} | {r['lane_util']} | {r['copy_gbps']} | {r['fwd_liger_gbps']} | "
-                     f"{r['fwd_liger_fused_gbps']} | {r['fwd_eager_gbps']} | {r['fwd_compile_gbps']} | "
+                     f"{r['fwd_liger_fused_gbps']} | {r['fwd_fp32_mul_gbps']} | {r['fwd_eager_gbps']} | "
+                     f"{r['fwd_compile_gbps']} | "
                      f"{r['bwd_liger_gbps']} | {r['bwd_liger_oop_gbps']} | {r['bwd_liger_fused_gbps']} | "
                      f"{r['bwd_liger_fused_inplace_gbps']} | {r['bwd_eager_gbps']} | {r['bwd_compile_gbps']} | "
                      f"{r['fwd_liger_vs_eager']} | {r['bwd_liger_vs_eager']} | {r['bwd_compile_vs_eager']} |")
