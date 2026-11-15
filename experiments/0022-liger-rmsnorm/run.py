@@ -77,8 +77,11 @@ torch._functorch.config.donated_buffer = False
 
 
 def fmt(x, digits=4):
-    if x is None or isinstance(x, str):
+    if x is None:
         return x
+    if isinstance(x, str):
+        # Keep markdown tables on one line.
+        return x.splitlines()[0][:80]
     if isinstance(x, bool):
         return x
     if isinstance(x, int):
@@ -86,6 +89,12 @@ def fmt(x, digits=4):
     if abs(x) >= 1e3 or (abs(x) < 1e-3 and x != 0):
         return f"{x:.3e}"
     return round(x, digits)
+
+
+def short_err(err):
+    if not err:
+        return ""
+    return str(err).splitlines()[0][:60]
 
 
 def rel_l2(a, b):
@@ -117,8 +126,9 @@ def hf_none_rms(x, w, eps, offset=0.0):
 
 
 def fp64_rms(x, w, eps, offset=0.0):
-    x64 = x.detach().double()
-    w64 = w.detach().double()
+    # Keep autograd; callers pass leaves that already require grad when needed.
+    x64 = x.to(torch.float64)
+    w64 = w.to(torch.float64)
     var = x64.pow(2).mean(-1, keepdim=True)
     y = x64 * torch.rsqrt(var + eps)
     return y * (w64 + offset)
@@ -168,11 +178,11 @@ def alias():
         }
 
     # Gemma2 pattern: y1 = rms(x); h = y1 + residual; y2 = rms(h).
-    # With in_place=True the first backward overwrites dY1 which the residual
-    # add still needs when propagating into y1.
+    # residual requires grad so AddBackward must deliver the same dY1 to both
+    # the first RMSNorm and the residual leaf; in_place may overwrite that buffer.
     def gemma2_two_norm(in_place):
         torch.manual_seed(SEED + 2)
-        residual = torch.randn_like(x0)
+        residual = torch.randn_like(x0).requires_grad_(True)
         loss_w = torch.randn_like(x0)
         x = x0.clone().requires_grad_(True)
         wa = w1.clone().requires_grad_(True)
@@ -181,17 +191,18 @@ def alias():
         h = y1 + residual
         y2 = liger_apply(h, wb, EPS, 1.0, "gemma", in_place=in_place)
         (y2 * loss_w).sum().backward()
-        # fp64 reference with same graph
         xr = x0.detach().double().requires_grad_(True)
         war = w1.detach().double().requires_grad_(True)
         wbr = w2.detach().double().requires_grad_(True)
+        resr = residual.detach().double().requires_grad_(True)
         y1r = fp64_rms(xr, war, EPS, 1.0)
-        hr = y1r + residual.double()
+        hr = y1r + resr
         y2r = fp64_rms(hr, wbr, EPS, 1.0)
         (y2r * loss_w.double()).sum().backward()
         return {
             "dx_rel": rel_l2(x.grad, xr.grad),
             "dw_rel": max(rel_l2(wa.grad, war.grad), rel_l2(wb.grad, wbr.grad)),
+            "dresidual_rel": rel_l2(residual.grad, resr.grad),
             "stash_changed": None,
         }
 
@@ -226,23 +237,47 @@ def alias():
         x = x0.clone().requires_grad_(True)
         w = w1.clone().requires_grad_(True)
         y = liger_apply(x, w, EPS, 0.0, "llama", in_place=in_place)
-        g1 = torch.autograd.grad(y, (x, w), loss_w, retain_graph=True, allow_unused=True)
+        # Clone grad_outputs: in_place=True writes dX into the caller's dY tensor.
+        g1 = torch.autograd.grad(y, (x, w), loss_w.clone(), retain_graph=True, allow_unused=True)
         try:
-            g2 = torch.autograd.grad(y, (x, w), loss_w, retain_graph=True, allow_unused=True)
+            g2 = torch.autograd.grad(y, (x, w), loss_w.clone(), retain_graph=True, allow_unused=True)
             second_err = max(rel_l2(g2[0], g1[0]), rel_l2(g2[1], g1[1]))
             second_error = None
         except Exception as e:
             second_err = None
             second_error = f"{type(e).__name__}: {e}"
+        # Same tensor reused as grad_output (the footgun in_place creates).
+        try:
+            g_reuse = torch.autograd.grad(y, (x, w), loss_w, retain_graph=True, allow_unused=True)
+            # loss_w may now hold dX; a second reuse is compared below.
+            g_reuse2 = torch.autograd.grad(y, (x, w), loss_w, retain_graph=True, allow_unused=True)
+            reuse_second_vs_first = max(rel_l2(g_reuse2[0], g_reuse[0]), rel_l2(g_reuse2[1], g_reuse[1]))
+            reuse_first_vs_clean = max(rel_l2(g_reuse[0], g1[0]), rel_l2(g_reuse[1], g1[1]))
+            reuse_error = None
+        except Exception as e:
+            reuse_second_vs_first = None
+            reuse_first_vs_clean = None
+            reuse_error = f"{type(e).__name__}: {e}"
         xr = x0.detach().double().requires_grad_(True)
         wr = w1.detach().double().requires_grad_(True)
         yr = fp64_rms(xr, wr, EPS, 0.0)
-        gr = torch.autograd.grad(yr, (xr, wr), loss_w.double())
+        gr = torch.autograd.grad(yr, (xr, wr), loss_w.detach().double())
+        # Prefer the pre-overwrite loss_w: if in_place already clobbered it during
+        # the reuse probes, rebuild from a fresh seed copy.
+        torch.manual_seed(SEED + 4)
+        loss_clean = torch.randn_like(x0)
+        xr = x0.detach().double().requires_grad_(True)
+        wr = w1.detach().double().requires_grad_(True)
+        yr = fp64_rms(xr, wr, EPS, 0.0)
+        gr = torch.autograd.grad(yr, (xr, wr), loss_clean.double())
         return {
             "dx_rel": rel_l2(g1[0], gr[0]),
             "dw_rel": rel_l2(g1[1], gr[1]),
             "second_call_rel_vs_first": second_err,
             "second_call_error": second_error,
+            "reuse_dY_first_vs_clean": reuse_first_vs_clean,
+            "reuse_dY_second_vs_first": reuse_second_vs_first,
+            "reuse_error": reuse_error,
             "stash_changed": None,
         }
 
@@ -343,12 +378,18 @@ def numerics():
                 except Exception as e:
                     frmsnorm_err = {"error": f"{type(e).__name__}: {e}"}
 
-                # torch.compile of the matching HF eager fn
-                compiled = torch.compile(eager_fn, fullgraph=False)
+                # torch.compile of the matching HF eager fn (tensor args only;
+                # passing Python floats makes Inductor try the CPU C++ path).
+                off = offset
+
+                def _eager_closed(a, b, _fn=eager_fn, _off=off):
+                    return _fn(a, b, EPS, _off)
+
+                compiled = torch.compile(_eager_closed, fullgraph=False)
                 xc = x.clone().requires_grad_(True)
                 wc = w.clone().requires_grad_(True)
                 try:
-                    yc = compiled(xc, wc, EPS, offset)
+                    yc = compiled(xc, wc)
                     torch.autograd.backward(yc, dy)
                     compile_err = measure(yc.detach(), xc.grad, wc.grad)
                 except Exception as e:
@@ -441,6 +482,11 @@ def kernel_paths():
 def memory_bench():
     rows = []
     dtype = torch.bfloat16
+
+    def _llama_closed(a, b):
+        return hf_llama_rms(a, b, EPS, 0.0)
+
+    compiled = torch.compile(_llama_closed, fullgraph=False)
     for name, H in MEM_SHAPES:
         for T in MEM_TOKENS:
             torch.manual_seed(SEED)
@@ -455,10 +501,8 @@ def memory_bench():
                 torch.cuda.empty_cache()
                 torch.cuda.reset_peak_memory_stats()
                 torch.cuda.synchronize()
-                base = torch.cuda.memory_allocated()
                 x = x_base.clone().requires_grad_(True)
                 w = w_base.clone().requires_grad_(True)
-                # account for inputs in base
                 base_with_in = torch.cuda.memory_allocated()
                 y = fwd_fn(x, w)
                 torch.cuda.synchronize()
@@ -466,7 +510,7 @@ def memory_bench():
                 torch.autograd.backward(y, dy)
                 torch.cuda.synchronize()
                 peak = torch.cuda.max_memory_allocated() - base_with_in
-                # latency
+
                 def bench_once():
                     x2 = x_base.clone().requires_grad_(True)
                     w2 = w_base.clone().requires_grad_(True)
@@ -487,8 +531,10 @@ def memory_bench():
             one("liger_inplace", lambda x, w: liger_apply(x, w, EPS, 0.0, "llama", True), True)
             one("liger_oop", lambda x, w: liger_apply(x, w, EPS, 0.0, "llama", False), False)
             one("eager_hf", lambda x, w: hf_llama_rms(x, w, EPS, 0.0))
-            compiled = torch.compile(hf_llama_rms, fullgraph=False)
-            one("torch_compile", lambda x, w: compiled(x, w, EPS, 0.0))
+            try:
+                one("torch_compile", compiled)
+            except Exception as e:
+                cell["torch_compile"] = {"error": f"{type(e).__name__}: {e}"}
             one("F_rms_norm", lambda x, w: F.rms_norm(x, (H,), w, EPS))
             rows.append(cell)
             print("mem", {k: cell[k] for k in cell if k != "act_MiB"}, flush=True)
@@ -508,14 +554,24 @@ def bandwidth():
         dy = torch.randn_like(x)
         nbytes = x.numel() * x.element_size()
         block, warps = calculate_settings(H)
-        compiled = torch.compile(lambda a, b: hf_llama_rms(a, b, EPS, 0.0), fullgraph=False)
+        def _llama_closed(a, b):
+            return hf_llama_rms(a, b, EPS, 0.0)
+
+        compiled = torch.compile(_llama_closed, fullgraph=False)
 
         # Warmup compile
         xc = x.clone().requires_grad_(True)
         wc = w.clone().requires_grad_(True)
-        yc = compiled(xc, wc)
-        torch.autograd.grad(yc, (xc, wc), dy, retain_graph=True)
-        del xc, wc, yc
+        try:
+            yc = compiled(xc, wc)
+            torch.autograd.grad(yc, (xc, wc), dy, retain_graph=True)
+            del xc, wc, yc
+            compile_ok = True
+        except Exception as e:
+            compile_ok = False
+            compile_err = f"{type(e).__name__}: {e}"
+            del xc, wc
+            yc = None
 
         xg = x.clone().requires_grad_(True)
         wg = w.clone().requires_grad_(True)
@@ -529,9 +585,12 @@ def bandwidth():
         xf = x.clone().requires_grad_(True)
         wf = w.clone().requires_grad_(True)
         yf = F.rms_norm(xf, (H,), wf, EPS)
-        xcc = x.clone().requires_grad_(True)
-        wcc = w.clone().requires_grad_(True)
-        ycc = compiled(xcc, wcc)
+        if compile_ok:
+            xcc = x.clone().requires_grad_(True)
+            wcc = w.clone().requires_grad_(True)
+            ycc = compiled(xcc, wcc)
+        else:
+            xcc = wcc = ycc = None
 
         # Low-level forward/backward for pure kernel bandwidth
         Y, Xs, RSTD, BS, NW, CM = rms_norm_forward(x, w, EPS, 0.0, "llama", True)
@@ -540,7 +599,6 @@ def bandwidth():
             "copy": (lambda: x.clone(), 1),
             "fwd_liger": (lambda: rms_norm_forward(x, w, EPS, 0.0, "llama", True)[0], 2),
             "fwd_eager": (lambda: hf_llama_rms(x, w, EPS, 0.0), 2),
-            "fwd_compile": (lambda: compiled(x, w), 2),
             "fwd_F": (lambda: F.rms_norm(x, (H,), w, EPS), 2),
             "bwd_liger_oop": (
                 lambda: rms_norm_backward(dy, Xs, w, RSTD, 0.0, CM, BS, NW, False, True, needs_dw=True),
@@ -551,24 +609,32 @@ def bandwidth():
                 3,
             ),
             "bwd_eager": (lambda: torch.autograd.grad(yg, (xg, wg), dy, retain_graph=True), 3),
-            "bwd_compile": (lambda: torch.autograd.grad(ycc, (xcc, wcc), dy, retain_graph=True), 3),
             "bwd_F": (lambda: torch.autograd.grad(yf, (xf, wf), dy, retain_graph=True), 3),
         }
+        if compile_ok:
+            fns["fwd_compile"] = (lambda: compiled(x, w), 2)
+            fns["bwd_compile"] = (lambda: torch.autograd.grad(ycc, (xcc, wcc), dy, retain_graph=True), 3)
         do_bench(fns["copy"][0], rep=200)
         times = {k: [] for k in fns}
         for _ in range(BW_ROUNDS):
             for k, (fn, _) in fns.items():
                 times[k].append(do_bench(fn, return_mode="median"))
         row = {"T": BW_T, "H": H, "BLOCK_SIZE": block, "num_warps": warps,
-               "lane_util": round(H / block, 3), "MiB_per_tensor": round(nbytes / 2**20, 1)}
+               "lane_util": round(H / block, 3), "MiB_per_tensor": round(nbytes / 2**20, 1),
+               "compile_ok": compile_ok}
+        if not compile_ok:
+            row["compile_error"] = compile_err
         for k, (_, mult) in fns.items():
             ms = sorted(times[k])[len(times[k]) // 2]
             row[k + "_ms"] = round(ms, 4)
             row[k + "_gbps"] = round(mult * nbytes * 1e-9 / (ms * 1e-3), 1)
-        for k in ("fwd_liger", "fwd_compile", "fwd_F"):
+        for k in ("fwd_liger", "fwd_F"):
             row[k + "_vs_eager"] = round(row["fwd_eager_ms"] / max(row[k + "_ms"], 1e-9), 2)
-        for k in ("bwd_liger_oop", "bwd_liger_inplace", "bwd_compile", "bwd_F"):
+        for k in ("bwd_liger_oop", "bwd_liger_inplace", "bwd_F"):
             row[k + "_vs_eager"] = round(row["bwd_eager_ms"] / max(row[k + "_ms"], 1e-9), 2)
+        if compile_ok:
+            row["fwd_compile_vs_eager"] = round(row["fwd_eager_ms"] / max(row["fwd_compile_ms"], 1e-9), 2)
+            row["bwd_compile_vs_eager"] = round(row["bwd_eager_ms"] / max(row["bwd_compile_ms"], 1e-9), 2)
         rows.append(row)
         print("bw", row, flush=True)
 
@@ -586,7 +652,9 @@ def bandwidth():
         except Exception as e:
             kernels.append({"H": H, "kernel": "fwd_row", "error": f"{type(e).__name__}: {e}"})
 
-        del x, w, dy, xg, wg, yg, xl, wl, yl, xo, wo, yo, xf, wf, yf, xcc, wcc, ycc, Y, Xs, RSTD
+        del x, w, dy, xg, wg, yg, xl, wl, yl, xo, wo, yo, xf, wf, yf, Y, Xs, RSTD
+        if compile_ok:
+            del xcc, wcc, ycc
         gc.collect()
         torch.cuda.empty_cache()
     return rows, kernels
@@ -612,15 +680,17 @@ def write_md(result):
         f"## 1. Aliasing (bf16, T = {ALIAS_T}, H = {ALIAS_H}; rel L2 vs fp64; "
         "`in_place` overwrites dY with dX)",
         "",
-        "| case | in_place | dx rel | dw rel | 2nd call vs 1st | stash changed | grad aliases input | error |",
-        "|---|---|---|---|---|---|---|---|",
+        "| case | in_place | dx rel | dw rel | dresidual | 2nd clean vs 1st | reuse dY vs clean | "
+        "reuse 2nd vs 1st | stash | error |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in result["alias"]:
         lines.append(
             f"| {r['case']} | {r['in_place']} | {fmt(r.get('dx_rel'))} | {fmt(r.get('dw_rel'))} | "
-            f"{fmt(r.get('second_call_rel_vs_first'))} | {r.get('stash_changed')} | "
-            f"{r.get('grad_aliases_input', '')} | "
-            f"{(r.get('error') or r.get('second_call_error') or '')} |"
+            f"{fmt(r.get('dresidual_rel'))} | {fmt(r.get('second_call_rel_vs_first'))} | "
+            f"{fmt(r.get('reuse_dY_first_vs_clean'))} | {fmt(r.get('reuse_dY_second_vs_first'))} | "
+            f"{r.get('stash_changed')} | "
+            f"{short_err(r.get('error') or r.get('second_call_error') or r.get('reuse_error'))} |"
         )
     lines += [
         "",
@@ -634,12 +704,12 @@ def write_md(result):
         for o, key in (("y", "y"), ("dx", "dx"), ("dw", "dw")):
             fr = r["F_rms_norm"].get(key, r["F_rms_norm"].get("error", ""))
             cr = r["torch_compile"].get(key, r["torch_compile"].get("error", ""))
+            fr_s = fmt(fr) if not isinstance(fr, str) else short_err(fr)
+            cr_s = fmt(cr) if not isinstance(cr, str) else short_err(cr)
             lines.append(
                 f"| {r['dtype']} | {r['casting_mode']} | {r['offset']} | {o} | "
                 f"{fmt(r['floor'][key])} | {fmt(r['liger'][key])} | {fmt(r['eager_hf'][key])} | "
-                f"{fmt(fr) if not isinstance(fr, str) else fr} | "
-                f"{fmt(cr) if not isinstance(cr, str) else cr} | "
-                f"{fmt(r['liger_vs_hf'][key])} |"
+                f"{fr_s} | {cr_s} | {fmt(r['liger_vs_hf'][key])} |"
             )
     lines += [
         "",
@@ -689,9 +759,9 @@ def write_md(result):
     for r in result["bandwidth"]:
         lines.append(
             f"| {r['H']} | {r['BLOCK_SIZE']} | {r['lane_util']} | {r['copy_gbps']} | "
-            f"{r['fwd_liger_gbps']} | {r['fwd_eager_gbps']} | {r['fwd_compile_gbps']} | "
+            f"{r['fwd_liger_gbps']} | {r['fwd_eager_gbps']} | {r.get('fwd_compile_gbps', '')} | "
             f"{r['fwd_F_gbps']} | {r['bwd_liger_oop_gbps']} | {r['bwd_liger_inplace_gbps']} | "
-            f"{r['bwd_eager_gbps']} | {r['bwd_compile_gbps']} | {r['bwd_F_gbps']} | "
+            f"{r['bwd_eager_gbps']} | {r.get('bwd_compile_gbps', '')} | {r['bwd_F_gbps']} | "
             f"{r['fwd_liger_vs_eager']} | {r['bwd_liger_oop_vs_eager']} |"
         )
     lines += [
