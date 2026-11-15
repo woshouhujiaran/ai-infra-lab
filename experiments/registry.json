@@ -209,6 +209,16 @@
       "device": "cuda",
       "date": "2026-11-14",
       "status": "done"
+    },
+    {
+      "id": "0022",
+      "slug": "liger-rmsnorm",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/rms_norm.py (LigerRMSNormFunction)",
+      "topic": "casting modes llama/gemma/none and Gemma offset vs HF and fp64 floor; in-place dY→dX overwrite (Gemma2 two-norm, retain_graph, reused grad_outputs); row vs 16-row block kernel switch; held/peak memory and bandwidth vs eager HF / F.rms_norm / torch.compile",
+      "device": "cuda",
+      "date": "2026-11-15",
+      "status": "done"
     }
   ]
 }
