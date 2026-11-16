@@ -6,9 +6,10 @@ in one Triton forward (returns Y and the post-add residual S) and a fused
 backward that folds `dS_out` into `dX` (= `dR`). Casting modes match the plain
 Liger RMSNorm (`llama` / `gemma` / `none`); `in_place` overwrites `dY` with `dX`.
 
-1. Output branches: loss on both Y and S / Y only / S only. Autograd may pass
-   `dY=None` or `dS_out=None`; the Triton wrapper calls `.view` before the
-   `has_dS_out` guard.
+1. Output branches: loss on both Y and S / Y only / S only. On current torch,
+   unused Function outputs arrive as **zero tensors** (not None), so the
+   Triton's `has_dS_out = dS_out is not None` guard is always true in practice
+   and a None would still crash on `.view` before that check.
 2. Aliasing: `in_place` True/False with reused `dY`, and whether `dX` and `dR`
    are the same storage (`return dX, dX, dW`).
 3. Numerics: Y / S / dX / dR / dW vs fp64 and HF-style eager refs for the three
@@ -225,6 +226,8 @@ def alias():
         torch.manual_seed(SEED + 1)
         gy = torch.randn_like(x0)
         gs = torch.randn_like(x0)
+        # Clone grad buffers: in_place=True overwrites the caller's dY.
+        gy_ref, gs_ref = gy.clone(), gs.clone()
         x = x0.clone().requires_grad_(True)
         r = r0.clone().requires_grad_(True)
         w = w0.clone().requires_grad_(True)
@@ -234,12 +237,13 @@ def alias():
         rr = r0.double().requires_grad_(True)
         wr = w0.double().requires_grad_(True)
         yr, sr = fp64_fused(xr, rr, wr, EPS, 0.0)
-        torch.autograd.backward((yr, sr), (gy.double(), gs.double()))
+        torch.autograd.backward((yr, sr), (gy_ref.double(), gs_ref.double()))
         return {
             "dx_rel": rel_l2(x.grad, xr.grad),
             "dr_rel": rel_l2(r.grad, rr.grad),
             "dw_rel": rel_l2(w.grad, wr.grad),
             "dx_is_dr_same_tensor": x.grad.data_ptr() == r.grad.data_ptr(),
+            "caller_dY_overwritten": not torch.equal(gy, gy_ref),
         }
 
     def retain_reuse_dy(in_place):
@@ -291,15 +295,14 @@ def alias():
         y, s, rstd, bs, nw, ns, cm = fused_add_rms_norm_forward(x, r, w, EPS, 0.0, "llama")
         dy = torch.randn_like(y)
         ds = torch.randn_like(s)
+        dy_in = dy  # in_place writes into this exact object
         dx, dr, dw = fused_add_rms_norm_backward(
-            dy.clone() if in_place else dy, ds, s, w, rstd, 0.0, cm, bs, nw, ns, in_place, needs_dw=True
+            dy_in, ds, s, w, rstd, 0.0, cm, bs, nw, ns, in_place, needs_dw=True
         )
         return {
             "dx_is_dr_same_tensor": dx.data_ptr() == dr.data_ptr(),
             "dx_equals_dr": bool(torch.equal(dx, dr)),
-            "dx_is_dy" if in_place else "dx_is_fresh": (
-                dx.data_ptr() == dy.data_ptr() if in_place else dx.data_ptr() != dy.data_ptr()
-            ),
+            "dx_aliases_dY_input": dx.data_ptr() == dy_in.data_ptr(),
         }
 
     for fn, name in [
@@ -669,16 +672,16 @@ def write_md(result):
         f"- Docstring claims default True: `{result['api_defaults']['docstring_claims_true']}`",
         "",
         f"## 1. Output branches (bf16, T = {BRANCH_T}, H = {BRANCH_H}; "
-        "norm_only → `dS_out=None`, residual_only → `dY=None`)",
+        "on this torch, unused Function outputs get **zero tensors**, not None)",
         "",
-        "| branch | in_place | ok | dx rel | dr rel | dw rel | dx is dr | error |",
-        "|---|---|---|---|---|---|---|---|",
+        "| branch | in_place | ok | dx rel | dr rel | dw rel | dx is dr (same ptr) | dx==dr | error |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for r in result["branches"]:
         lines.append(
             f"| {r['branch']} | {r['in_place']} | {r.get('ok')} | {fmt(r.get('dx_rel'))} | "
             f"{fmt(r.get('dr_rel'))} | {fmt(r.get('dw_rel'))} | {r.get('dx_is_dr_same_tensor')} | "
-            f"{short_err(r.get('error'))} |"
+            f"{r.get('dx_equals_dr')} | {short_err(r.get('error'))} |"
         )
     lines += [
         "",

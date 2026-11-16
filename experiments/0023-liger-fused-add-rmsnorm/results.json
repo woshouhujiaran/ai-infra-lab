@@ -1,0 +1,1490 @@
+{
+  "experiment": "0023-liger-fused-add-rmsnorm",
+  "upstream": "linkedin/Liger-Kernel",
+  "upstream_commit": "1ab779ff0990d205e6003fa34c7618f0e8c50337",
+  "component": "src/liger_kernel/ops/fused_add_rms_norm.py (LigerFusedAddRMSNormFunction)",
+  "triton": "3.8.0",
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "memory_total_mib": 8188,
+    "memory_used_mib": 75,
+    "utilization_percent": 0,
+    "temperature_c": 47,
+    "memory_fraction_cap": 0.6,
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+  },
+  "api_defaults": {
+    "function_forward_default": false,
+    "functional_default": true,
+    "module_default": false,
+    "docstring_claims_true": true
+  },
+  "branches": [
+    {
+      "branch": "both",
+      "in_place": false,
+      "ok": true,
+      "dx_rel": 0.0016608842771908797,
+      "dr_rel": 0.0016608842771908797,
+      "dw_rel": 0.003372820559487916,
+      "dx_is_dr_same_tensor": false,
+      "dx_equals_dr": true,
+      "y_held": true,
+      "s_held": true
+    },
+    {
+      "branch": "both",
+      "in_place": true,
+      "ok": true,
+      "dx_rel": 0.0016608842771908797,
+      "dr_rel": 0.0016608842771908797,
+      "dw_rel": 0.003372820559487916,
+      "dx_is_dr_same_tensor": false,
+      "dx_equals_dr": true,
+      "y_held": true,
+      "s_held": true
+    },
+    {
+      "branch": "norm_only",
+      "in_place": false,
+      "ok": true,
+      "dx_rel": 0.0016667083949132697,
+      "dr_rel": 0.0016667083949132697,
+      "dw_rel": 0.003372820559487916,
+      "dx_is_dr_same_tensor": false,
+      "dx_equals_dr": true,
+      "y_held": true,
+      "s_held": true
+    },
+    {
+      "branch": "norm_only",
+      "in_place": true,
+      "ok": true,
+      "dx_rel": 0.0016667083949132697,
+      "dr_rel": 0.0016667083949132697,
+      "dw_rel": 0.003372820559487916,
+      "dx_is_dr_same_tensor": false,
+      "dx_equals_dr": true,
+      "y_held": true,
+      "s_held": true
+    },
+    {
+      "branch": "residual_only",
+      "in_place": false,
+      "ok": true,
+      "dx_rel": 0.0,
+      "dr_rel": 0.0,
+      "dw_rel": 0.0,
+      "dx_is_dr_same_tensor": false,
+      "dx_equals_dr": true,
+      "y_held": true,
+      "s_held": true
+    },
+    {
+      "branch": "residual_only",
+      "in_place": true,
+      "ok": true,
+      "dx_rel": 0.0,
+      "dr_rel": 0.0,
+      "dw_rel": 0.0,
+      "dx_is_dr_same_tensor": false,
+      "dx_equals_dr": true,
+      "y_held": true,
+      "s_held": true
+    }
+  ],
+  "alias": [
+    {
+      "case": "plain_both",
+      "in_place": true,
+      "dx_rel": 0.0016620941496613155,
+      "dr_rel": 0.0016620941496613155,
+      "dw_rel": 0.003355781216312014,
+      "dx_is_dr_same_tensor": false,
+      "caller_dY_overwritten": true
+    },
+    {
+      "case": "plain_both",
+      "in_place": false,
+      "dx_rel": 0.0016620941496613155,
+      "dr_rel": 0.0016620941496613155,
+      "dw_rel": 0.003355781216312014,
+      "dx_is_dr_same_tensor": false,
+      "caller_dY_overwritten": false
+    },
+    {
+      "case": "retain_reuse_dY",
+      "in_place": true,
+      "dx_rel": null,
+      "dr_rel": null,
+      "dw_rel": null,
+      "second_call_rel_vs_first": 0.0,
+      "reuse_dY_first_vs_clean": 1.6004930813204377,
+      "reuse_dY_second_vs_first": 1.201348737142351,
+      "reuse_error": null,
+      "dx_is_dr_same_tensor": true
+    },
+    {
+      "case": "retain_reuse_dY",
+      "in_place": false,
+      "dx_rel": null,
+      "dr_rel": null,
+      "dw_rel": null,
+      "second_call_rel_vs_first": 0.0,
+      "reuse_dY_first_vs_clean": 0.0,
+      "reuse_dY_second_vs_first": 0.0,
+      "reuse_error": null,
+      "dx_is_dr_same_tensor": true
+    },
+    {
+      "case": "bwd_returns_dX_twice",
+      "in_place": true,
+      "dx_is_dr_same_tensor": true,
+      "dx_equals_dr": true,
+      "dx_aliases_dY_input": true
+    },
+    {
+      "case": "bwd_returns_dX_twice",
+      "in_place": false,
+      "dx_is_dr_same_tensor": true,
+      "dx_equals_dr": true,
+      "dx_aliases_dY_input": false
+    }
+  ],
+  "numerics": [
+    {
+      "dtype": "fp32",
+      "casting_mode": "llama",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.0,
+        "s": 0.0,
+        "dx": 0.0,
+        "dr": 0.0,
+        "dw": 0.0
+      },
+      "liger": {
+        "y": 6.515868163065355e-08,
+        "s": 0.0,
+        "dx": 4.3410470215090796e-08,
+        "dr": 4.3410470215090796e-08,
+        "dw": 1.8716248662490153e-07,
+        "y_vs_floor": 6.515868163065355e-08,
+        "dx_vs_floor": 4.3410470215090796e-08,
+        "dw_vs_floor": 1.8716248662490153e-07
+      },
+      "eager_hf": {
+        "y": 6.522138369474411e-08,
+        "s": 0.0,
+        "dx": 5.4407987894288385e-08,
+        "dr": 5.4407987894288385e-08,
+        "dw": 1.2220348246236522e-07,
+        "y_vs_floor": 6.522138369474411e-08,
+        "dx_vs_floor": 5.4407987894288385e-08,
+        "dw_vs_floor": 1.2220348246236522e-07
+      },
+      "torch_compile": {
+        "y": 6.466057159194185e-08,
+        "s": 0.0,
+        "dx": 5.142508129653426e-08,
+        "dr": 5.142508129653426e-08,
+        "dw": 4.0995349792011847e-07,
+        "y_vs_floor": 6.466057159194185e-08,
+        "dx_vs_floor": 5.142508129653426e-08,
+        "dw_vs_floor": 4.0995349792011847e-07
+      },
+      "liger_vs_hf": {
+        "y": 4.203946452695756e-08,
+        "s": 0.0,
+        "dx": 5.328576258539159e-08,
+        "dr": 5.328576258539159e-08,
+        "dw": 2.1121218244789718e-07
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp32",
+      "casting_mode": "llama",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.0,
+        "s": 0.0,
+        "dx": 0.0,
+        "dr": 0.0,
+        "dw": 0.0
+      },
+      "liger": {
+        "y": 7.109279762978266e-08,
+        "s": 0.0,
+        "dx": 5.4403456069586636e-08,
+        "dr": 5.4403456069586636e-08,
+        "dw": 1.8716248662490153e-07,
+        "y_vs_floor": 7.109279762978266e-08,
+        "dx_vs_floor": 5.4403456069586636e-08,
+        "dw_vs_floor": 1.8716248662490153e-07
+      },
+      "eager_hf": {
+        "y": 7.119785493546381e-08,
+        "s": 0.0,
+        "dx": 6.216469250836897e-08,
+        "dr": 6.216469250836897e-08,
+        "dw": 1.2220348246236522e-07,
+        "y_vs_floor": 7.119785493546381e-08,
+        "dx_vs_floor": 6.216469250836897e-08,
+        "dw_vs_floor": 1.2220348246236522e-07
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.216636324272401e-08,
+        "s": 0.0,
+        "dx": 5.658299334278815e-08,
+        "dr": 5.658299334278815e-08,
+        "dw": 2.1121218244789718e-07
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp32",
+      "casting_mode": "gemma",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.0,
+        "s": 0.0,
+        "dx": 0.0,
+        "dr": 0.0,
+        "dw": 0.0
+      },
+      "liger": {
+        "y": 6.515868163065355e-08,
+        "s": 0.0,
+        "dx": 4.3410470215090796e-08,
+        "dr": 4.3410470215090796e-08,
+        "dw": 1.8716248662490153e-07,
+        "y_vs_floor": 6.515868163065355e-08,
+        "dx_vs_floor": 4.3410470215090796e-08,
+        "dw_vs_floor": 1.8716248662490153e-07
+      },
+      "eager_hf": {
+        "y": 6.522138369474411e-08,
+        "s": 0.0,
+        "dx": 5.4407987894288385e-08,
+        "dr": 5.4407987894288385e-08,
+        "dw": 1.2220348246236522e-07,
+        "y_vs_floor": 6.522138369474411e-08,
+        "dx_vs_floor": 5.4407987894288385e-08,
+        "dw_vs_floor": 1.2220348246236522e-07
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.203946452695756e-08,
+        "s": 0.0,
+        "dx": 5.328576258539159e-08,
+        "dr": 5.328576258539159e-08,
+        "dw": 2.1121218244789718e-07
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp32",
+      "casting_mode": "gemma",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.0,
+        "s": 0.0,
+        "dx": 0.0,
+        "dr": 0.0,
+        "dw": 0.0
+      },
+      "liger": {
+        "y": 7.109279762978266e-08,
+        "s": 0.0,
+        "dx": 5.4403456069586636e-08,
+        "dr": 5.4403456069586636e-08,
+        "dw": 1.8716248662490153e-07,
+        "y_vs_floor": 7.109279762978266e-08,
+        "dx_vs_floor": 5.4403456069586636e-08,
+        "dw_vs_floor": 1.8716248662490153e-07
+      },
+      "eager_hf": {
+        "y": 7.119785493546381e-08,
+        "s": 0.0,
+        "dx": 6.216469250836897e-08,
+        "dr": 6.216469250836897e-08,
+        "dw": 1.2220348246236522e-07,
+        "y_vs_floor": 7.119785493546381e-08,
+        "dx_vs_floor": 6.216469250836897e-08,
+        "dw_vs_floor": 1.2220348246236522e-07
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.216636324272401e-08,
+        "s": 0.0,
+        "dx": 5.658299334278815e-08,
+        "dr": 5.658299334278815e-08,
+        "dw": 2.1121218244789718e-07
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp32",
+      "casting_mode": "none",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.0,
+        "s": 0.0,
+        "dx": 0.0,
+        "dr": 0.0,
+        "dw": 0.0
+      },
+      "liger": {
+        "y": 6.515868163065355e-08,
+        "s": 0.0,
+        "dx": 4.3410470215090796e-08,
+        "dr": 4.3410470215090796e-08,
+        "dw": 1.8716248662490153e-07,
+        "y_vs_floor": 6.515868163065355e-08,
+        "dx_vs_floor": 4.3410470215090796e-08,
+        "dw_vs_floor": 1.8716248662490153e-07
+      },
+      "eager_hf": {
+        "y": 6.522138369474411e-08,
+        "s": 0.0,
+        "dx": 5.4407987894288385e-08,
+        "dr": 5.4407987894288385e-08,
+        "dw": 1.2220348246236522e-07,
+        "y_vs_floor": 6.522138369474411e-08,
+        "dx_vs_floor": 5.4407987894288385e-08,
+        "dw_vs_floor": 1.2220348246236522e-07
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.203946452695756e-08,
+        "s": 0.0,
+        "dx": 5.328576258539159e-08,
+        "dr": 5.328576258539159e-08,
+        "dw": 2.1121218244789718e-07
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp32",
+      "casting_mode": "none",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.0,
+        "s": 0.0,
+        "dx": 0.0,
+        "dr": 0.0,
+        "dw": 0.0
+      },
+      "liger": {
+        "y": 7.109279762978266e-08,
+        "s": 0.0,
+        "dx": 5.4403456069586636e-08,
+        "dr": 5.4403456069586636e-08,
+        "dw": 1.8716248662490153e-07,
+        "y_vs_floor": 7.109279762978266e-08,
+        "dx_vs_floor": 5.4403456069586636e-08,
+        "dw_vs_floor": 1.8716248662490153e-07
+      },
+      "eager_hf": {
+        "y": 7.119785493546381e-08,
+        "s": 0.0,
+        "dx": 6.216469250836897e-08,
+        "dr": 6.216469250836897e-08,
+        "dw": 1.2220348246236522e-07,
+        "y_vs_floor": 7.119785493546381e-08,
+        "dx_vs_floor": 6.216469250836897e-08,
+        "dw_vs_floor": 1.2220348246236522e-07
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.216636324272401e-08,
+        "s": 0.0,
+        "dx": 5.658299334278815e-08,
+        "dr": 5.658299334278815e-08,
+        "dw": 2.1121218244789718e-07
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp16",
+      "casting_mode": "llama",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.00020721356608603518,
+        "s": 0.00022502880900893206,
+        "dx": 0.0002072952744234533,
+        "dr": 0.0002072952744234533,
+        "dw": 0.00020884957642016514
+      },
+      "liger": {
+        "y": 0.0003697052483699628,
+        "s": 0.00022502880900893206,
+        "dx": 0.00020734554443222963,
+        "dr": 0.00020734554443222963,
+        "dw": 0.0004207916890172765,
+        "y_vs_floor": 0.0004225527083999942,
+        "dx_vs_floor": 4.426128182459336e-05,
+        "dw_vs_floor": 0.00045691546604808956
+      },
+      "eager_hf": {
+        "y": 0.0003697040560215381,
+        "s": 0.00022502880900893206,
+        "dx": 0.0002788960682489055,
+        "dr": 0.0002788960682489055,
+        "dw": 0.00042023755474209,
+        "y_vs_floor": 0.00042255409223045527,
+        "dx_vs_floor": 0.00029675309519191985,
+        "dw_vs_floor": 0.0004554617101401263
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.281415069380405e-06,
+        "s": 0.0,
+        "dx": 0.0002967294329124239,
+        "dr": 0.0002967294329124239,
+        "dw": 3.219735558540863e-05
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp16",
+      "casting_mode": "llama",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.00020720248279698685,
+        "s": 0.00022502880900893206,
+        "dx": 0.00020736701321262793,
+        "dr": 0.00020736701321262793,
+        "dw": 0.00020884957642016514
+      },
+      "liger": {
+        "y": 0.0003693097572488817,
+        "s": 0.00022502880900893206,
+        "dx": 0.00020744385279991836,
+        "dr": 0.00020744385279991836,
+        "dw": 0.0004207916890172765,
+        "y_vs_floor": 0.00042252781426319215,
+        "dx_vs_floor": 5.0977045301477416e-05,
+        "dw_vs_floor": 0.00045691546604808956
+      },
+      "eager_hf": {
+        "y": 0.00043208300457359545,
+        "s": 0.00022502880900893206,
+        "dx": 0.0003447791326477001,
+        "dr": 0.0003447791326477001,
+        "dw": 0.00042023755474209,
+        "y_vs_floor": 0.0004791927996451731,
+        "dx_vs_floor": 0.0003770682108488105,
+        "dw_vs_floor": 0.0004554617101401263
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 0.00031890806115986495,
+        "s": 0.0,
+        "dx": 0.0003770438449835367,
+        "dr": 0.0003770438449835367,
+        "dw": 3.219735558540863e-05
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp16",
+      "casting_mode": "gemma",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.00020721356608603518,
+        "s": 0.00022502880900893206,
+        "dx": 0.0002072952744234533,
+        "dr": 0.0002072952744234533,
+        "dw": 0.00020884957642016514
+      },
+      "liger": {
+        "y": 0.00030577507492017184,
+        "s": 0.00022502880900893206,
+        "dx": 0.00020734554443222963,
+        "dr": 0.00020734554443222963,
+        "dw": 0.00030766984086600464,
+        "y_vs_floor": 0.00034852714210985633,
+        "dx_vs_floor": 4.426128182459336e-05,
+        "dw_vs_floor": 0.0003374940412399118
+      },
+      "eager_hf": {
+        "y": 0.0003057740065126462,
+        "s": 0.00022502880900893206,
+        "dx": 0.0003012642110282536,
+        "dr": 0.0003012642110282536,
+        "dw": 0.0003076662830412783,
+        "y_vs_floor": 0.0003485306281640663,
+        "dx_vs_floor": 0.00035470256272647293,
+        "dw_vs_floor": 0.0003374934435107769
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.034050617820966e-06,
+        "s": 0.0,
+        "dx": 0.00035467712000026295,
+        "dr": 0.00035467712000026295,
+        "dw": 1.8748199783566427e-06
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp16",
+      "casting_mode": "gemma",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.00020720248279698685,
+        "s": 0.00022502880900893206,
+        "dx": 0.00020736701321262793,
+        "dr": 0.00020736701321262793,
+        "dw": 0.00020884957642016514
+      },
+      "liger": {
+        "y": 0.00030556756545767723,
+        "s": 0.00022502880900893206,
+        "dx": 0.00020744385279991836,
+        "dr": 0.00020744385279991836,
+        "dw": 0.00030766984086600464,
+        "y_vs_floor": 0.0003487689598782445,
+        "dx_vs_floor": 5.0977045301477416e-05,
+        "dw_vs_floor": 0.0003374940412399118
+      },
+      "eager_hf": {
+        "y": 0.0003055661819434902,
+        "s": 0.00022502880900893206,
+        "dx": 0.0003031830061349008,
+        "dr": 0.0003031830061349008,
+        "dw": 0.0003076662830412783,
+        "y_vs_floor": 0.0003487684856518398,
+        "dx_vs_floor": 0.0003565149887226629,
+        "dw_vs_floor": 0.0003374934435107769
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 4.002980773924299e-06,
+        "s": 0.0,
+        "dx": 0.000356435817838592,
+        "dr": 0.000356435817838592,
+        "dw": 1.8748199783566427e-06
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp16",
+      "casting_mode": "none",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.00020721356608603518,
+        "s": 0.00022502880900893206,
+        "dx": 0.0002072952744234533,
+        "dr": 0.0002072952744234533,
+        "dw": 0.00020884957642016514
+      },
+      "liger": {
+        "y": 0.0003506820424955301,
+        "s": 0.00022502880900893206,
+        "dx": 0.00025743053266195177,
+        "dr": 0.00025743053266195177,
+        "dw": 0.00040254403130005333,
+        "y_vs_floor": 0.00040352964417134893,
+        "dx_vs_floor": 0.00025556427889483367,
+        "dw_vs_floor": 0.00043449833790717307
+      },
+      "eager_hf": {
+        "y": 0.00043533308713632944,
+        "s": 0.00022502880900893206,
+        "dx": 0.000370682058376545,
+        "dr": 0.000370682058376545,
+        "dw": 0.00047402987319528387,
+        "y_vs_floor": 0.00048146045139161453,
+        "dx_vs_floor": 0.00042373265178649355,
+        "dw_vs_floor": 0.0005095535827000165
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 0.0004579318973767247,
+        "s": 0.0,
+        "dx": 0.0004330661199349447,
+        "dr": 0.0004330661199349447,
+        "dw": 0.00048793200623592546
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "fp16",
+      "casting_mode": "none",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.00020720248279698685,
+        "s": 0.00022502880900893206,
+        "dx": 0.00020736701321262793,
+        "dr": 0.00020736701321262793,
+        "dw": 0.00020884957642016514
+      },
+      "liger": {
+        "y": 0.0004162646317468339,
+        "s": 0.00022502880900893206,
+        "dx": 0.00027940277605294857,
+        "dr": 0.00027940277605294857,
+        "dw": 0.00040254403130005333,
+        "y_vs_floor": 0.00046382329724785554,
+        "dx_vs_floor": 0.0002988670494936908,
+        "dw_vs_floor": 0.00043449833790717307
+      },
+      "eager_hf": {
+        "y": 0.0004901151801410945,
+        "s": 0.00022502880900893206,
+        "dx": 0.0004328154535542301,
+        "dr": 0.0004328154535542301,
+        "dw": 0.00047402987319528387,
+        "y_vs_floor": 0.0005320922866016068,
+        "dx_vs_floor": 0.00047951765680032864,
+        "dw_vs_floor": 0.0005095535827000165
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 0.00045808790349839115,
+        "s": 0.0,
+        "dx": 0.0004925790488494817,
+        "dr": 0.0004925790488494817,
+        "dw": 0.00048793200623592546
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "bf16",
+      "casting_mode": "llama",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.0016571384330102885,
+        "s": 0.0018004172469808831,
+        "dx": 0.00165770256383864,
+        "dr": 0.00165770256383864,
+        "dw": 0.0016571857642449811
+      },
+      "liger": {
+        "y": 0.002957744335088288,
+        "s": 0.0018004172469808831,
+        "dx": 0.0016580915329805187,
+        "dr": 0.0016580915329805187,
+        "dw": 0.0033526515487628944,
+        "y_vs_floor": 0.003383728949385974,
+        "dx_vs_floor": 0.000350558735705357,
+        "dw_vs_floor": 0.0037002475929660294
+      },
+      "eager_hf": {
+        "y": 0.002957728479618923,
+        "s": 0.0018004172469808831,
+        "dx": 0.0022309402272204606,
+        "dr": 0.0022309402272204606,
+        "dw": 0.0033525883840231944,
+        "y_vs_floor": 0.003383709091609788,
+        "dx_vs_floor": 0.0023741315939335463,
+        "dw_vs_floor": 0.0037001936094919947
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 1.7502235562326646e-05,
+        "s": 0.0,
+        "dx": 0.00237338436638508,
+        "dr": 0.00237338436638508,
+        "dw": 6.6629577789159886e-06
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "bf16",
+      "casting_mode": "llama",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.001657608442185437,
+        "s": 0.0018004172469808831,
+        "dx": 0.0016598095918692224,
+        "dr": 0.0016598095918692224,
+        "dw": 0.0016571857642449811
+      },
+      "liger": {
+        "y": 0.0029591029107300993,
+        "s": 0.0018004172469808831,
+        "dx": 0.001660411633287789,
+        "dr": 0.001660411633287789,
+        "dw": 0.0033526515487628944,
+        "y_vs_floor": 0.0033868198068879537,
+        "dx_vs_floor": 0.00040636016187028067,
+        "dw_vs_floor": 0.0037002475929660294
+      },
+      "eager_hf": {
+        "y": 0.003483021609118953,
+        "s": 0.0018004172469808831,
+        "dx": 0.002773237657778935,
+        "dr": 0.002773237657778935,
+        "dw": 0.0033525883840231944,
+        "y_vs_floor": 0.003856469111546179,
+        "dx_vs_floor": 0.0030302087712588623,
+        "dw_vs_floor": 0.0037001936094919947
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 0.0026071451681515647,
+        "s": 0.0,
+        "dx": 0.003030099080116931,
+        "dr": 0.003030099080116931,
+        "dw": 6.6629577789159886e-06
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "bf16",
+      "casting_mode": "gemma",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.0016571384330102885,
+        "s": 0.0018004172469808831,
+        "dx": 0.00165770256383864,
+        "dr": 0.00165770256383864,
+        "dw": 0.0016571857642449811
+      },
+      "liger": {
+        "y": 0.002448212165229366,
+        "s": 0.0018004172469808831,
+        "dx": 0.0016580915329805187,
+        "dr": 0.0016580915329805187,
+        "dw": 0.0024472846904957956,
+        "y_vs_floor": 0.0027924737113037964,
+        "dx_vs_floor": 0.000350558735705357,
+        "dw_vs_floor": 0.002791926566234432
+      },
+      "eager_hf": {
+        "y": 0.0024482128664410165,
+        "s": 0.0018004172469808831,
+        "dx": 0.0023626313260343393,
+        "dr": 0.0023626313260343393,
+        "dw": 0.0024472846904957956,
+        "y_vs_floor": 0.0027924772780961392,
+        "dx_vs_floor": 0.0027670188272458573,
+        "dw_vs_floor": 0.002791926566234432
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 9.736354394725146e-06,
+        "s": 0.0,
+        "dx": 0.002766800910042392,
+        "dr": 0.002766800910042392,
+        "dw": 0.0
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "bf16",
+      "casting_mode": "gemma",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.001657608442185437,
+        "s": 0.0018004172469808831,
+        "dx": 0.0016598095918692224,
+        "dr": 0.0016598095918692224,
+        "dw": 0.0016571857642449811
+      },
+      "liger": {
+        "y": 0.0024494785272627987,
+        "s": 0.0018004172469808831,
+        "dx": 0.001660411633287789,
+        "dr": 0.001660411633287789,
+        "dw": 0.0024472846904957956,
+        "y_vs_floor": 0.0027964137358205405,
+        "dx_vs_floor": 0.00040636016187028067,
+        "dw_vs_floor": 0.002791926566234432
+      },
+      "eager_hf": {
+        "y": 0.0024494730984814263,
+        "s": 0.0018004172469808831,
+        "dx": 0.002400965648873565,
+        "dr": 0.002400965648873565,
+        "dw": 0.0024472846904957956,
+        "y_vs_floor": 0.002796411642058107,
+        "dx_vs_floor": 0.002815369564964541,
+        "dw_vs_floor": 0.002791926566234432
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 7.911986947129715e-06,
+        "s": 0.0,
+        "dx": 0.002815207573366408,
+        "dr": 0.002815207573366408,
+        "dw": 0.0
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "bf16",
+      "casting_mode": "none",
+      "offset": 0.0,
+      "floor": {
+        "y": 0.0016571384330102885,
+        "s": 0.0018004172469808831,
+        "dx": 0.00165770256383864,
+        "dr": 0.00165770256383864,
+        "dw": 0.0016571857642449811
+      },
+      "liger": {
+        "y": 0.00278911447048267,
+        "s": 0.0018004172469808831,
+        "dx": 0.0020410362346248564,
+        "dr": 0.0020410362346248564,
+        "dw": 0.0031576159607632406,
+        "y_vs_floor": 0.003212442114446217,
+        "dx_vs_floor": 0.002024531804822727,
+        "dw_vs_floor": 0.003505779234280279
+      },
+      "eager_hf": {
+        "y": 0.0034666194021248055,
+        "s": 0.0018004172469808831,
+        "dx": 0.002884337922288287,
+        "dr": 0.002884337922288287,
+        "dw": 0.0038130924584095695,
+        "y_vs_floor": 0.003842837708842636,
+        "dx_vs_floor": 0.0032844193676465007,
+        "dw_vs_floor": 0.004145402380034098
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 0.0036600710508853636,
+        "s": 0.0,
+        "dx": 0.0033580550612143153,
+        "dr": 0.0033580550612143153,
+        "dw": 0.003835803141711793
+      },
+      "dx_equals_dr_liger": true
+    },
+    {
+      "dtype": "bf16",
+      "casting_mode": "none",
+      "offset": 1.0,
+      "floor": {
+        "y": 0.001657608442185437,
+        "s": 0.0018004172469808831,
+        "dx": 0.0016598095918692224,
+        "dr": 0.0016598095918692224,
+        "dw": 0.0016571857642449811
+      },
+      "liger": {
+        "y": 0.003344115062993504,
+        "s": 0.0018004172469808831,
+        "dx": 0.002209936409444139,
+        "dr": 0.002209936409444139,
+        "dw": 0.0031576159607632406,
+        "y_vs_floor": 0.0037224375521409934,
+        "dx_vs_floor": 0.0023676316162685954,
+        "dw_vs_floor": 0.003505779234280279
+      },
+      "eager_hf": {
+        "y": 0.003929327458961559,
+        "s": 0.0018004172469808831,
+        "dx": 0.0034186583221061115,
+        "dr": 0.0034186583221061115,
+        "dw": 0.0038130924584095695,
+        "y_vs_floor": 0.004263305832960831,
+        "dx_vs_floor": 0.0037827169446395404,
+        "dw_vs_floor": 0.004145402380034098
+      },
+      "torch_compile": {
+        "error": "InductorError: InvalidCxxCompiler: Compiler: cl is not found.\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n"
+      },
+      "liger_vs_hf": {
+        "y": 0.0036576459310269033,
+        "s": 0.0,
+        "dx": 0.0038820277103324865,
+        "dr": 0.0038820277103324865,
+        "dw": 0.003835803141711793
+      },
+      "dx_equals_dr_liger": true
+    }
+  ],
+  "memory": [
+    {
+      "shape": "Qwen3-0.6B",
+      "T": 2048,
+      "H": 1024,
+      "act_MiB": 4.0,
+      "liger_fused_inplace": {
+        "held_after_fwd_MiB": 8.0,
+        "extra_peak_MiB": 12.0,
+        "fwd_bwd_ms": 0.379,
+        "in_place": true
+      },
+      "liger_fused_oop": {
+        "held_after_fwd_MiB": 8.0,
+        "extra_peak_MiB": 16.0,
+        "fwd_bwd_ms": 0.332,
+        "in_place": false
+      },
+      "separate_add_liger_rms": {
+        "held_after_fwd_MiB": 8.0,
+        "extra_peak_MiB": 16.0,
+        "fwd_bwd_ms": 0.385,
+        "in_place": null
+      },
+      "eager_hf": {
+        "held_after_fwd_MiB": 20.0,
+        "extra_peak_MiB": 56.0,
+        "fwd_bwd_ms": 1.166,
+        "in_place": null
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 8.0,
+        "extra_peak_MiB": 16.0,
+        "fwd_bwd_ms": 0.315,
+        "in_place": null
+      }
+    },
+    {
+      "shape": "Qwen3-0.6B",
+      "T": 8192,
+      "H": 1024,
+      "act_MiB": 16.0,
+      "liger_fused_inplace": {
+        "held_after_fwd_MiB": 32.0,
+        "extra_peak_MiB": 48.0,
+        "fwd_bwd_ms": 1.338,
+        "in_place": true
+      },
+      "liger_fused_oop": {
+        "held_after_fwd_MiB": 32.0,
+        "extra_peak_MiB": 64.0,
+        "fwd_bwd_ms": 1.578,
+        "in_place": false
+      },
+      "separate_add_liger_rms": {
+        "held_after_fwd_MiB": 32.0,
+        "extra_peak_MiB": 64.0,
+        "fwd_bwd_ms": 1.397,
+        "in_place": null
+      },
+      "eager_hf": {
+        "held_after_fwd_MiB": 80.0,
+        "extra_peak_MiB": 224.0,
+        "fwd_bwd_ms": 5.823,
+        "in_place": null
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 32.0,
+        "extra_peak_MiB": 64.0,
+        "fwd_bwd_ms": 0.983,
+        "in_place": null
+      }
+    },
+    {
+      "shape": "Qwen3-0.6B",
+      "T": 16384,
+      "H": 1024,
+      "act_MiB": 32.0,
+      "liger_fused_inplace": {
+        "held_after_fwd_MiB": 64.1,
+        "extra_peak_MiB": 96.0,
+        "fwd_bwd_ms": 2.759,
+        "in_place": true
+      },
+      "liger_fused_oop": {
+        "held_after_fwd_MiB": 64.1,
+        "extra_peak_MiB": 128.0,
+        "fwd_bwd_ms": 2.753,
+        "in_place": false
+      },
+      "separate_add_liger_rms": {
+        "held_after_fwd_MiB": 64.1,
+        "extra_peak_MiB": 128.0,
+        "fwd_bwd_ms": 3.829,
+        "in_place": null
+      },
+      "eager_hf": {
+        "held_after_fwd_MiB": 160.1,
+        "extra_peak_MiB": 448.0,
+        "fwd_bwd_ms": 12.145,
+        "in_place": null
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 64.1,
+        "extra_peak_MiB": 128.0,
+        "fwd_bwd_ms": 2.779,
+        "in_place": null
+      }
+    },
+    {
+      "shape": "Llama-3.2-1B",
+      "T": 2048,
+      "H": 2048,
+      "act_MiB": 8.0,
+      "liger_fused_inplace": {
+        "held_after_fwd_MiB": 16.0,
+        "extra_peak_MiB": 24.0,
+        "fwd_bwd_ms": 0.512,
+        "in_place": true
+      },
+      "liger_fused_oop": {
+        "held_after_fwd_MiB": 16.0,
+        "extra_peak_MiB": 32.0,
+        "fwd_bwd_ms": 0.517,
+        "in_place": false
+      },
+      "separate_add_liger_rms": {
+        "held_after_fwd_MiB": 16.0,
+        "extra_peak_MiB": 32.0,
+        "fwd_bwd_ms": 0.552,
+        "in_place": null
+      },
+      "eager_hf": {
+        "held_after_fwd_MiB": 40.0,
+        "extra_peak_MiB": 112.0,
+        "fwd_bwd_ms": 2.64,
+        "in_place": null
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 16.0,
+        "extra_peak_MiB": 32.0,
+        "fwd_bwd_ms": 0.833,
+        "in_place": null
+      }
+    },
+    {
+      "shape": "Llama-3.2-1B",
+      "T": 8192,
+      "H": 2048,
+      "act_MiB": 32.0,
+      "liger_fused_inplace": {
+        "held_after_fwd_MiB": 64.0,
+        "extra_peak_MiB": 96.0,
+        "fwd_bwd_ms": 2.26,
+        "in_place": true
+      },
+      "liger_fused_oop": {
+        "held_after_fwd_MiB": 64.0,
+        "extra_peak_MiB": 128.0,
+        "fwd_bwd_ms": 2.789,
+        "in_place": false
+      },
+      "separate_add_liger_rms": {
+        "held_after_fwd_MiB": 64.0,
+        "extra_peak_MiB": 128.0,
+        "fwd_bwd_ms": 2.81,
+        "in_place": null
+      },
+      "eager_hf": {
+        "held_after_fwd_MiB": 160.0,
+        "extra_peak_MiB": 448.0,
+        "fwd_bwd_ms": 12.134,
+        "in_place": null
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 64.0,
+        "extra_peak_MiB": 128.0,
+        "fwd_bwd_ms": 3.153,
+        "in_place": null
+      }
+    },
+    {
+      "shape": "Llama-3.2-1B",
+      "T": 16384,
+      "H": 2048,
+      "act_MiB": 64.0,
+      "liger_fused_inplace": {
+        "held_after_fwd_MiB": 128.1,
+        "extra_peak_MiB": 192.0,
+        "fwd_bwd_ms": 4.496,
+        "in_place": true
+      },
+      "liger_fused_oop": {
+        "held_after_fwd_MiB": 128.1,
+        "extra_peak_MiB": 256.0,
+        "fwd_bwd_ms": 4.483,
+        "in_place": false
+      },
+      "separate_add_liger_rms": {
+        "held_after_fwd_MiB": 128.1,
+        "extra_peak_MiB": 256.0,
+        "fwd_bwd_ms": 5.578,
+        "in_place": null
+      },
+      "eager_hf": {
+        "held_after_fwd_MiB": 320.1,
+        "extra_peak_MiB": 896.0,
+        "fwd_bwd_ms": 23.825,
+        "in_place": null
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 128.1,
+        "extra_peak_MiB": 256.0,
+        "fwd_bwd_ms": 6.463,
+        "in_place": null
+      }
+    }
+  ],
+  "bandwidth": [
+    {
+      "T": 4096,
+      "H": 512,
+      "BLOCK_SIZE": 512,
+      "num_warps": 4,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 4.0,
+      "compile_ok": true,
+      "copy_ms": 0.043,
+      "copy_gbps": 97.5,
+      "fwd_fused_ms": 0.087,
+      "fwd_fused_gbps": 144.6,
+      "fwd_separate_ms": 0.0983,
+      "fwd_separate_gbps": 128.0,
+      "fwd_eager_ms": 0.3318,
+      "fwd_eager_gbps": 37.9,
+      "bwd_fused_oop_ms": 0.2826,
+      "bwd_fused_oop_gbps": 59.4,
+      "bwd_fused_inplace_ms": 0.3103,
+      "bwd_fused_inplace_gbps": 54.1,
+      "bwd_eager_ms": 0.6134,
+      "bwd_eager_gbps": 27.4,
+      "bwd_liger_graph_ms": 0.2693,
+      "bwd_liger_graph_gbps": 62.3,
+      "fwd_compile_ms": 0.0911,
+      "fwd_compile_gbps": 138.1,
+      "bwd_compile_ms": 0.1444,
+      "bwd_compile_gbps": 116.2,
+      "fwd_fused_vs_eager": 3.81,
+      "fwd_fused_vs_separate": 1.13,
+      "bwd_fused_oop_vs_eager": 2.17
+    },
+    {
+      "T": 4096,
+      "H": 1024,
+      "BLOCK_SIZE": 1024,
+      "num_warps": 4,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 8.0,
+      "compile_ok": true,
+      "copy_ms": 0.0829,
+      "copy_gbps": 101.1,
+      "fwd_fused_ms": 0.1633,
+      "fwd_fused_gbps": 154.1,
+      "fwd_separate_ms": 0.1669,
+      "fwd_separate_gbps": 150.8,
+      "fwd_eager_ms": 0.599,
+      "fwd_eager_gbps": 42.0,
+      "bwd_fused_oop_ms": 0.3236,
+      "bwd_fused_oop_gbps": 103.7,
+      "bwd_fused_inplace_ms": 0.385,
+      "bwd_fused_inplace_gbps": 87.1,
+      "bwd_eager_ms": 1.452,
+      "bwd_eager_gbps": 23.1,
+      "bwd_liger_graph_ms": 0.3154,
+      "bwd_liger_graph_gbps": 106.4,
+      "fwd_compile_ms": 0.1649,
+      "fwd_compile_gbps": 152.6,
+      "bwd_compile_ms": 0.3021,
+      "bwd_compile_gbps": 111.1,
+      "fwd_fused_vs_eager": 3.67,
+      "fwd_fused_vs_separate": 1.02,
+      "bwd_fused_oop_vs_eager": 4.49
+    },
+    {
+      "T": 4096,
+      "H": 2048,
+      "BLOCK_SIZE": 2048,
+      "num_warps": 8,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 16.0,
+      "compile_ok": true,
+      "copy_ms": 0.1526,
+      "copy_gbps": 110.0,
+      "fwd_fused_ms": 0.3092,
+      "fwd_fused_gbps": 162.8,
+      "fwd_separate_ms": 0.3113,
+      "fwd_separate_gbps": 161.7,
+      "fwd_eager_ms": 1.5073,
+      "fwd_eager_gbps": 33.4,
+      "bwd_fused_oop_ms": 0.3789,
+      "bwd_fused_oop_gbps": 177.1,
+      "bwd_fused_inplace_ms": 0.4813,
+      "bwd_fused_inplace_gbps": 139.4,
+      "bwd_eager_ms": 3.5154,
+      "bwd_eager_gbps": 19.1,
+      "bwd_liger_graph_ms": 0.3686,
+      "bwd_liger_graph_gbps": 182.0,
+      "fwd_compile_ms": 0.3031,
+      "fwd_compile_gbps": 166.1,
+      "bwd_compile_ms": 0.3707,
+      "bwd_compile_gbps": 181.0,
+      "fwd_fused_vs_eager": 4.87,
+      "fwd_fused_vs_separate": 1.01,
+      "bwd_fused_oop_vs_eager": 9.28
+    },
+    {
+      "T": 4096,
+      "H": 2049,
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "lane_util": 0.5,
+      "MiB_per_tensor": 16.0,
+      "compile_ok": true,
+      "copy_ms": 0.1516,
+      "copy_gbps": 110.8,
+      "fwd_fused_ms": 0.3748,
+      "fwd_fused_gbps": 134.4,
+      "fwd_separate_ms": 0.4495,
+      "fwd_separate_gbps": 112.0,
+      "fwd_eager_ms": 1.5227,
+      "fwd_eager_gbps": 33.1,
+      "bwd_fused_oop_ms": 0.5673,
+      "bwd_fused_oop_gbps": 118.4,
+      "bwd_fused_inplace_ms": 0.683,
+      "bwd_fused_inplace_gbps": 98.3,
+      "bwd_eager_ms": 3.5564,
+      "bwd_eager_gbps": 18.9,
+      "bwd_liger_graph_ms": 0.5253,
+      "bwd_liger_graph_gbps": 127.8,
+      "fwd_compile_ms": 0.3087,
+      "fwd_compile_gbps": 163.1,
+      "bwd_compile_ms": 0.8315,
+      "bwd_compile_gbps": 80.7,
+      "fwd_fused_vs_eager": 4.06,
+      "fwd_fused_vs_separate": 1.2,
+      "bwd_fused_oop_vs_eager": 6.27
+    },
+    {
+      "T": 4096,
+      "H": 3072,
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "lane_util": 0.75,
+      "MiB_per_tensor": 24.0,
+      "compile_ok": true,
+      "copy_ms": 0.2253,
+      "copy_gbps": 111.7,
+      "fwd_fused_ms": 0.4495,
+      "fwd_fused_gbps": 167.9,
+      "fwd_separate_ms": 0.5335,
+      "fwd_separate_gbps": 141.5,
+      "fwd_eager_ms": 2.3967,
+      "fwd_eager_gbps": 31.5,
+      "bwd_fused_oop_ms": 0.4997,
+      "bwd_fused_oop_gbps": 201.4,
+      "bwd_fused_inplace_ms": 0.6748,
+      "bwd_fused_inplace_gbps": 149.2,
+      "bwd_eager_ms": 5.4098,
+      "bwd_eager_gbps": 18.6,
+      "bwd_liger_graph_ms": 0.4956,
+      "bwd_liger_graph_gbps": 203.1,
+      "fwd_compile_ms": 0.4434,
+      "fwd_compile_gbps": 170.3,
+      "bwd_compile_ms": 0.9206,
+      "bwd_compile_gbps": 109.3,
+      "fwd_fused_vs_eager": 5.33,
+      "fwd_fused_vs_separate": 1.19,
+      "bwd_fused_oop_vs_eager": 10.83
+    },
+    {
+      "T": 4096,
+      "H": 4096,
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 32.0,
+      "compile_ok": true,
+      "copy_ms": 0.3,
+      "copy_gbps": 111.8,
+      "fwd_fused_ms": 0.5898,
+      "fwd_fused_gbps": 170.7,
+      "fwd_separate_ms": 0.726,
+      "fwd_separate_gbps": 138.7,
+      "fwd_eager_ms": 3.1447,
+      "fwd_eager_gbps": 32.0,
+      "bwd_fused_oop_ms": 0.6236,
+      "bwd_fused_oop_gbps": 215.2,
+      "bwd_fused_inplace_ms": 0.8612,
+      "bwd_fused_inplace_gbps": 155.9,
+      "bwd_eager_ms": 7.1188,
+      "bwd_eager_gbps": 18.9,
+      "bwd_liger_graph_ms": 0.6226,
+      "bwd_liger_graph_gbps": 215.6,
+      "fwd_compile_ms": 0.5888,
+      "fwd_compile_gbps": 171.0,
+      "bwd_compile_ms": 0.9257,
+      "bwd_compile_gbps": 145.0,
+      "fwd_fused_vs_eager": 5.33,
+      "fwd_fused_vs_separate": 1.23,
+      "bwd_fused_oop_vs_eager": 11.42
+    },
+    {
+      "T": 4096,
+      "H": 8192,
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 64.0,
+      "compile_ok": true,
+      "copy_ms": 0.5878,
+      "copy_gbps": 114.2,
+      "fwd_fused_ms": 1.1868,
+      "fwd_fused_gbps": 169.6,
+      "fwd_separate_ms": 1.4531,
+      "fwd_separate_gbps": 138.6,
+      "fwd_eager_ms": 6.2577,
+      "fwd_eager_gbps": 32.2,
+      "bwd_fused_oop_ms": 1.1694,
+      "bwd_fused_oop_gbps": 229.5,
+      "bwd_fused_inplace_ms": 1.7162,
+      "bwd_fused_inplace_gbps": 156.4,
+      "bwd_eager_ms": 14.2275,
+      "bwd_eager_gbps": 18.9,
+      "bwd_liger_graph_ms": 1.1674,
+      "bwd_liger_graph_gbps": 230.0,
+      "fwd_compile_ms": 1.1674,
+      "fwd_compile_gbps": 172.5,
+      "bwd_compile_ms": 1.9681,
+      "bwd_compile_gbps": 136.4,
+      "fwd_fused_vs_eager": 5.27,
+      "fwd_fused_vs_separate": 1.22,
+      "bwd_fused_oop_vs_eager": 12.17
+    },
+    {
+      "T": 4096,
+      "H": 11008,
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "lane_util": 0.672,
+      "MiB_per_tensor": 86.0,
+      "compile_ok": true,
+      "copy_ms": 0.7905,
+      "copy_gbps": 114.1,
+      "fwd_fused_ms": 1.6036,
+      "fwd_fused_gbps": 168.7,
+      "fwd_separate_ms": 1.9466,
+      "fwd_separate_gbps": 139.0,
+      "fwd_eager_ms": 8.3835,
+      "fwd_eager_gbps": 32.3,
+      "bwd_fused_oop_ms": 1.5544,
+      "bwd_fused_oop_gbps": 232.1,
+      "bwd_fused_inplace_ms": 2.3101,
+      "bwd_fused_inplace_gbps": 156.1,
+      "bwd_eager_ms": 19.1222,
+      "bwd_eager_gbps": 18.9,
+      "bwd_liger_graph_ms": 1.5575,
+      "bwd_liger_graph_gbps": 231.6,
+      "fwd_compile_ms": 1.6026,
+      "fwd_compile_gbps": 168.8,
+      "bwd_compile_ms": 2.8252,
+      "bwd_compile_gbps": 127.7,
+      "fwd_fused_vs_eager": 5.23,
+      "fwd_fused_vs_separate": 1.21,
+      "bwd_fused_oop_vs_eager": 12.3
+    }
+  ],
+  "kernels": [
+    {
+      "H": 512,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 512,
+      "num_warps": 4,
+      "n_regs": 20,
+      "n_spills": 0,
+      "shared": 16
+    },
+    {
+      "H": 1024,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 1024,
+      "num_warps": 4,
+      "n_regs": 31,
+      "n_spills": 0,
+      "shared": 16
+    },
+    {
+      "H": 2048,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 2048,
+      "num_warps": 8,
+      "n_regs": 31,
+      "n_spills": 0,
+      "shared": 32
+    },
+    {
+      "H": 2049,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 64,
+      "n_spills": 0,
+      "shared": 8192
+    },
+    {
+      "H": 3072,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 40,
+      "n_spills": 0,
+      "shared": 32
+    },
+    {
+      "H": 4096,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 40,
+      "n_spills": 0,
+      "shared": 32
+    },
+    {
+      "H": 8192,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 39,
+      "n_spills": 0,
+      "shared": 64
+    },
+    {
+      "H": 11008,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 64,
+      "n_spills": 0,
+      "shared": 64
+    }
+  ],
+  "peak_memory_mib": 3050.2,
+  "runtime_s": 68.5
+}
