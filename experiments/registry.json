@@ -219,6 +219,16 @@
       "device": "cuda",
       "date": "2026-11-15",
       "status": "done"
+    },
+    {
+      "id": "0023",
+      "slug": "liger-fused-add-rmsnorm",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/fused_add_rms_norm.py (LigerFusedAddRMSNormFunction)",
+      "topic": "fused residual-add + RMSNorm: in_place API default mismatch, unused-output zero grads vs None, (dX,dX) return aliasing, casting modes vs HF/fp64, memory/bandwidth vs separate add+LigerRMSNorm / eager / compile",
+      "device": "cuda",
+      "date": "2026-11-16",
+      "status": "done"
     }
   ]
 }
