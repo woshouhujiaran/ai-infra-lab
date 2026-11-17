@@ -78,6 +78,8 @@ def fmt(x, digits=4):
         return x.splitlines()[0][:80]
     if isinstance(x, bool):
         return x
+    if isinstance(x, (list, tuple)):
+        return list(x)
     if isinstance(x, int):
         return x
     if abs(x) >= 1e3 or (abs(x) < 1e-3 and x != 0):
@@ -296,27 +298,43 @@ def section_inplace_alias(device):
     oq4, ok4 = LigerRopeFunction.apply(q4, k4, cos4, sin4)
     dq = torch.randn_like(oq4)
     dk = torch.randn_like(ok4)
-    # Clean first call with clones
+    rows.append({
+        "case": "grad_like_stride",
+        "out_q_contiguous": bool(oq4.is_contiguous()),
+        "dQ_contiguous": bool(dq.is_contiguous()),
+        "dQ_stride": list(dq.stride()),
+        "out_q_stride": list(oq4.stride()),
+        "same_stride_as_out": list(dq.stride()) == list(oq4.stride()),
+    })
+    # Clean calls with clones (backward is in-place on non-contiguous dQ/dK).
     g1 = torch.autograd.grad((oq4, ok4), (q4, k4), (dq.clone(), dk.clone()), retain_graph=True)
     g2 = torch.autograd.grad((oq4, ok4), (q4, k4), (dq.clone(), dk.clone()), retain_graph=True)
-    # Reuse same grad buffers
-    dq_r, dk_r = dq.clone(), dk.clone()
-    g_reuse1 = torch.autograd.grad((oq4, ok4), (q4, k4), (dq_r, dk_r), retain_graph=True)
-    # dq_r / dk_r may have been overwritten if they shared storage with contiguous tiles
-    g_reuse2 = torch.autograd.grad((oq4, ok4), (q4, k4), (dq_r, dk_r), retain_graph=True)
     rows.append({
         "case": "retain_graph_fresh_grads",
         "second_vs_first_q": rel_l2(g2[0], g1[0]),
         "second_vs_first_k": rel_l2(g2[1], g1[1]),
     })
+    # Reuse same grad buffers: first call is still correct but overwrites the
+    # caller's dQ/dK (and the returned grad tensors alias those buffers). A
+    # second call then double-applies the inverse rotation.
+    dq_r, dk_r = dq.clone(), dk.clone()
+    dQ_before, dK_before = dq_r.clone(), dk_r.clone()
+    g_reuse1 = torch.autograd.grad((oq4, ok4), (q4, k4), (dq_r, dk_r), retain_graph=True)
+    reuse_first_q = rel_l2(g_reuse1[0], g1[0])
+    reuse_first_k = rel_l2(g_reuse1[1], g1[1])
+    g_reuse1_q = g_reuse1[0].clone()
+    g_reuse1_k = g_reuse1[1].clone()
+    aliased = g_reuse1[0].data_ptr() == dq_r.data_ptr()
+    g_reuse2 = torch.autograd.grad((oq4, ok4), (q4, k4), (dq_r, dk_r), retain_graph=True)
     rows.append({
         "case": "retain_graph_reuse_dQ_dK",
-        "reuse_first_vs_clean_q": rel_l2(g_reuse1[0], g1[0]),
-        "reuse_first_vs_clean_k": rel_l2(g_reuse1[1], g1[1]),
-        "reuse_second_vs_first_q": rel_l2(g_reuse2[0], g_reuse1[0]),
-        "reuse_second_vs_first_k": rel_l2(g_reuse2[1], g_reuse1[1]),
-        "caller_dQ_overwritten": not torch.equal(dq_r, dq),
-        "caller_dK_overwritten": not torch.equal(dk_r, dk),
+        "reuse_first_vs_clean_q": reuse_first_q,
+        "reuse_first_vs_clean_k": reuse_first_k,
+        "reuse_second_vs_first_q": rel_l2(g_reuse2[0], g_reuse1_q),
+        "reuse_second_vs_first_k": rel_l2(g_reuse2[1], g_reuse1_k),
+        "caller_dQ_overwritten": not torch.equal(dq_r, dQ_before),
+        "caller_dK_overwritten": not torch.equal(dk_r, dK_before),
+        "returned_grad_aliases_dQ": bool(aliased),
     })
     return rows
 
@@ -382,9 +400,14 @@ def section_numerics(device):
                 oql, okl = liger_rotary_pos_emb(ql, kl, cos, sin, rotary_dim=rotary_dim_arg)
             else:
                 oql, okl = liger_rotary_pos_emb(ql, kl, cos, sin)
+            # randn_like(Liger out) inherits the non-contiguous BHSD-of-BSHD stride,
+            # so rope_backward's transpose+contiguous is a no-op and mutates dQ/dK
+            # in place — always clone before each backward.
             dq = torch.randn_like(oql)
             dk = torch.randn_like(okl)
-            gql, gkl = torch.autograd.grad((oql, okl), (ql, kl), (dq, dk), retain_graph=False)
+            gql, gkl = torch.autograd.grad(
+                (oql, okl), (ql, kl), (dq.clone(), dk.clone()), retain_graph=False,
+            )
 
             # HF reference in dtype
             qh, kh = q0.clone().requires_grad_(True), k0.clone().requires_grad_(True)
@@ -400,8 +423,6 @@ def section_numerics(device):
             q64 = q0.detach().float().double().requires_grad_(True)
             k64 = k0.detach().float().double().requires_grad_(True)
             c64, s64 = cos.float().double(), sin.float().double()
-            o64q, o64k = fp64_rope(q64, k64, c64, s64, mode=mode)
-            # Need requires_grad path through fp64_rope — recompute with grad tensors
             if mode == "full":
                 o64q, o64k = hf_rope(q64, k64, c64, s64)
             elif mode == "partial":
