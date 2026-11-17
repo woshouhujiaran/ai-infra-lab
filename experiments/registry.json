@@ -229,6 +229,16 @@
       "device": "cuda",
       "date": "2026-11-16",
       "status": "done"
+    },
+    {
+      "id": "0024",
+      "slug": "liger-rope",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/rope.py (LigerRopeFunction / rope_forward)",
+      "topic": "in-place Triton RoPE: Q/K mutation under transpose views, unused position_ids, GPT-OSS half-width cos mis-inferred as partial RoPE without rotary_dim, partial rotary_dim tail + GQA, dQ/dK in-place overwrite under randn_like strides / retain_graph reuse, error vs HF/fp64, memory/bandwidth vs eager / torch.compile",
+      "device": "cuda",
+      "date": "2026-11-17",
+      "status": "done"
     }
   ]
 }
