@@ -239,6 +239,16 @@
       "device": "cuda",
       "date": "2026-11-17",
       "status": "done"
+    },
+    {
+      "id": "0025",
+      "slug": "liger-jsd",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/jsd.py (LigerJSDFunction, _jsd_kernel) + ops/backends/_triton/jsd.py",
+      "topic": "generalized JSD distillation loss on log-probs: -inf (padded vocab, top-k truncated teacher / student, whole -inf blocks) NaN loss and dX incl. end-to-end through log_softmax vs finite sentinels / clamp / tl.where-guarded row-loss rewrite; fp64 error vs eager TRL-style in fp32/fp16/bf16 (loss cast to input dtype); beta 0/1 rescaled-limit cliff; ignore_index, grad_output, returned-grad aliasing under retain_graph, no target gradient; (BT, V) fp32 loss tile held / peak memory, OOM point and latency vs token count at 32k / 128k / 152k vocab vs eager / torch.compile / row-loss rewrite",
+      "device": "cuda",
+      "date": "2026-11-18",
+      "status": "done"
     }
   ]
 }
