@@ -53,7 +53,7 @@ BETAS = [0.0, 0.1, 0.5, 0.9, 1.0]
 CLIFF_BETAS = [0.0, 1e-4, 1e-3, 1e-2, 0.1, 0.5, 0.9, 0.99, 0.999, 1.0]
 NF_BT, NF_V = 16, 16384
 PERF_VOCABS = [("32k", 32000), ("Llama-3 128k", 128256), ("Qwen3 152k", 151936)]
-PERF_BTS = [256, 1024, 2048, 3072, 4096]
+PERF_BTS = [256, 1024, 2048, 3072, 4096, 6144]
 COMPILE_CELLS = {(32000, 2048), (128256, 2048), (151936, 1024), (151936, 3072)}
 
 torch._dynamo.config.recompile_limit = 64
@@ -475,8 +475,6 @@ def sec_api():
         Xg = X.clone().requires_grad_(True)
         (fn(Xg, Y, beta) * torch.tensor(1.0, device=DEV)).backward()
         r[name + "_one_grad_rel"] = rel(Xg.grad, gref)
-        Xg = X.clone().requires_grad_(True)
-        fn(Xg, Y, beta).backward(retain_graph=True) if False else None
     out["grad_output"] = r
 
     r = {}
@@ -490,8 +488,11 @@ def sec_api():
             t.data_ptr() == g1.data_ptr() for t in saved if t.is_cuda
         )
         g1.zero_()
-        g2 = torch.autograd.grad(loss, Xg)[0]
-        r[name + "_second_backward_after_inplace_rel"] = rel(g2, g1_copy)
+        try:
+            g2 = torch.autograd.grad(loss, Xg)[0]
+            r[name + "_second_backward_after_inplace_rel"] = rel(g2, g1_copy)
+        except RuntimeError as e:
+            r[name + "_second_backward_error"] = str(e).split(":")[0][:90]
         Xg = X.clone().requires_grad_(True)
         loss = fn(Xg, Y, beta)
         loss.backward(retain_graph=True)
@@ -506,6 +507,7 @@ def sec_api():
     loss.backward()
     r["liger_target_grad_is_none"] = Yg.grad is None
     r["ref_target_grad_norm"] = float(autograd_ref_grad(X, Y, beta, wrt_target=True).norm())
+    r["ref_input_grad_norm"] = float(autograd_ref_grad(X, Y, beta).norm())
     out["target_grad"] = r
 
     r = {}
@@ -513,7 +515,6 @@ def sec_api():
     Xv = big[:, :8192]
     Xv_before = big.clone()
     for name, fn in [("liger", liger_jsd), ("rows", rows_jsd)]:
-        Xg = Xv.clone().requires_grad_(True)
         loss, g = run_fb(fn, Xv, Y, beta)
         _, gref = ref_loss_grad(Xv, Y, beta)
         r[name + "_noncontig_grad_rel"] = rel(g, gref)
@@ -561,6 +562,14 @@ def measure(fn, X, Y, beta, bench=True):
     return res
 
 
+def chunked_logp(BT, V, gen, chunk=128):
+    out = torch.empty(BT, V, device=DEV, dtype=torch.bfloat16)
+    for i in range(0, BT, chunk):
+        z = torch.randn(min(chunk, BT - i), V, device=DEV, dtype=torch.float32, generator=gen) * 2
+        out[i:i + chunk] = z.log_softmax(-1).bfloat16()
+    return out
+
+
 def sec_perf():
     gen = torch.Generator(device=DEV).manual_seed(SEED + 4)
     beta = 0.5
@@ -576,10 +585,8 @@ def sec_perf():
                     continue
                 r = {"vocab": vname, "V": V, "BT": BT, "impl": name}
                 try:
-                    with torch.no_grad():
-                        X = (torch.randn(BT, V, device=DEV, dtype=torch.float32, generator=gen) * 2).log_softmax(-1).bfloat16()
-                        Y = (torch.randn(BT, V, device=DEV, dtype=torch.float32, generator=gen) * 2).log_softmax(-1).bfloat16()
-                    X.requires_grad_(True)
+                    X = chunked_logp(BT, V, gen).requires_grad_(True)
+                    Y = chunked_logp(BT, V, gen)
                     r.update(measure(fn, X, Y, beta))
                     r["gbps_5x"] = 5 * 2 * BT * V / (r["fwd_bwd_ms"] * 1e-3) / 1e9
                     r["oom"] = False
