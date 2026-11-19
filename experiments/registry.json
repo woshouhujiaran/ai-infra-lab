@@ -249,6 +249,16 @@
       "device": "cuda",
       "date": "2026-11-18",
       "status": "done"
+    },
+    {
+      "id": "0026",
+      "slug": "liger-sparsemax",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/sparsemax.py (LigerSparsemaxFunction, _sparsemax_forward_kernel, _sparsemax_backward_kernel)",
+      "topic": "sort + whole-row-block cumsum sparsemax: 65536-column limit (65537 / 128k / 152k vocabs raise), fp32 sorted copy + int64 indices peak memory / OOM point and sort share of latency vs eager torch and a sort-free Michelot rewrite; error vs fp64 exact in fp32 / fp16 / bf16 over logit scale, non-shift-invariance of the fp32 cumsum (x + C), half-precision backward support-mean cast with a common grad offset, exact boundary ties in bf16, NaN / +inf / -inf / all -inf rows, dim != -1 output layout, in-place output edits, kernel registers / spills vs row length",
+      "device": "cuda",
+      "date": "2026-11-19",
+      "status": "done"
     }
   ]
 }
