@@ -10,6 +10,7 @@ input dtype and subtracts the support mean of grad_output (cast to the dtype).
 1. Numerics vs an fp64 exact sparsemax (and analytic backward) for fp32 / fp16 /
    bf16, V in 128..65536, logit scale 0.01..10 (flat rows have huge supports).
 2. Shift invariance: sparsemax(x + C) = sparsemax(x), but the fp32 cumsum is not.
+   Exact ties of an element with tau (frequent in bf16 / fp16): support membership flips.
 3. Edge cases: ties, n_cols 1 / 2, -inf padding, +inf, NaN, all -inf, V = 65536 /
    65537 / 151936.
 4. API / autograd: dim != -1, strided input, in-place edits of the output,
@@ -254,10 +255,12 @@ def run_case(fn, x, g):
         return None, None, f"{type(e).__name__}: {str(e).splitlines()[0][:110]}"
 
 
-def metrics(y, dx, yref, dxref, floor_y, floor_dx):
+def metrics(y, dx, yref, dxref, floor_y, floor_dx, g=None):
     out = {}
     if y is None:
         return out
+    if g is not None:
+        out["dx_own_rel"] = rel(dx, ref_dx64(y.detach().double(), g))
     yd = y.double()
     out["y_rel"] = rel(yd, yref)
     out["y_absmax"] = float((yd - yref).abs().max())
@@ -286,7 +289,7 @@ def sec_numerics():
                      "support_mean": float((yref > 0).sum(-1).double().mean())}
                 for name, fn in IMPLS.items():
                     y, dx, exc = run_case(fn, x, g)
-                    m = metrics(y, dx, yref, dxref, fy, fd)
+                    m = metrics(y, dx, yref, dxref, fy, fd, g)
                     if name == "rows" and exc is None:
                         run_case(fn, x, g)
                         r["rows_iters_mean"] = float(RowsSparsemax.last_iters.double().mean())
@@ -320,6 +323,38 @@ def sec_shift():
     return {"BT": SHIFT_BT, "V": SHIFT_V, "rows": rows}
 
 
+# ---------------------------------------------------------------- 2b. exact boundary ties
+def sec_ties():
+    """An element exactly at tau has y = 0 whether or not it is counted in the support, but the
+    Jacobian is discontinuous there: bf16 / fp16 inputs hit exact ties often, and which side
+    each implementation lands on depends on its fp32 rounding of tau."""
+    gen = torch.Generator(device=DEV).manual_seed(SEED + 5)
+    rows = []
+    for dname in ["fp32", "fp16", "bf16"]:
+        dt = DTYPES[dname]
+        for V in [4096, 32768]:
+            BT = 2048 if V <= 4096 else 512
+            x = torch.randn(BT, V, device=DEV, generator=gen).to(dt)
+            g = torch.randn(BT, V, device=DEV, generator=gen).to(dt)
+            yref = ref_sm64(x)
+            sup = yref > 0
+            tau = torch.where(sup, x.double() - yref, torch.full_like(yref, -float("inf"))).amax(-1, keepdim=True)
+            tie_rows = int((x.double() == tau).any(-1).sum())
+            dxref = ref_dx64(yref, g)
+            r = {"dtype": dname, "V": V, "BT": BT, "exact_tie_rows": tie_rows}
+            for name, fn in IMPLS.items():
+                y, dx, exc = run_case(fn, x, g)
+                bad = ((y.double() > 0) != sup).any(-1)
+                r[name] = {"mismatch_rows": int(bad.sum()),
+                           "dx_rel_all": rel(dx, dxref),
+                           "dx_rel_own_support": rel(dx, ref_dx64(y.double(), g))}
+            rows.append(r)
+            print("  ties", dname, V, tie_rows, {k: r[k]["mismatch_rows"] for k in IMPLS}, flush=True)
+            del x, g, yref, dxref
+            cleanup()
+    return {"rows": rows}
+
+
 # ---------------------------------------------------------------- 3. edge cases
 def edge_rows():
     inf = float("inf")
@@ -342,6 +377,8 @@ def edge_rows():
     add("one +inf", [[1.0, inf, 0.5, 0.0]])
     add("one NaN", [[1.0, float("nan"), 0.5, 0.0]])
     add("all -inf", [[-inf] * 8])
+    add("NaN + -inf + two finite", [[float("nan"), -inf, 2.0, 1.5]])
+    add("all NaN", [[float("nan")] * 4])
     return sc
 
 
@@ -359,6 +396,8 @@ def sec_edge():
             r[iname] = {"nan_frac": float(torch.isnan(yd).double().mean()), "sum": float(yd.sum(-1).max()),
                         "err": None if expected is None else float((yd - torch.as_tensor(expected, device=DEV, dtype=torch.float64)).abs().max()),
                         "dx_nan_frac": float(torch.isnan(dx).double().mean())}
+            if x.shape[-1] <= 8:
+                r[iname]["y"] = y[0].tolist()
         rows.append(r)
         print("  edge", name, {k: v.get("exc") or v.get("err") for k, v in r.items() if k in IMPLS}, flush=True)
     big = []
@@ -437,12 +476,11 @@ def sec_api():
         xh = x3.to(dt)
         for c in [0.0, 1.0, 10.0, 100.0, 1000.0]:
             gh = (noise + c).to(dt)
-            yref = ref_sm64(xh)
-            dxref = ref_dx64(yref, gh)
+            dxref = ref_dx64(ref_sm64(xh), gh)
             r = {"dtype": dname, "offset": c, "floor": rel(dxref.to(dt), dxref)}
             for iname in ["liger", "rows"]:
-                _, dx, exc = run_case(IMPLS[iname], xh, gh)
-                r[iname] = rel(dx, dxref)
+                yi, dx, exc = run_case(IMPLS[iname], xh, gh)
+                r[iname] = rel(dx, ref_dx64(yi.double(), gh))
             off.append(r)
     res["grad_offset"] = off
     print("  api done", flush=True)
@@ -532,6 +570,12 @@ def perf_cell(V, BT, dname, impls, sort_ms=True):
 
 def sec_perf():
     res = {"kernels": kernel_meta(), "shape_sweep": [], "mem_sweep": []}
+    w = torch.randn(4096, 4096, device=DEV)
+    t_end = time.time() + 3
+    while time.time() < t_end:
+        w @ w
+    torch.cuda.synchronize()
+    del w
     compiled = torch.compile(torch_sm)
     for dname in ["bf16", "fp32"]:
         for V in PERF_VS:
@@ -551,7 +595,7 @@ def main():
     res = {"gpu": GPU, "triton": triton.__version__,
            "liger_commit": subprocess.run(["git", "-C", str(LIGER_DIR), "rev-parse", "--short", "HEAD"],
                                           capture_output=True, text=True).stdout.strip()}
-    sections = [("numerics", sec_numerics), ("shift", sec_shift), ("edge", sec_edge),
+    sections = [("numerics", sec_numerics), ("shift", sec_shift), ("ties", sec_ties), ("edge", sec_edge),
                 ("api", sec_api), ("perf", sec_perf)]
     only = set(sys.argv[1:])
     for name, fn in sections:
@@ -574,13 +618,14 @@ def render_md(res):
          f"Liger {res['liger_commit']}; peak allocated {res['peak_allocated_mib']} MiB; runtime {res['runtime_s']} s\n"]
     L.append("## 1. Numerics vs fp64 exact sparsemax (BT=64; rel L2 error; floor = rounding of the fp64 result to the dtype)\n")
     hdr = ["dtype", "V", "scale", "support", "y floor", "liger y", "rows y", "torch y", "dx floor", "liger dx", "rows dx",
-           "torch dx", "liger supp mismatch rows", "rows supp mismatch rows", "liger |sum-1|", "rows |sum-1|",
-           "rows iters mean/max"]
+           "torch dx", "liger dx (own supp)", "rows dx (own supp)", "liger supp mismatch rows", "rows supp mismatch rows",
+           "liger |sum-1|", "rows |sum-1|", "rows iters mean/max"]
     rows = []
     for r in res["numerics"]["rows"]:
         lg, rw, tr = r["liger"], r["rows"], r["torch"]
         rows.append([r["dtype"], r["V"], r["scale"], r["support_mean"], lg.get("y_floor"), lg.get("y_rel"), rw.get("y_rel"),
                      tr.get("y_rel"), lg.get("dx_floor"), lg.get("dx_rel"), rw.get("dx_rel"), tr.get("dx_rel"),
+                     lg.get("dx_own_rel"), rw.get("dx_own_rel"),
                      lg.get("supp_mismatch_rows", lg.get("exc")), rw.get("supp_mismatch_rows", rw.get("exc")),
                      lg.get("sum_err"), rw.get("sum_err"),
                      f"{fmt(r.get('rows_iters_mean'))} / {r.get('rows_iters_max', '-')}"])
@@ -591,6 +636,12 @@ def render_md(res):
     L.append(table(["C", "support"] + [f"{n} y" for n in names] + [f"{n} dx" for n in names] + [f"{n} mismatch rows" for n in names],
                    [[r["shift"], r["support_mean"]] + [r[n].get("y_rel", r[n].get("exc")) for n in names]
                     + [r[n].get("dx_rel") for n in names] + [r[n].get("supp_mismatch_rows") for n in names] for r in s["rows"]]))
+    L.append("\n### Exact boundary ties (BT=2048 for V=4096, 512 for V=32768, scale 1; rows whose support differs from fp64 / dX error vs fp64 support and vs own support)\n")
+    L.append(table(["dtype", "V", "rows with exact tie at tau", "liger mismatch", "rows mismatch", "torch mismatch",
+                    "liger dx (fp64 supp / own)", "rows dx (fp64 supp / own)", "torch dx (fp64 supp / own)"],
+                   [[r["dtype"], r["V"], r["exact_tie_rows"]] + [r[k]["mismatch_rows"] for k in IMPLS]
+                    + [f"{fmt(r[k]['dx_rel_all'])} / {fmt(r[k]['dx_rel_own_support'])}" for k in IMPLS]
+                    for r in res["ties"]["rows"]]))
     e = res["edge"]
     L.append("\n## 3. Edge cases (fp32)\n")
     for r in e["rows"]:
@@ -603,7 +654,7 @@ def render_md(res):
     L.append("\n## 4. API / autograd\n")
     for k in ["dim", "strided_input", "inplace_output", "retain_graph"]:
         L.append(f"**{k}**: " + json.dumps(a[k]) + "\n")
-    L.append("\n### grad_output with a common offset (exact dX is independent of the offset; rel L2 err vs fp64)\n")
+    L.append("\n### grad_output with a common offset (exact dX is independent of the offset; rel L2 err vs fp64 dX on each impl's own support)\n")
     L.append(table(["dtype", "offset", "floor", "liger", "rows"],
                    [[r["dtype"], r["offset"], r["floor"], r["liger"], r["rows"]] for r in a["grad_offset"]]))
     p = res["perf"]
