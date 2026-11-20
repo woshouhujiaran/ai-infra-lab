@@ -1,0 +1,1582 @@
+{
+  "experiment": "0027-triton-tutorial-dropout",
+  "upstream": "triton-lang/triton",
+  "upstream_commit": "c01b6774b1865984607d89d89d3a10833de92037",
+  "component": "python/tutorials/04-low-memory-dropout.py (_seeded_dropout, seeded_dropout, _dropout, dropout)",
+  "triton": "3.8.0",
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "memory_total_mib": 8188,
+    "memory_used_mib": 10,
+    "utilization_percent": 0,
+    "temperature_c": 58,
+    "memory_fraction_cap": 0.6,
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+  },
+  "keep_rates": [
+    {
+      "variant": "tutorial",
+      "p": 0.01,
+      "keep_rate": 0.990006,
+      "expected": 0.99,
+      "z": 0.74
+    },
+    {
+      "variant": "tutorial",
+      "p": 0.1,
+      "keep_rate": 0.900029,
+      "expected": 0.9,
+      "z": 1.11
+    },
+    {
+      "variant": "tutorial",
+      "p": 0.5,
+      "keep_rate": 0.499961,
+      "expected": 0.5,
+      "z": -0.91
+    },
+    {
+      "variant": "tutorial",
+      "p": 0.9,
+      "keep_rate": 0.099963,
+      "expected": 0.1,
+      "z": -1.43
+    },
+    {
+      "variant": "tutorial",
+      "p": 0.99,
+      "keep_rate": 0.010002,
+      "expected": 0.01,
+      "z": 0.23
+    },
+    {
+      "variant": "x4",
+      "p": 0.01,
+      "keep_rate": 0.990003,
+      "expected": 0.99,
+      "z": 0.32
+    },
+    {
+      "variant": "x4",
+      "p": 0.1,
+      "keep_rate": 0.900025,
+      "expected": 0.9,
+      "z": 0.97
+    },
+    {
+      "variant": "x4",
+      "p": 0.5,
+      "keep_rate": 0.499967,
+      "expected": 0.5,
+      "z": -0.76
+    },
+    {
+      "variant": "x4",
+      "p": 0.9,
+      "keep_rate": 0.099935,
+      "expected": 0.1,
+      "z": -2.5
+    },
+    {
+      "variant": "x4",
+      "p": 0.99,
+      "keep_rate": 0.01,
+      "expected": 0.01,
+      "z": -0.04
+    },
+    {
+      "variant": "torch",
+      "p": 0.01,
+      "keep_rate": 0.989998,
+      "expected": 0.99,
+      "z": -0.28
+    },
+    {
+      "variant": "torch",
+      "p": 0.1,
+      "keep_rate": 0.900006,
+      "expected": 0.9,
+      "z": 0.24
+    },
+    {
+      "variant": "torch",
+      "p": 0.5,
+      "keep_rate": 0.499983,
+      "expected": 0.5,
+      "z": -0.39
+    },
+    {
+      "variant": "torch",
+      "p": 0.9,
+      "keep_rate": 0.100013,
+      "expected": 0.1,
+      "z": 0.5
+    },
+    {
+      "variant": "torch",
+      "p": 0.99,
+      "keep_rate": 0.009991,
+      "expected": 0.01,
+      "z": -1.06
+    }
+  ],
+  "lag": [
+    {
+      "variant": "tutorial",
+      "lag": 1,
+      "agree": 0.499983,
+      "z": -0.27
+    },
+    {
+      "variant": "tutorial",
+      "lag": 2,
+      "agree": 0.500068,
+      "z": 1.11
+    },
+    {
+      "variant": "tutorial",
+      "lag": 3,
+      "agree": 0.499974,
+      "z": -0.43
+    },
+    {
+      "variant": "tutorial",
+      "lag": 4,
+      "agree": 0.50003,
+      "z": 0.49
+    },
+    {
+      "variant": "tutorial",
+      "lag": 5,
+      "agree": 0.499963,
+      "z": -0.6
+    },
+    {
+      "variant": "tutorial",
+      "lag": 8,
+      "agree": 0.500001,
+      "z": 0.01
+    },
+    {
+      "variant": "tutorial",
+      "lag": 64,
+      "agree": 0.499985,
+      "z": -0.25
+    },
+    {
+      "variant": "tutorial",
+      "lag": 1024,
+      "agree": 0.49988,
+      "z": -1.96
+    },
+    {
+      "variant": "tutorial",
+      "lag": 1048576,
+      "agree": 0.499919,
+      "z": -1.31
+    },
+    {
+      "variant": "x4",
+      "lag": 1,
+      "agree": 0.500081,
+      "z": 1.33
+    },
+    {
+      "variant": "x4",
+      "lag": 2,
+      "agree": 0.50005,
+      "z": 0.82
+    },
+    {
+      "variant": "x4",
+      "lag": 3,
+      "agree": 0.500007,
+      "z": 0.12
+    },
+    {
+      "variant": "x4",
+      "lag": 4,
+      "agree": 0.500025,
+      "z": 0.41
+    },
+    {
+      "variant": "x4",
+      "lag": 5,
+      "agree": 0.499972,
+      "z": -0.46
+    },
+    {
+      "variant": "x4",
+      "lag": 8,
+      "agree": 0.499818,
+      "z": -2.98
+    },
+    {
+      "variant": "x4",
+      "lag": 64,
+      "agree": 0.500059,
+      "z": 0.96
+    },
+    {
+      "variant": "x4",
+      "lag": 1024,
+      "agree": 0.49995,
+      "z": -0.81
+    },
+    {
+      "variant": "x4",
+      "lag": 1048576,
+      "agree": 0.499853,
+      "z": -2.38
+    },
+    {
+      "variant": "torch",
+      "lag": 1,
+      "agree": 0.500107,
+      "z": 1.75
+    },
+    {
+      "variant": "torch",
+      "lag": 2,
+      "agree": 0.499958,
+      "z": -0.69
+    },
+    {
+      "variant": "torch",
+      "lag": 3,
+      "agree": 0.500028,
+      "z": 0.46
+    },
+    {
+      "variant": "torch",
+      "lag": 4,
+      "agree": 0.500038,
+      "z": 0.62
+    },
+    {
+      "variant": "torch",
+      "lag": 5,
+      "agree": 0.499903,
+      "z": -1.59
+    },
+    {
+      "variant": "torch",
+      "lag": 8,
+      "agree": 0.500043,
+      "z": 0.71
+    },
+    {
+      "variant": "torch",
+      "lag": 64,
+      "agree": 0.499909,
+      "z": -1.49
+    },
+    {
+      "variant": "torch",
+      "lag": 1024,
+      "agree": 0.499977,
+      "z": -0.39
+    },
+    {
+      "variant": "torch",
+      "lag": 1048576,
+      "agree": 0.499964,
+      "z": -0.59
+    }
+  ],
+  "seeds": [
+    {
+      "variant": "tutorial",
+      "seed_a": 0,
+      "seed_b": 1,
+      "agree": 0.500057,
+      "z": 0.47
+    },
+    {
+      "variant": "tutorial",
+      "seed_a": 1,
+      "seed_b": 2,
+      "agree": 0.500069,
+      "z": 0.57
+    },
+    {
+      "variant": "tutorial",
+      "seed_a": 0,
+      "seed_b": 65536,
+      "agree": 0.500027,
+      "z": 0.22
+    },
+    {
+      "variant": "tutorial",
+      "seed_a": 0,
+      "seed_b": 2147483648,
+      "agree": 0.500103,
+      "z": 0.84
+    },
+    {
+      "variant": "tutorial",
+      "seed_a": 0,
+      "seed_b": 4294967296,
+      "agree": 0.499858,
+      "z": -1.16
+    },
+    {
+      "variant": "tutorial",
+      "seed_a": 7,
+      "seed_b": 4294967303,
+      "agree": 0.50003,
+      "z": 0.25
+    },
+    {
+      "variant": "tutorial",
+      "seed_a": -1,
+      "seed_b": 4294967295,
+      "agree": 0.500107,
+      "z": 0.87
+    },
+    {
+      "variant": "tutorial",
+      "seed_a": 123,
+      "seed_b": 1099511627899,
+      "agree": 0.499785,
+      "z": -1.76
+    },
+    {
+      "variant": "x4",
+      "seed_a": 0,
+      "seed_b": 1,
+      "agree": 0.499985,
+      "z": -0.13
+    },
+    {
+      "variant": "x4",
+      "seed_a": 1,
+      "seed_b": 2,
+      "agree": 0.499959,
+      "z": -0.34
+    },
+    {
+      "variant": "x4",
+      "seed_a": 0,
+      "seed_b": 65536,
+      "agree": 0.49992,
+      "z": -0.66
+    },
+    {
+      "variant": "x4",
+      "seed_a": 0,
+      "seed_b": 2147483648,
+      "agree": 0.500101,
+      "z": 0.83
+    },
+    {
+      "variant": "x4",
+      "seed_a": 0,
+      "seed_b": 4294967296,
+      "agree": 0.499774,
+      "z": -1.85
+    },
+    {
+      "variant": "x4",
+      "seed_a": 7,
+      "seed_b": 4294967303,
+      "agree": 0.500047,
+      "z": 0.38
+    },
+    {
+      "variant": "x4",
+      "seed_a": -1,
+      "seed_b": 4294967295,
+      "agree": 0.499987,
+      "z": -0.11
+    },
+    {
+      "variant": "x4",
+      "seed_a": 123,
+      "seed_b": 1099511627899,
+      "agree": 0.500005,
+      "z": 0.04
+    }
+  ],
+  "zero_drop": {
+    "n_per_seed": 2147479552,
+    "seeds": 32,
+    "elements": 68719345664,
+    "dropped": 37,
+    "expected_dropped": 32.0,
+    "drop_rate": 5.384218904078301e-10,
+    "rand_value_at_dropped": [
+      0.0
+    ],
+    "first_hits": [
+      [
+        1,
+        91093890
+      ],
+      [
+        1,
+        1711450034
+      ],
+      [
+        2,
+        1139270164
+      ],
+      [
+        2,
+        1450321319
+      ],
+      [
+        3,
+        355990253
+      ],
+      [
+        3,
+        1136270787
+      ],
+      [
+        3,
+        1799755431
+      ],
+      [
+        4,
+        1088694098
+      ]
+    ],
+    "seconds": 2.9
+  },
+  "p_edge": [
+    {
+      "p": 0.0,
+      "tutorial": "keep 1.0000, kept value 1",
+      "torch": "ok"
+    },
+    {
+      "p": 1.0,
+      "tutorial": "keep 0.0000, kept value 0",
+      "torch": "ok"
+    },
+    {
+      "p": 1.5,
+      "tutorial": "keep 0.0000, kept value 0",
+      "torch": "ValueError: dropout probability has to be between 0 and 1, but got 1.5"
+    },
+    {
+      "p": -0.5,
+      "tutorial": "keep 1.0000, kept value 0.6667",
+      "torch": "ValueError: dropout probability has to be between 0 and 1, but got -0.5"
+    },
+    {
+      "p": "n = 0",
+      "tutorial": "returns 0 elements",
+      "torch": "ok"
+    },
+    {
+      "p": "non-contiguous x",
+      "tutorial": "AssertionError: ",
+      "torch": "ok"
+    }
+  ],
+  "nonfinite": {
+    "nonfinite_inputs": 3156,
+    "tutorial_nonfinite_outputs": 1598,
+    "tutorial_nonfinite_at_dropped": 1558,
+    "torch_nonfinite_outputs": 3156,
+    "torch_nonfinite_at_dropped": 3156,
+    "tutorial_fraction_still_nonfinite": 0.506,
+    "torch_fraction_still_nonfinite": 1.0
+  },
+  "dtype_rounding": [
+    {
+      "dtype": "fp32",
+      "p": 0.1,
+      "keep_rate": 0.89997,
+      "max_rel_err_vs_rounded_fp64": 1.1920917586405195e-07,
+      "mask_equal_to_fp32_mask": true
+    },
+    {
+      "dtype": "fp32",
+      "p": 0.5,
+      "keep_rate": 0.50022,
+      "max_rel_err_vs_rounded_fp64": 0.0,
+      "mask_equal_to_fp32_mask": true
+    },
+    {
+      "dtype": "fp16",
+      "p": 0.1,
+      "keep_rate": 0.89997,
+      "max_rel_err_vs_rounded_fp64": 0.0,
+      "mask_equal_to_fp32_mask": true
+    },
+    {
+      "dtype": "fp16",
+      "p": 0.5,
+      "keep_rate": 0.50022,
+      "max_rel_err_vs_rounded_fp64": 0.0,
+      "mask_equal_to_fp32_mask": true
+    },
+    {
+      "dtype": "bf16",
+      "p": 0.1,
+      "keep_rate": 0.89997,
+      "max_rel_err_vs_rounded_fp64": 0.0,
+      "mask_equal_to_fp32_mask": true
+    },
+    {
+      "dtype": "bf16",
+      "p": 0.5,
+      "keep_rate": 0.50022,
+      "max_rel_err_vs_rounded_fp64": 0.0,
+      "mask_equal_to_fp32_mask": true
+    }
+  ],
+  "launch_independence": [
+    {
+      "block": 128,
+      "warps": 1,
+      "identical": true
+    },
+    {
+      "block": 128,
+      "warps": 2,
+      "identical": true
+    },
+    {
+      "block": 128,
+      "warps": 4,
+      "identical": true
+    },
+    {
+      "block": 128,
+      "warps": 8,
+      "identical": true
+    },
+    {
+      "block": 256,
+      "warps": 1,
+      "identical": true
+    },
+    {
+      "block": 256,
+      "warps": 2,
+      "identical": true
+    },
+    {
+      "block": 256,
+      "warps": 4,
+      "identical": true
+    },
+    {
+      "block": 256,
+      "warps": 8,
+      "identical": true
+    },
+    {
+      "block": 1024,
+      "warps": 1,
+      "identical": true
+    },
+    {
+      "block": 1024,
+      "warps": 2,
+      "identical": true
+    },
+    {
+      "block": 1024,
+      "warps": 4,
+      "identical": true
+    },
+    {
+      "block": 1024,
+      "warps": 8,
+      "identical": true
+    },
+    {
+      "block": 4096,
+      "warps": 1,
+      "identical": true
+    },
+    {
+      "block": 4096,
+      "warps": 2,
+      "identical": true
+    },
+    {
+      "block": 4096,
+      "warps": 4,
+      "identical": true
+    },
+    {
+      "block": 4096,
+      "warps": 8,
+      "identical": true
+    },
+    {
+      "block": 8192,
+      "warps": 1,
+      "identical": true
+    },
+    {
+      "block": 8192,
+      "warps": 2,
+      "identical": true
+    },
+    {
+      "block": 8192,
+      "warps": 4,
+      "identical": true
+    },
+    {
+      "block": 8192,
+      "warps": 8,
+      "identical": true
+    },
+    {
+      "block": "int64 rewrite",
+      "warps": 4,
+      "identical": true
+    }
+  ],
+  "stacked": [
+    {
+      "layers": 1,
+      "seeds": "same seed",
+      "mean_output": 1.0001,
+      "keep_rate": 0.5,
+      "expected_keep": 0.5
+    },
+    {
+      "layers": 1,
+      "seeds": "distinct seeds",
+      "mean_output": 1.0001,
+      "keep_rate": 0.5,
+      "expected_keep": 0.5
+    },
+    {
+      "layers": 2,
+      "seeds": "same seed",
+      "mean_output": 2.0001,
+      "keep_rate": 0.5,
+      "expected_keep": 0.5
+    },
+    {
+      "layers": 2,
+      "seeds": "distinct seeds",
+      "mean_output": 1.0,
+      "keep_rate": 0.25,
+      "expected_keep": 0.25
+    },
+    {
+      "layers": 3,
+      "seeds": "same seed",
+      "mean_output": 4.0002,
+      "keep_rate": 0.5,
+      "expected_keep": 0.5
+    },
+    {
+      "layers": 3,
+      "seeds": "distinct seeds",
+      "mean_output": 1.0,
+      "keep_rate": 0.125,
+      "expected_keep": 0.125
+    },
+    {
+      "layers": 4,
+      "seeds": "same seed",
+      "mean_output": 8.0005,
+      "keep_rate": 0.5,
+      "expected_keep": 0.5
+    },
+    {
+      "layers": 4,
+      "seeds": "distinct seeds",
+      "mean_output": 1.0012,
+      "keep_rate": 0.0626,
+      "expected_keep": 0.0625
+    },
+    {
+      "layers": 4,
+      "seeds": "torch (RNG advances)",
+      "mean_output": 0.9994,
+      "keep_rate": 0.0625,
+      "expected_keep": 0.0625
+    }
+  ],
+  "held_memory": [
+    {
+      "variant": "seeded autograd.Function",
+      "n": 134217728,
+      "dtype": "fp16",
+      "extra_held_MiB_after_forward": 0.0,
+      "bytes_per_element": 0.0
+    },
+    {
+      "variant": "torch F.dropout",
+      "n": 134217728,
+      "dtype": "fp16",
+      "extra_held_MiB_after_forward": 128.0,
+      "bytes_per_element": 1.0
+    },
+    {
+      "variant": "torch.compile F.dropout",
+      "n": 134217728,
+      "dtype": "fp16",
+      "extra_held_MiB_after_forward": 128.0,
+      "bytes_per_element": 1.0
+    },
+    {
+      "variant": "seeded backward mask == forward mask",
+      "grad_matches": true
+    }
+  ],
+  "checkpoint": [
+    {
+      "dropout": "torch F.dropout",
+      "preserve_rng_state": false,
+      "grad_rel_err_vs_no_checkpoint": 0.8139166235923767
+    },
+    {
+      "dropout": "torch F.dropout",
+      "preserve_rng_state": true,
+      "grad_rel_err_vs_no_checkpoint": 0.0
+    },
+    {
+      "dropout": "seeded",
+      "preserve_rng_state": false,
+      "grad_rel_err_vs_no_checkpoint": 0.0
+    },
+    {
+      "dropout": "seeded",
+      "preserve_rng_state": true,
+      "grad_rel_err_vs_no_checkpoint": 0.0
+    }
+  ],
+  "overflow": [
+    {
+      "n": 2148532224,
+      "int32_limit": 2147483648,
+      "mode": "tutorial",
+      "result": "AcceleratorError: CUDA error: an illegal memory access was encountered\nSearch for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES."
+    },
+    {
+      "n": 2148532224,
+      "int32_limit": 2147483648,
+      "mode": "int64",
+      "tail_elements": 1048576,
+      "tail_keep_rate": 0.5003,
+      "tail_equals_head_first_block": false,
+      "head_sample_matches_tutorial_below_limit": true,
+      "result": "completed"
+    }
+  ],
+  "philox_rate": [
+    {
+      "kernel": "rand (1 of 4 outputs)",
+      "philox_calls": 268435456,
+      "ms": 3.244,
+      "G_calls_per_s": 82.7,
+      "G_numbers_per_s": 82.7
+    },
+    {
+      "kernel": "rand4x",
+      "philox_calls": 268435456,
+      "ms": 4.028,
+      "G_calls_per_s": 66.6,
+      "G_numbers_per_s": 266.5
+    }
+  ],
+  "config_sweep": [
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 2,
+      "ms": 2.3327,
+      "gbps": 230.2
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 4,
+      "ms": 2.3286,
+      "gbps": 230.6
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 8,
+      "ms": 2.3439,
+      "gbps": 229.0
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 16,
+      "ms": 2.3951,
+      "gbps": 224.2
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 2,
+      "ms": 2.348,
+      "gbps": 228.6
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 4,
+      "ms": 2.3337,
+      "gbps": 230.1
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 8,
+      "ms": 2.3276,
+      "gbps": 230.7
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 16,
+      "ms": 2.3214,
+      "gbps": 231.3
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 2,
+      "ms": 2.2958,
+      "gbps": 233.8
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 4,
+      "ms": 2.3439,
+      "gbps": 229.0
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 8,
+      "ms": 2.3368,
+      "gbps": 229.7
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 16,
+      "ms": 2.3347,
+      "gbps": 230.0
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 2,
+      "ms": 2.3122,
+      "gbps": 232.2
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 4,
+      "ms": 2.3276,
+      "gbps": 230.7
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 8,
+      "ms": 2.348,
+      "gbps": 228.6
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 16,
+      "ms": 2.3501,
+      "gbps": 228.4
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 2,
+      "ms": 2.3429,
+      "gbps": 229.1
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 4,
+      "ms": 2.3286,
+      "gbps": 230.6
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 8,
+      "ms": 2.3286,
+      "gbps": 230.6
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 16,
+      "ms": 2.346,
+      "gbps": 228.8
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 128,
+      "warps": 2,
+      "ms": 2.3286,
+      "gbps": 230.6
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 128,
+      "warps": 4,
+      "ms": 2.3368,
+      "gbps": 229.7
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 128,
+      "warps": 8,
+      "ms": 2.3173,
+      "gbps": 231.7
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 256,
+      "warps": 2,
+      "ms": 2.3521,
+      "gbps": 228.2
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 256,
+      "warps": 4,
+      "ms": 2.388,
+      "gbps": 224.8
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 256,
+      "warps": 8,
+      "ms": 2.3982,
+      "gbps": 223.9
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 512,
+      "warps": 2,
+      "ms": 2.3194,
+      "gbps": 231.5
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 512,
+      "warps": 4,
+      "ms": 2.3316,
+      "gbps": 230.3
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 512,
+      "warps": 8,
+      "ms": 2.3439,
+      "gbps": 229.0
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 1024,
+      "warps": 2,
+      "ms": 2.3296,
+      "gbps": 230.5
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 1024,
+      "warps": 4,
+      "ms": 2.304,
+      "gbps": 233.0
+    },
+    {
+      "dtype": "fp32",
+      "kernel": "x4",
+      "block": 1024,
+      "warps": 8,
+      "ms": 2.3409,
+      "gbps": 229.3
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 2,
+      "ms": 1.1612,
+      "gbps": 231.2
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 4,
+      "ms": 1.1715,
+      "gbps": 229.1
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 8,
+      "ms": 1.2196,
+      "gbps": 220.1
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 256,
+      "warps": 16,
+      "ms": 2.1166,
+      "gbps": 126.8
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 2,
+      "ms": 1.1679,
+      "gbps": 229.9
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 4,
+      "ms": 1.1633,
+      "gbps": 230.8
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 8,
+      "ms": 1.1745,
+      "gbps": 228.5
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 512,
+      "warps": 16,
+      "ms": 1.236,
+      "gbps": 217.2
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 2,
+      "ms": 1.1766,
+      "gbps": 228.1
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 4,
+      "ms": 1.1658,
+      "gbps": 230.3
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 8,
+      "ms": 1.1643,
+      "gbps": 230.6
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 1024,
+      "warps": 16,
+      "ms": 1.1254,
+      "gbps": 238.5
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 2,
+      "ms": 1.1786,
+      "gbps": 227.8
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 4,
+      "ms": 1.1715,
+      "gbps": 229.1
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 8,
+      "ms": 1.1684,
+      "gbps": 229.7
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 2048,
+      "warps": 16,
+      "ms": 1.1633,
+      "gbps": 230.8
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 2,
+      "ms": 1.1766,
+      "gbps": 228.1
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 4,
+      "ms": 1.1735,
+      "gbps": 228.7
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 8,
+      "ms": 1.1776,
+      "gbps": 228.0
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "tutorial",
+      "block": 4096,
+      "warps": 16,
+      "ms": 1.1735,
+      "gbps": 228.7
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 128,
+      "warps": 2,
+      "ms": 1.1674,
+      "gbps": 230.0
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 128,
+      "warps": 4,
+      "ms": 1.1766,
+      "gbps": 228.1
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 128,
+      "warps": 8,
+      "ms": 1.4479,
+      "gbps": 185.4
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 256,
+      "warps": 2,
+      "ms": 1.1694,
+      "gbps": 229.5
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 256,
+      "warps": 4,
+      "ms": 1.1694,
+      "gbps": 229.5
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 256,
+      "warps": 8,
+      "ms": 1.1848,
+      "gbps": 226.6
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 512,
+      "warps": 2,
+      "ms": 1.1858,
+      "gbps": 226.4
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 512,
+      "warps": 4,
+      "ms": 1.1909,
+      "gbps": 225.4
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 512,
+      "warps": 8,
+      "ms": 1.196,
+      "gbps": 224.4
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 1024,
+      "warps": 2,
+      "ms": 1.1786,
+      "gbps": 227.8
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 1024,
+      "warps": 4,
+      "ms": 1.1735,
+      "gbps": 228.7
+    },
+    {
+      "dtype": "fp16",
+      "kernel": "x4",
+      "block": 1024,
+      "warps": 8,
+      "ms": 1.1745,
+      "gbps": 228.5
+    }
+  ],
+  "best_configs": {
+    "fp32/tutorial": [
+      1024,
+      2
+    ],
+    "fp32/x4": [
+      1024,
+      4
+    ],
+    "fp16/tutorial": [
+      1024,
+      16
+    ],
+    "fp16/x4": [
+      128,
+      2
+    ]
+  },
+  "perf": [
+    {
+      "dtype": "fp32",
+      "n": 1048576,
+      "MiB": 4.0,
+      "tutorial_best": "1024x2",
+      "x4_best": "1024x4",
+      "copy": {
+        "us": 41.0,
+        "gbps": 204.8
+      },
+      "tutorial": {
+        "us": 44.0,
+        "gbps": 190.5
+      },
+      "tutorial best config": {
+        "us": 41.0,
+        "gbps": 204.7
+      },
+      "int64 offsets": {
+        "us": 39.9,
+        "gbps": 210.1
+      },
+      "x4 rewrite best config": {
+        "us": 47.1,
+        "gbps": 178.1
+      },
+      "torch F.dropout": {
+        "us": 55.3,
+        "gbps": 151.7
+      },
+      "torch.compile F.dropout": {
+        "us": 42.0,
+        "gbps": 199.8
+      },
+      "tutorial mask kernel only (int32 mask)": {
+        "us": 68.6,
+        "gbps": 122.3
+      },
+      "tutorial mask incl. torch.rand mask": {
+        "us": 70.7,
+        "gbps": 118.7
+      }
+    },
+    {
+      "dtype": "fp32",
+      "n": 16777216,
+      "MiB": 64.0,
+      "tutorial_best": "1024x2",
+      "x4_best": "1024x4",
+      "copy": {
+        "us": 594.9,
+        "gbps": 225.6
+      },
+      "tutorial": {
+        "us": 594.9,
+        "gbps": 225.6
+      },
+      "tutorial best config": {
+        "us": 586.8,
+        "gbps": 228.7
+      },
+      "int64 offsets": {
+        "us": 592.9,
+        "gbps": 226.4
+      },
+      "x4 rewrite best config": {
+        "us": 590.8,
+        "gbps": 227.2
+      },
+      "torch F.dropout": {
+        "us": 697.3,
+        "gbps": 192.5
+      },
+      "torch.compile F.dropout": {
+        "us": 590.8,
+        "gbps": 227.2
+      },
+      "tutorial mask kernel only (int32 mask)": {
+        "us": 881.7,
+        "gbps": 152.2
+      },
+      "tutorial mask incl. torch.rand mask": {
+        "us": 1846.3,
+        "gbps": 72.7
+      }
+    },
+    {
+      "dtype": "fp32",
+      "n": 134217728,
+      "MiB": 512.0,
+      "tutorial_best": "1024x2",
+      "x4_best": "1024x4",
+      "copy": {
+        "us": 4690.9,
+        "gbps": 228.9
+      },
+      "tutorial": {
+        "us": 4678.7,
+        "gbps": 229.5
+      },
+      "tutorial best config": {
+        "us": 4575.2,
+        "gbps": 234.7
+      },
+      "int64 offsets": {
+        "us": 4724.7,
+        "gbps": 227.3
+      },
+      "x4 rewrite best config": {
+        "us": 4524.0,
+        "gbps": 237.3
+      },
+      "torch F.dropout": {
+        "us": 5269.5,
+        "gbps": 203.8
+      },
+      "torch.compile F.dropout": {
+        "us": 4647.9,
+        "gbps": 231.0
+      },
+      "tutorial mask kernel only (int32 mask)": {
+        "us": 6837.2,
+        "gbps": 157.0
+      },
+      "tutorial mask incl. torch.rand mask": {
+        "us": 14586.9,
+        "gbps": 73.6
+      }
+    },
+    {
+      "dtype": "fp16",
+      "n": 1048576,
+      "MiB": 2.0,
+      "tutorial_best": "1024x16",
+      "x4_best": "128x2",
+      "copy": {
+        "us": 22.6,
+        "gbps": 185.9
+      },
+      "tutorial": {
+        "us": 22.5,
+        "gbps": 186.2
+      },
+      "tutorial best config": {
+        "us": 24.6,
+        "gbps": 170.7
+      },
+      "int64 offsets": {
+        "us": 21.5,
+        "gbps": 195.0
+      },
+      "x4 rewrite best config": {
+        "us": 25.6,
+        "gbps": 163.8
+      },
+      "torch F.dropout": {
+        "us": 30.7,
+        "gbps": 136.5
+      },
+      "torch.compile F.dropout": {
+        "us": 33.8,
+        "gbps": 124.1
+      },
+      "tutorial mask kernel only (int32 mask)": {
+        "us": 48.1,
+        "gbps": 87.1
+      },
+      "tutorial mask incl. torch.rand mask": {
+        "us": 56.3,
+        "gbps": 74.5
+      }
+    },
+    {
+      "dtype": "fp16",
+      "n": 16777216,
+      "MiB": 32.0,
+      "tutorial_best": "1024x16",
+      "x4_best": "128x2",
+      "copy": {
+        "us": 298.0,
+        "gbps": 225.2
+      },
+      "tutorial": {
+        "us": 297.0,
+        "gbps": 226.0
+      },
+      "tutorial best config": {
+        "us": 302.1,
+        "gbps": 222.2
+      },
+      "int64 offsets": {
+        "us": 295.9,
+        "gbps": 226.8
+      },
+      "x4 rewrite best config": {
+        "us": 299.0,
+        "gbps": 224.4
+      },
+      "torch F.dropout": {
+        "us": 391.2,
+        "gbps": 171.6
+      },
+      "torch.compile F.dropout": {
+        "us": 357.4,
+        "gbps": 187.8
+      },
+      "tutorial mask kernel only (int32 mask)": {
+        "us": 600.1,
+        "gbps": 111.8
+      },
+      "tutorial mask incl. torch.rand mask": {
+        "us": 1559.0,
+        "gbps": 43.0
+      }
+    },
+    {
+      "dtype": "fp16",
+      "n": 134217728,
+      "MiB": 256.0,
+      "tutorial_best": "1024x16",
+      "x4_best": "128x2",
+      "copy": {
+        "us": 2342.9,
+        "gbps": 229.1
+      },
+      "tutorial": {
+        "us": 2324.5,
+        "gbps": 231.0
+      },
+      "tutorial best config": {
+        "us": 2214.9,
+        "gbps": 242.4
+      },
+      "int64 offsets": {
+        "us": 2325.5,
+        "gbps": 230.9
+      },
+      "x4 rewrite best config": {
+        "us": 2334.7,
+        "gbps": 230.0
+      },
+      "torch F.dropout": {
+        "us": 2933.8,
+        "gbps": 183.0
+      },
+      "torch.compile F.dropout": {
+        "us": 2671.6,
+        "gbps": 201.0
+      },
+      "tutorial mask kernel only (int32 mask)": {
+        "us": 4396.5,
+        "gbps": 122.1
+      },
+      "tutorial mask incl. torch.rand mask": {
+        "us": 12179.5,
+        "gbps": 44.1
+      }
+    }
+  ],
+  "peak_memory_mib": 4355.2,
+  "runtime_s": 74.8
+}

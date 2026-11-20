@@ -416,7 +416,7 @@ def held_memory():
     y = SeededDropout.apply(x, p, 5)
     dy = torch.randn_like(y)
     y.backward(dy)
-    keep = y != 0
+    keep = tut.seeded_dropout(torch.ones_like(y), p, 5) != 0
     ref = torch.where(keep, dy / (1 - p), torch.zeros_like(dy))
     rows.append({"variant": "seeded backward mask == forward mask", "grad_matches": bool(torch.equal(x.grad, ref))})
     return rows
@@ -449,42 +449,47 @@ def checkpoint_recompute():
 
 # ---------------------------------------------------------------
 # 4. int32 overflow (child process)
-def overflow_child():
+def overflow_child(mode):
     n = OVERFLOW_N
     x = torch.ones(n, dtype=torch.uint8, device="cuda")
     out = torch.zeros(n, dtype=torch.uint8, device="cuda")
-    res = {"n": n, "int32_limit": 2**31}
+    res = {"n": n, "int32_limit": 2**31, "mode": mode}
     try:
-        tut._seeded_dropout[(triton.cdiv(n, 1024), )](x, out, n, 0.5, 5, BLOCK_SIZE=1024)
-        torch.cuda.synchronize()
-        res["tutorial"] = "completed"
-        tail = out[2**31:].clone()
-        head = out[::4093].clone()
-        x_bad = sum(int((x[i:i + ZERO_CHUNK] != 1).sum()) for i in range(0, n, ZERO_CHUNK))
-        res["tail_elements"] = int(tail.numel())
-        res["tail_nonzero"] = int((tail != 0).sum())
-        res["x_elements_overwritten"] = x_bad
-        out.zero_()
-        x.fill_(1)
-        launch_i64(x, out, 0.5, 5, 1024)
-        torch.cuda.synchronize()
-        res["i64_tail_nonzero"] = int((out[2**31:] != 0).sum())
-        res["tail_matches_i64"] = bool(torch.equal(tail, out[2**31:].clone()))
-        res["head_matches_i64"] = bool(torch.equal(head, out[::4093].clone()))
-        res["i64_tail_keep_rate"] = round(res["i64_tail_nonzero"] / res["tail_elements"], 4)
+        if mode == "tutorial":
+            tut._seeded_dropout[(triton.cdiv(n, 1024), )](x, out, n, 0.5, 5, BLOCK_SIZE=1024)
+            torch.cuda.synchronize()
+            res["result"] = "completed"
+        else:
+            launch_i64(x, out, 0.5, 5, 1024)
+            torch.cuda.synchronize()
+            tail = out[2**31:].clone()
+            head = out[::4093].clone()
+            first = out[:2**20].clone()
+            res["tail_elements"] = int(tail.numel())
+            res["tail_keep_rate"] = round(float((tail != 0).float().mean()), 4)
+            res["tail_equals_head_first_block"] = bool(torch.equal(tail, first))
+            out.zero_()
+            launch_tut(x[:ZERO_N], out[:ZERO_N], 0.5, 5)
+            torch.cuda.synchronize()
+            res["head_sample_matches_tutorial_below_limit"] = bool(torch.equal(head[:ZERO_N // 4093], out[::4093][:ZERO_N // 4093]))
+            res["result"] = "completed"
     except Exception as e:  # noqa: BLE001
-        res["tutorial"] = f"{type(e).__name__}: {str(e)[:160]}"
+        res["result"] = f"{type(e).__name__}: {str(e)[:160]}"
     print("RESULT " + json.dumps(res), flush=True)
 
 
 def overflow():
-    p = subprocess.run([sys.executable, __file__, "--overflow"], capture_output=True, text=True, timeout=900)
-    lines = [ln for ln in p.stdout.splitlines() if ln.startswith("RESULT ")]
-    if lines:
-        return json.loads(lines[-1][7:])
-    tail = (p.stderr or p.stdout).strip().splitlines()
-    return {"n": OVERFLOW_N, "tutorial": f"child exited {p.returncode}: {(tail[-1] if tail else '')[:200]}"}
-
+    rows = []
+    for mode in ("tutorial", "int64 rewrite"):
+        p = subprocess.run([sys.executable, __file__, "--overflow", mode.split()[0]], capture_output=True, text=True,
+                           timeout=900)
+        lines = [ln for ln in p.stdout.splitlines() if ln.startswith("RESULT ")]
+        if lines:
+            rows.append(json.loads(lines[-1][7:]))
+        else:
+            tail = (p.stderr or p.stdout).strip().splitlines()
+            rows.append({"n": OVERFLOW_N, "mode": mode, "result": f"child exited {p.returncode}: {(tail[-1] if tail else '')[:200]}"})
+    return rows
 
 # ---------------------------------------------------------------
 # 5. throughput
@@ -551,15 +556,15 @@ def perf(best):
             fns = {
                 "copy": lambda: out.copy_(x),
                 "tutorial": lambda: tut.seeded_dropout(x, p, 1),
-                f"tutorial best (BLOCK {tb}, {tw} warps)": lambda: launch_tut(x, out, p, 1, tb, tw),
+                "tutorial best config": lambda: launch_tut(x, out, p, 1, tb, tw),
                 "int64 offsets": lambda: launch_i64(x, out, p, 1),
-                f"x4 rewrite (BLOCK {xb}, {xw} warps)": lambda: launch_x4(x, out, p, 1, xb, xw),
+                "x4 rewrite best config": lambda: launch_x4(x, out, p, 1, xb, xw),
                 "torch F.dropout": lambda: F.dropout(x, p, True),
                 "torch.compile F.dropout": lambda: compiled(x),
                 "tutorial mask kernel only (int32 mask)": lambda: tut.dropout(x, keep32, p),
                 "tutorial mask incl. torch.rand mask": lambda: tut.dropout(x, (torch.rand(n, device="cuda") > p).to(torch.int32), p),
             }
-            row = {"dtype": dname, "n": n, "MiB": round(n * es / 2**20, 1)}
+            row = {"dtype": dname, "n": n, "MiB": round(n * es / 2**20, 1), "tutorial_best": f"{tb}x{tw}", "x4_best": f"{xb}x{xw}"}
             for name, fn in fns.items():
                 ms = bench(fn)
                 row[name] = {"us": round(ms * 1e3, 1), "gbps": round(2 * n * es * 1e-9 / (ms * 1e-3), 1)} if ms else None
@@ -623,8 +628,8 @@ def write_md(res):
     L += ["", "## 3c. Gradient error under non-reentrant checkpointing (recompute after the RNG advanced)", ""]
     L += table(["dropout", "preserve_rng_state", "grad rel err vs no checkpoint"],
                [[r["dropout"], r["preserve_rng_state"], r["grad_rel_err_vs_no_checkpoint"]] for r in res["checkpoint"]])
-    o = res["overflow"]
-    L += ["", f"## 4. int32 offsets past 2^31 (uint8, n = {o['n']}, p = 0.5)", "", "```", json.dumps(o, indent=1), "```", "",
+    L += ["", f"## 4. int32 offsets past 2^31 (uint8, n = {OVERFLOW_N}, p = 0.5; one child process per kernel)", "", "```",
+          json.dumps(res["overflow"], indent=1), "```", "",
           "## 5a. Philox throughput (no memory traffic)", ""]
     L += table(["kernel", "ms", "G calls / s", "G numbers / s"],
                [[r["kernel"], r["ms"], r["G_calls_per_s"], r["G_numbers_per_s"]] for r in res["philox_rate"]])
@@ -632,8 +637,9 @@ def write_md(res):
     L += table(["dtype", "kernel", "BLOCK", "warps", "ms", "GB/s"],
                [[r["dtype"], r["kernel"], r["block"], r["warps"], r.get("ms", r.get("error")), r.get("gbps", "")]
                 for r in res["config_sweep"]])
-    names = [k for k in res["perf"][0] if k not in ("dtype", "n", "MiB")]
-    L += ["", "## 5c. Throughput (GB/s of 2 * n * bytes; do_bench median, L2 flushed; us in parentheses)", ""]
+    names = [k for k in res["perf"][0] if k not in ("dtype", "n", "MiB", "tutorial_best", "x4_best")]
+    L += ["", "## 5c. Throughput (GB/s of 2 * n * bytes; do_bench median, L2 flushed; us in parentheses; "
+          f"best configs (BLOCK x warps) from 5b: {res['best_configs']})", ""]
     L += table(["dtype", "n", "MiB"] + names,
                [[r["dtype"], r["n"], r["MiB"]] + [f"{r[k]['gbps']} ({r[k]['us']})" if r[k] else "OOM" for k in names]
                 for r in res["perf"]])
@@ -665,7 +671,7 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 and sys.argv[1] == "--overflow":
-        overflow_child()
+    if len(sys.argv) == 3 and sys.argv[1] == "--overflow":
+        overflow_child(sys.argv[2])
     else:
         main()
