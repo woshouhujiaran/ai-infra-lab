@@ -269,6 +269,16 @@
       "device": "cuda",
       "date": "2026-11-20",
       "status": "done"
+    },
+    {
+      "id": "0028",
+      "slug": "liger-kl-div",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/kl_div.py (LigerKLDivLossFunction / kldiv_forward_triton / kldiv_backward_triton) + transformers/kl_div.py (LigerKLDIVLoss)",
+      "topic": "Triton KL(target||input) on log-probs: always-fp32 loss vs F.kl_div dtype/floor in fp32/fp16/bf16 for batchmean/sum/mean/none and log_target; eps clamp vs torch xlogy and silent finite loss on negative targets; log_target -inf padding NaN; fp16 mean grad underflow to all-zeros; retain_graph / no target grad / torch.compile; forward peak ~0 and 2.8-4.6x eager F.kl_div (tied with torch.compile) at 32k/128k/152k vocab, reduction=none fp32 (BT,V) tile",
+      "device": "cuda",
+      "date": "2026-11-21",
+      "status": "done"
     }
   ]
 }
