@@ -171,7 +171,12 @@ def table(headers, rows):
     return "\n".join(out)
 
 
+_PEAK_MIB = 0.0
+
+
 def cleanup():
+    global _PEAK_MIB
+    _PEAK_MIB = max(_PEAK_MIB, gpu_guard.peak_memory_mib())
     gc.collect()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
@@ -416,7 +421,7 @@ def sec_api():
     loss = mod(x, tgt)
     loss.backward()
     out["module_wrapper_grad_rel"] = rel(x.grad, ref_grad(inp, tgt, "batchmean"))
-    out["module_wrapper_loss"] = float(loss)
+    out["module_wrapper_loss"] = float(loss.detach())
 
     # torch.compile
     torch._dynamo.reset()
@@ -427,7 +432,9 @@ def sec_api():
     x2 = inp.clone().requires_grad_(True)
     loss_e = LigerKLDIVLoss(reduction="batchmean", log_target=False).cuda()(x2, tgt)
     loss_e.backward()
-    out["compile_loss_rel_vs_eager"] = abs(float(loss_c) - float(loss_e)) / max(abs(float(loss_e)), 1e-30)
+    out["compile_loss_rel_vs_eager"] = (
+        abs(float(loss_c.detach()) - float(loss_e.detach())) / max(abs(float(loss_e.detach())), 1e-30)
+    )
     out["compile_grad_rel_vs_eager"] = rel(x.grad, x2.grad)
     out["compile_loss_dtype"] = str(loss_c.dtype).replace("torch.", "")
 
@@ -445,6 +452,15 @@ def sec_api():
     inp_bf, tgt_bf = make_pair(BT, V, torch.bfloat16, False, gen)
     out["liger_bf16_batchmean_dtype"] = str(liger_kl(inp_bf, tgt_bf).dtype).replace("torch.", "")
     out["torch_bf16_batchmean_dtype"] = str(torch_kl(inp_bf, tgt_bf).dtype).replace("torch.", "")
+
+    # fp16 mean: grad stored in input dtype then / (BT*V) underflows
+    inp16, tgt16 = make_pair(16, 32768, torch.float16, False, gen)
+    _, g16_mean = run_fb(liger_kl, inp16, tgt16, reduction="mean")
+    _, g16_bm = run_fb(liger_kl, inp16, tgt16, reduction="batchmean")
+    out["fp16_mean_grad_nonzero_frac"] = float((g16_mean != 0).float().mean())
+    out["fp16_batchmean_grad_nonzero_frac"] = float((g16_bm != 0).float().mean())
+    out["fp16_mean_grad_abs_max"] = float(g16_mean.float().abs().max())
+    out["fp16_batchmean_grad_abs_max"] = float(g16_bm.float().abs().max())
 
     return out
 
@@ -505,21 +521,33 @@ def measure_cell(fn, inp, tgt, reduction, log_target, do_bwd=True):
     }
 
 
+def make_pair_bf16(BT, V, gen):
+    """bf16 pair without a lasting fp64 workspace (perf only)."""
+    logits = torch.randn(BT, V, device=DEV, dtype=torch.float32, generator=gen)
+    inp = logits.log_softmax(-1).to(torch.bfloat16)
+    noise = torch.randn(BT, V, device=DEV, dtype=torch.float32, generator=gen)
+    tgt = (logits * 0.7 + noise).softmax(-1).to(torch.bfloat16)
+    del logits, noise
+    return inp, tgt
+
+
 def sec_perf():
     gen = torch.Generator(device=DEV).manual_seed(SEED + 4)
     rows = []
     for vname, V in PERF_VOCABS:
         for BT in PERF_BTS:
-            # skip huge cells that would blow 4.8 GiB (bf16: 2 tensors = 2*BT*V*2)
-            est_mib = BT * V * 2 * 2 / 2**20 * 4  # rough peak budget
-            if est_mib > 4500:
+            # bf16 input+target + bf16 grad + small temps; refuse past ~3.5 GiB of live tensors
+            est_mib = BT * V * 2 * 3 / 2**20
+            if est_mib > 3500:
                 rows.append({"vocab": vname, "V": V, "BT": BT, "skipped": "est_peak_over_budget",
                              "est_mib": round(est_mib, 1)})
                 continue
+            cleanup()
             try:
-                inp, tgt = make_pair(BT, V, torch.bfloat16, False, gen)
+                inp, tgt = make_pair_bf16(BT, V, gen)
             except RuntimeError as e:
-                rows.append({"vocab": vname, "V": V, "BT": BT, "skipped": str(e)})
+                rows.append({"vocab": vname, "V": V, "BT": BT, "skipped": str(e)[:200]})
+                cleanup()
                 continue
             for name, fn in [("liger", liger_kl), ("torch", torch_kl)]:
                 try:
@@ -528,26 +556,26 @@ def sec_perf():
                     rows.append(m)
                 except RuntimeError as e:
                     rows.append({"impl": name, "vocab": vname, "V": V, "BT": BT,
-                                 "skipped": f"{type(e).__name__}: {e}"})
+                                 "skipped": f"{type(e).__name__}: {str(e)[:160]}"})
                     cleanup()
             if (V, BT) in COMPILE_CELLS:
-                def _compiled_kl(input, target, reduction="batchmean", log_target=False, eps=None):
-                    return _ckl(input, target)
-
                 torch._dynamo.reset()
                 _ckl = torch.compile(
                     lambda i, t: F.kl_div(i, t, reduction="batchmean", log_target=False)
                 )
-                # warm compile
+
+                def _compiled_kl(input, target, reduction="batchmean", log_target=False, eps=None):
+                    return _ckl(input, target)
+
                 try:
-                    _ = _compiled_kl(inp[: min(8, BT)], tgt[: min(8, BT)])
+                    _ = _compiled_kl(inp[: min(8, BT)].contiguous(), tgt[: min(8, BT)].contiguous())
                     torch.cuda.synchronize()
                     m = measure_cell(_compiled_kl, inp, tgt, "batchmean", False, do_bwd=True)
                     m.update({"impl": "compile_torch", "vocab": vname, "V": V, "BT": BT, "dtype": "bf16"})
                     rows.append(m)
                 except Exception as e:
                     rows.append({"impl": "compile_torch", "vocab": vname, "V": V, "BT": BT,
-                                 "skipped": f"{type(e).__name__}: {e}"})
+                                 "skipped": f"{type(e).__name__}: {str(e)[:160]}"})
                     cleanup()
             del inp, tgt
             cleanup()
@@ -563,16 +591,19 @@ def sec_perf_fp32_none():
         if est > 3500:
             rows.append({"BT": BT, "V": V, "skipped": "tile_too_big", "tile_mib": round(est, 1)})
             continue
-        inp, tgt = make_pair(BT, V, torch.float32, False, gen)
+        cleanup()
+        logits = torch.randn(BT, V, device=DEV, dtype=torch.float32, generator=gen)
+        inp = logits.log_softmax(-1)
+        tgt = (logits * 0.7 + torch.randn(BT, V, device=DEV, dtype=torch.float32, generator=gen)).softmax(-1)
+        del logits
         for name, fn in [("liger", liger_kl), ("torch", torch_kl)]:
             try:
                 m = measure_cell(fn, inp, tgt, "none", False, do_bwd=False)
                 m.update({"impl": name, "BT": BT, "V": V, "reduction": "none"})
-                # expected liger held ≈ BT*V*4 bytes (fp32 loss)
                 m["expected_fp32_tile_mib"] = round(BT * V * 4 / 2**20, 2)
                 rows.append(m)
             except RuntimeError as e:
-                rows.append({"impl": name, "BT": BT, "V": V, "skipped": str(e)})
+                rows.append({"impl": name, "BT": BT, "V": V, "skipped": str(e)[:160]})
                 cleanup()
         del inp, tgt
         cleanup()
@@ -657,12 +688,18 @@ def main():
         results["perf"] = data
         md.append("## Memory / latency (bf16, batchmean)")
         md.append("")
+        def _perf_row(r):
+            if "skipped" in r:
+                sk = r["skipped"]
+                if "out of memory" in str(sk).lower():
+                    sk = "OOM"
+                return [r.get("impl", "-"), r.get("vocab"), r.get("BT"), sk, "-", "-", "-", "-", "-"]
+            return [r.get("impl"), r.get("vocab"), r.get("BT"),
+                    r.get("held_mib"), r.get("peak_fwd_mib"), r.get("peak_bwd_mib"),
+                    r.get("ms_fwd"), r.get("ms_fb"), r.get("gbps_fwd_est")]
         md.append(table(
             ["impl", "vocab", "BT", "held", "peak_f", "peak_b", "ms_fwd", "ms_fb", "GB/s"],
-            [[r.get("impl", "-"), r.get("vocab"), r.get("BT"),
-              r.get("held_mib", r.get("skipped")), r.get("peak_fwd_mib"),
-              r.get("peak_bwd_mib"), r.get("ms_fwd"), r.get("ms_fb"),
-              r.get("gbps_fwd_est")] for r in data["rows"]],
+            [_perf_row(r) for r in data["rows"]],
         ))
         md.append("")
 
@@ -680,8 +717,9 @@ def main():
         ))
         md.append("")
 
+    cleanup()
     results["wall_s"] = round(time.time() - t0, 1)
-    results["peak_memory_mib"] = gpu_guard.peak_memory_mib()
+    results["peak_memory_mib"] = round(max(_PEAK_MIB, gpu_guard.peak_memory_mib()), 1)
     (HERE / "results.json").write_text(json.dumps(results, indent=2, default=str), encoding="utf-8")
     (HERE / "results.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print(f"done in {results['wall_s']}s, peak {results['peak_memory_mib']} MiB")
