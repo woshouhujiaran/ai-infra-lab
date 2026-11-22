@@ -1,0 +1,1460 @@
+{
+  "experiment": "0029-liger-geglu",
+  "upstream": "linkedin/Liger-Kernel",
+  "upstream_commit": "1ab779ff0990d205e6003fa34c7618f0e8c50337",
+  "component": "src/liger_kernel/ops/geglu.py (LigerGELUMulFunction)",
+  "triton": "3.8.0",
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "memory_total_mib": 8188,
+    "memory_used_mib": 0,
+    "utilization_percent": 0,
+    "temperature_c": 52,
+    "memory_fraction_cap": 0.6,
+    "torch": "2.14.1+cu126",
+    "cuda": "12.6"
+  },
+  "alias": [
+    {
+      "case": "mlp",
+      "description": "HF GemmaMLP graph: down(gelu_tanh(gate(x)) * up(x))",
+      "variant": "eager_tanh",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "mlp",
+      "description": "HF GemmaMLP graph: down(gelu_tanh(gate(x)) * up(x))",
+      "variant": "liger",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "mlp",
+      "description": "HF GemmaMLP graph: down(gelu_tanh(gate(x)) * up(x))",
+      "variant": "liger_oop",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "stash_gate_up_outputs",
+      "description": "same, gate/up outputs kept (forward hook / activation logging)",
+      "variant": "eager_tanh",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {
+        "gate_out": 0.0,
+        "up_out": 0.0
+      },
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "stash_gate_up_outputs",
+      "description": "same, gate/up outputs kept (forward hook / activation logging)",
+      "variant": "liger",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {
+        "gate_out": 0.9996287226676941,
+        "up_out": 0.9996744990348816
+      },
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "stash_gate_up_outputs",
+      "description": "same, gate/up outputs kept (forward hook / activation logging)",
+      "variant": "liger_oop",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {
+        "gate_out": 0.0,
+        "up_out": 0.0
+      },
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "leaf_inputs",
+      "description": "act(a, b) on leaf tensors",
+      "variant": "eager_tanh",
+      "grad_rel_err_max": 0.002884844414153447,
+      "grad_rel_err": {
+        "a": 0.0028764851815996587,
+        "b": 0.002884844414153447
+      },
+      "stash_changed_fraction": {
+        "a": 0.0,
+        "b": 0.0
+      },
+      "grad_aliases_input": false,
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "leaf_inputs",
+      "description": "act(a, b) on leaf tensors",
+      "variant": "liger",
+      "grad_rel_err_max": 0.002884844414153447,
+      "grad_rel_err": {
+        "a": 0.002876485181601444,
+        "b": 0.002884844414153447
+      },
+      "stash_changed_fraction": {
+        "a": 0.9995880126953125,
+        "b": 0.9996363520622253
+      },
+      "grad_aliases_input": true,
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "leaf_inputs",
+      "description": "act(a, b) on leaf tensors",
+      "variant": "liger_oop",
+      "grad_rel_err_max": 0.002884844414153447,
+      "grad_rel_err": {
+        "a": 0.002876485181601444,
+        "b": 0.002884844414153447
+      },
+      "stash_changed_fraction": {
+        "a": 0.0,
+        "b": 0.0
+      },
+      "grad_aliases_input": false,
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "gate_l2_before",
+      "description": "aux = 0.5 * gate.pow(2).sum() built before act",
+      "variant": "eager_tanh",
+      "grad_rel_err_max": 0.004210466670683021,
+      "grad_rel_err": {
+        "x": 0.0028397419290407447,
+        "wg": 0.0027860845693983725,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "gate_l2_before",
+      "description": "aux = 0.5 * gate.pow(2).sum() built before act",
+      "variant": "liger",
+      "grad_rel_err_max": 1.0023214953574218,
+      "grad_rel_err": {
+        "x": 0.9851383610436347,
+        "wg": 1.0023214953574218,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 238.05
+    },
+    {
+      "case": "gate_l2_before",
+      "description": "aux = 0.5 * gate.pow(2).sum() built before act",
+      "variant": "liger_oop",
+      "grad_rel_err_max": 0.004210466670683021,
+      "grad_rel_err": {
+        "x": 0.0028397419290407447,
+        "wg": 0.0027860845693983725,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "gate_l2_after",
+      "description": "aux = 0.5 * gate.pow(2).sum() built after act",
+      "variant": "eager_tanh",
+      "grad_rel_err_max": 0.004210466670683021,
+      "grad_rel_err": {
+        "x": 0.0028397419290407447,
+        "wg": 0.0027860845693983725,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "gate_l2_after",
+      "description": "aux = 0.5 * gate.pow(2).sum() built after act",
+      "variant": "liger",
+      "grad_rel_err_max": 0.004210466670683021,
+      "grad_rel_err": {
+        "x": 0.0028397419290407447,
+        "wg": 0.0027860845693983725,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "gate_l2_after",
+      "description": "aux = 0.5 * gate.pow(2).sum() built after act",
+      "variant": "liger_oop",
+      "grad_rel_err_max": 0.004210466670683021,
+      "grad_rel_err": {
+        "x": 0.0028397419290407447,
+        "wg": 0.0027860845693983725,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "retain_graph_twice",
+      "description": "MLP, autograd.grad twice with retain_graph=True",
+      "variant": "eager_tanh",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "first_call_grad_rel_err_max": 0.004495084509782676,
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "retain_graph_twice",
+      "description": "MLP, autograd.grad twice with retain_graph=True",
+      "variant": "liger",
+      "grad_rel_err_max": 1.1026730838713972,
+      "grad_rel_err": {
+        "x": 1.1026730838713972,
+        "wg": 0.9366136459995947,
+        "wu": 1.0228108620835308,
+        "wd": 0.004210466670683021
+      },
+      "first_call_grad_rel_err_max": 0.004495084509782676,
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 245.31
+    },
+    {
+      "case": "retain_graph_twice",
+      "description": "MLP, autograd.grad twice with retain_graph=True",
+      "variant": "liger_oop",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "first_call_grad_rel_err_max": 0.004495084509782676,
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "checkpoint",
+      "description": "MLP under torch.utils.checkpoint (non-reentrant)",
+      "variant": "eager_tanh",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "checkpoint",
+      "description": "MLP under torch.utils.checkpoint (non-reentrant)",
+      "variant": "liger",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    },
+    {
+      "case": "checkpoint",
+      "description": "MLP under torch.utils.checkpoint (non-reentrant)",
+      "variant": "liger_oop",
+      "grad_rel_err_max": 0.004495084509782676,
+      "grad_rel_err": {
+        "x": 0.004495084509782676,
+        "wg": 0.00410703332365685,
+        "wu": 0.00418677335488125,
+        "wd": 0.004210466670683021
+      },
+      "stash_changed_fraction": {},
+      "error": null,
+      "err_vs_eager_bf16": 1.0
+    }
+  ],
+  "numerics": [
+    {
+      "dtype": "fp32",
+      "gate_std": 1.0,
+      "T": 2048,
+      "I": 8192,
+      "floor_tanh": {
+        "c": 2.5322565104233335e-08,
+        "da": 2.5301045343400035e-08,
+        "db": 2.529695429116405e-08
+      },
+      "tanh_vs_exact_fp64": {
+        "c": 0.00019754741756066303,
+        "da": 0.00043481971178897485,
+        "db": 0.00019762000442028198
+      },
+      "eager_tanh_vs_tanh": {
+        "c": 4.6031541951815304e-08,
+        "da": 5.750540953770973e-08,
+        "db": 4.60134961089406e-08
+      },
+      "eager_exact_vs_exact": {
+        "c": 4.556787921649185e-08,
+        "da": 5.421242762810628e-08,
+        "db": 4.5554100186075706e-08
+      },
+      "eager_exact_vs_tanh": {
+        "c": 0.0001975506307448838,
+        "da": 0.0004348373339763465,
+        "db": 0.00019762323767739777
+      },
+      "torch_compile_tanh": {
+        "c": 4.6031541951815304e-08,
+        "da": 5.764456484574597e-08,
+        "db": 4.60134961089406e-08
+      },
+      "torch_compile_exact": {
+        "c": 4.505898675680587e-08,
+        "da": 5.417991995776383e-08,
+        "db": 4.505363819965358e-08
+      },
+      "liger_vs_tanh": {
+        "c": 4.6031541951815304e-08,
+        "da": 5.764903007923823e-08,
+        "db": 4.60134961089406e-08
+      },
+      "liger_vs_exact": {
+        "c": 0.00019754269713436918,
+        "da": 0.0004348151698031546,
+        "db": 0.00019761521529309701
+      },
+      "liger_oop_vs_tanh": {
+        "c": 4.6031541951815304e-08,
+        "da": 5.764903007923823e-08,
+        "db": 4.60134961089406e-08
+      },
+      "fp32_mul_fwd_c_vs_tanh": 4.6031541951815304e-08,
+      "oop_bit_identical_to_upstream": true,
+      "liger_vs_eager_tanh_same_dtype": {
+        "c": 0.0,
+        "da": 1.7581449793327202e-08,
+        "db": 0.0
+      }
+    },
+    {
+      "dtype": "fp32",
+      "gate_std": 4.0,
+      "T": 2048,
+      "I": 8192,
+      "floor_tanh": {
+        "c": 2.5301334737476184e-08,
+        "da": 2.5286368880423668e-08,
+        "db": 2.5314745189677094e-08
+      },
+      "tanh_vs_exact_fp64": {
+        "c": 7.002364880564982e-05,
+        "da": 0.0004782695665323005,
+        "db": 7.008225616245232e-05
+      },
+      "eager_tanh_vs_tanh": {
+        "c": 3.324356339950323e-08,
+        "da": 1.5515740795932586e-07,
+        "db": 3.323151902347642e-08
+      },
+      "eager_exact_vs_exact": {
+        "c": 3.5033715617369234e-08,
+        "da": 5.2475579276912634e-08,
+        "db": 3.50526385990806e-08
+      },
+      "eager_exact_vs_tanh": {
+        "c": 7.002330126390119e-05,
+        "da": 0.00047825306008466347,
+        "db": 7.008190487682658e-05
+      },
+      "torch_compile_tanh": {
+        "c": 3.324356339950323e-08,
+        "da": 1.5516138333515348e-07,
+        "db": 3.323151902347642e-08
+      },
+      "torch_compile_exact": {
+        "c": 3.425164164426193e-08,
+        "da": 5.1725352681217084e-08,
+        "db": 3.427348335979307e-08
+      },
+      "liger_vs_tanh": {
+        "c": 3.324356339950323e-08,
+        "da": 1.5516411946123038e-07,
+        "db": 3.323151902347642e-08
+      },
+      "liger_vs_exact": {
+        "c": 7.002337162936369e-05,
+        "da": 0.00047826817488967307,
+        "db": 7.008197541343121e-05
+      },
+      "liger_oop_vs_tanh": {
+        "c": 3.324356339950323e-08,
+        "da": 1.5516411946123038e-07,
+        "db": 3.323151902347642e-08
+      },
+      "fp32_mul_fwd_c_vs_tanh": 3.324356339950323e-08,
+      "oop_bit_identical_to_upstream": true,
+      "liger_vs_eager_tanh_same_dtype": {
+        "c": 0.0,
+        "da": 1.4372605233286612e-08,
+        "db": 0.0
+      }
+    },
+    {
+      "dtype": "fp16",
+      "gate_std": 1.0,
+      "T": 2048,
+      "I": 8192,
+      "floor_tanh": {
+        "c": 0.00020720687402228235,
+        "da": 0.00020717574455388158,
+        "db": 0.00020736176904620883
+      },
+      "tanh_vs_exact_fp64": {
+        "c": 0.00019754742300681736,
+        "da": 0.00043481947936533575,
+        "db": 0.00019761991373715558
+      },
+      "eager_tanh_vs_tanh": {
+        "c": 0.0002923967039429575,
+        "da": 0.00029326448352623376,
+        "db": 0.0002925891477211167
+      },
+      "eager_exact_vs_exact": {
+        "c": 0.0002929595370122945,
+        "da": 0.0002930117204141473,
+        "db": 0.0002930173011145375
+      },
+      "eager_exact_vs_tanh": {
+        "c": 0.00035269669830932253,
+        "da": 0.0005245354606643708,
+        "db": 0.0003527955649751667
+      },
+      "torch_compile_tanh": {
+        "c": 0.00020720687867920503,
+        "da": 0.00020717575004925663,
+        "db": 0.000207361770823914
+      },
+      "torch_compile_exact": {
+        "c": 0.00020728278567277322,
+        "da": 0.00020741093257673588,
+        "db": 0.00020736549719238274
+      },
+      "liger_vs_tanh": {
+        "c": 0.0002923967039429575,
+        "da": 0.00029326463455438034,
+        "db": 0.0002925891477211167
+      },
+      "liger_vs_exact": {
+        "c": 0.0003531988738753267,
+        "da": 0.0005242975681294392,
+        "db": 0.00035365497657911425
+      },
+      "liger_oop_vs_tanh": {
+        "c": 0.0002923967039429575,
+        "da": 0.00029326463455438034,
+        "db": 0.0002925891477211167
+      },
+      "fp32_mul_fwd_c_vs_tanh": 0.00020720687867920503,
+      "oop_bit_identical_to_upstream": true,
+      "liger_vs_eager_tanh_same_dtype": {
+        "c": 0.0,
+        "da": 1.7033231246462301e-06,
+        "db": 0.0
+      }
+    },
+    {
+      "dtype": "fp16",
+      "gate_std": 4.0,
+      "T": 2048,
+      "I": 8192,
+      "floor_tanh": {
+        "c": 0.00020723719866369024,
+        "da": 0.00020725604445948574,
+        "db": 0.0002072575049488598
+      },
+      "tanh_vs_exact_fp64": {
+        "c": 7.002361640848249e-05,
+        "da": 0.00047827033106828383,
+        "db": 7.00823074581227e-05
+      },
+      "eager_tanh_vs_tanh": {
+        "c": 0.000221860344792466,
+        "da": 0.0002723010985430531,
+        "db": 0.00022192050314495744
+      },
+      "eager_exact_vs_exact": {
+        "c": 0.00022249817023759112,
+        "da": 0.0002736575465823788,
+        "db": 0.0002225121920832794
+      },
+      "eager_exact_vs_tanh": {
+        "c": 0.000232752261935435,
+        "da": 0.000550510382992385,
+        "db": 0.00023277929796827496
+      },
+      "torch_compile_tanh": {
+        "c": 0.00020723719716482479,
+        "da": 0.0002072561225820903,
+        "db": 0.00020725750221346688
+      },
+      "torch_compile_exact": {
+        "c": 0.0002072465544267034,
+        "da": 0.00020734661921928874,
+        "db": 0.00020723041826428994
+      },
+      "liger_vs_tanh": {
+        "c": 0.000221860344792466,
+        "da": 0.00027230135494659693,
+        "db": 0.00022192050314495744
+      },
+      "liger_vs_exact": {
+        "c": 0.00023336260387390052,
+        "da": 0.0005509803794085666,
+        "db": 0.00023344382792894885
+      },
+      "liger_oop_vs_tanh": {
+        "c": 0.000221860344792466,
+        "da": 0.00027230135494659693,
+        "db": 0.00022192050314495744
+      },
+      "fp32_mul_fwd_c_vs_tanh": 0.00020723719716482479,
+      "oop_bit_identical_to_upstream": true,
+      "liger_vs_eager_tanh_same_dtype": {
+        "c": 0.0,
+        "da": 5.807638385263168e-07,
+        "db": 0.0
+      }
+    },
+    {
+      "dtype": "bf16",
+      "gate_std": 1.0,
+      "T": 2048,
+      "I": 8192,
+      "floor_tanh": {
+        "c": 0.0016577012415842519,
+        "da": 0.0016580806804314698,
+        "db": 0.0016591748891212825
+      },
+      "tanh_vs_exact_fp64": {
+        "c": 0.0001975462990086173,
+        "da": 0.00043481429745648105,
+        "db": 0.00019761877958811056
+      },
+      "eager_tanh_vs_tanh": {
+        "c": 0.002382358917773256,
+        "da": 0.0023418726055073466,
+        "db": 0.0023820515589316007
+      },
+      "eager_exact_vs_exact": {
+        "c": 0.0023826542369699104,
+        "da": 0.0023425897036728842,
+        "db": 0.0023831662899278894
+      },
+      "eager_exact_vs_tanh": {
+        "c": 0.0023948755150556378,
+        "da": 0.0023817274622337085,
+        "db": 0.0023952124588656576
+      },
+      "torch_compile_tanh": {
+        "c": 0.001657701241754111,
+        "da": 0.0016580806805467543,
+        "db": 0.0016591748892904681
+      },
+      "torch_compile_exact": {
+        "c": 0.0016578875219472532,
+        "da": 0.0016582619338974779,
+        "db": 0.0016591305811673475
+      },
+      "liger_vs_tanh": {
+        "c": 0.002382358917773256,
+        "da": 0.0023418726055060707,
+        "db": 0.0023820515589316007
+      },
+      "liger_vs_exact": {
+        "c": 0.0023871004516538385,
+        "da": 0.002382900393823547,
+        "db": 0.002386974557192686
+      },
+      "liger_oop_vs_tanh": {
+        "c": 0.002382358917773256,
+        "da": 0.0023418726055060707,
+        "db": 0.0023820515589316007
+      },
+      "fp32_mul_fwd_c_vs_tanh": 0.001657701241754111,
+      "oop_bit_identical_to_upstream": true,
+      "liger_vs_eager_tanh_same_dtype": {
+        "c": 0.0,
+        "da": 1.334514693737474e-08,
+        "db": 0.0
+      }
+    },
+    {
+      "dtype": "bf16",
+      "gate_std": 4.0,
+      "T": 2048,
+      "I": 8192,
+      "floor_tanh": {
+        "c": 0.0016527589305568452,
+        "da": 0.0016567963467926754,
+        "db": 0.0016534830355584445
+      },
+      "tanh_vs_exact_fp64": {
+        "c": 7.002343816274433e-05,
+        "da": 0.0004782725791021694,
+        "db": 7.008183469424037e-05
+      },
+      "eager_tanh_vs_tanh": {
+        "c": 0.0017470992133890057,
+        "da": 0.002145641013310075,
+        "db": 0.0017481994338664497
+      },
+      "eager_exact_vs_exact": {
+        "c": 0.0017498958844182494,
+        "da": 0.002151670931162475,
+        "db": 0.001751183655249641
+      },
+      "eager_exact_vs_tanh": {
+        "c": 0.0017490389653358265,
+        "da": 0.0021982086491975023,
+        "db": 0.0017503105431340284
+      },
+      "torch_compile_tanh": {
+        "c": 0.0016527589188924047,
+        "da": 0.0016567964854358565,
+        "db": 0.0016534830215529756
+      },
+      "torch_compile_exact": {
+        "c": 0.0016526772974149943,
+        "da": 0.0016570550161848837,
+        "db": 0.00165341492440057
+      },
+      "liger_vs_tanh": {
+        "c": 0.0017470992133890057,
+        "da": 0.002145641013311219,
+        "db": 0.0017481994338664497
+      },
+      "liger_vs_exact": {
+        "c": 0.0017511130534347394,
+        "da": 0.002204048532446811,
+        "db": 0.0017522307411106618
+      },
+      "liger_oop_vs_tanh": {
+        "c": 0.0017470992133890057,
+        "da": 0.002145641013311219,
+        "db": 0.0017481994338664497
+      },
+      "fp32_mul_fwd_c_vs_tanh": 0.0016527589188924047,
+      "oop_bit_identical_to_upstream": true,
+      "liger_vs_eager_tanh_same_dtype": {
+        "c": 0.0,
+        "da": 6.8354576449393206e-09,
+        "db": 0.0
+      }
+    }
+  ],
+  "mlp": [
+    {
+      "shape": "Gemma-2B",
+      "H": 2048,
+      "I": 16384,
+      "T": 1024,
+      "act_MiB": 32.0,
+      "weight_grads_MiB": 192.0,
+      "eager_tanh": {
+        "held_after_fwd_MiB": 132.9,
+        "extra_peak_MiB": 260.9,
+        "fwd_bwd_ms": 22.219
+      },
+      "eager_exact": {
+        "held_after_fwd_MiB": 132.9,
+        "extra_peak_MiB": 260.9,
+        "fwd_bwd_ms": 22.227
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 100.9,
+        "extra_peak_MiB": 232.9,
+        "fwd_bwd_ms": 21.4
+      },
+      "liger": {
+        "held_after_fwd_MiB": 100.9,
+        "extra_peak_MiB": 236.9,
+        "fwd_bwd_ms": 21.38
+      },
+      "liger_oop": {
+        "held_after_fwd_MiB": 100.9,
+        "extra_peak_MiB": 236.9,
+        "fwd_bwd_ms": 21.378
+      }
+    },
+    {
+      "shape": "Gemma-2B",
+      "H": 2048,
+      "I": 16384,
+      "T": 4096,
+      "act_MiB": 128.0,
+      "weight_grads_MiB": 192.0,
+      "eager_tanh": {
+        "held_after_fwd_MiB": 528.0,
+        "extra_peak_MiB": 848.0,
+        "fwd_bwd_ms": 88.941
+      },
+      "eager_exact": {
+        "held_after_fwd_MiB": 528.0,
+        "extra_peak_MiB": 848.0,
+        "fwd_bwd_ms": 88.956
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 400.0,
+        "extra_peak_MiB": 720.0,
+        "fwd_bwd_ms": 85.129
+      },
+      "liger": {
+        "held_after_fwd_MiB": 400.0,
+        "extra_peak_MiB": 592.0,
+        "fwd_bwd_ms": 85.575
+      },
+      "liger_oop": {
+        "held_after_fwd_MiB": 400.0,
+        "extra_peak_MiB": 720.0,
+        "fwd_bwd_ms": 85.599
+      }
+    },
+    {
+      "shape": "Gemma-2B",
+      "H": 2048,
+      "I": 16384,
+      "T": 8192,
+      "act_MiB": 256.0,
+      "weight_grads_MiB": 192.0,
+      "eager_tanh": {
+        "held_after_fwd_MiB": 1056.0,
+        "extra_peak_MiB": 1632.0,
+        "fwd_bwd_ms": 178.007
+      },
+      "eager_exact": {
+        "held_after_fwd_MiB": 1056.0,
+        "extra_peak_MiB": 1632.0,
+        "fwd_bwd_ms": 178.688
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 800.0,
+        "extra_peak_MiB": 1376.0,
+        "fwd_bwd_ms": 171.429
+      },
+      "liger": {
+        "held_after_fwd_MiB": 800.0,
+        "extra_peak_MiB": 1120.0,
+        "fwd_bwd_ms": 171.938
+      },
+      "liger_oop": {
+        "held_after_fwd_MiB": 800.0,
+        "extra_peak_MiB": 1376.0,
+        "fwd_bwd_ms": 171.866
+      }
+    },
+    {
+      "shape": "Gemma-2-2B",
+      "H": 2304,
+      "I": 9216,
+      "T": 1024,
+      "act_MiB": 18.0,
+      "weight_grads_MiB": 121.5,
+      "eager_tanh": {
+        "held_after_fwd_MiB": 76.5,
+        "extra_peak_MiB": 154.0,
+        "fwd_bwd_ms": 13.89
+      },
+      "eager_exact": {
+        "held_after_fwd_MiB": 76.5,
+        "extra_peak_MiB": 154.0,
+        "fwd_bwd_ms": 13.884
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 58.5,
+        "extra_peak_MiB": 148.5,
+        "fwd_bwd_ms": 13.363
+      },
+      "liger": {
+        "held_after_fwd_MiB": 58.5,
+        "extra_peak_MiB": 153.0,
+        "fwd_bwd_ms": 13.456
+      },
+      "liger_oop": {
+        "held_after_fwd_MiB": 58.5,
+        "extra_peak_MiB": 153.0,
+        "fwd_bwd_ms": 13.413
+      }
+    },
+    {
+      "shape": "Gemma-2-2B",
+      "H": 2304,
+      "I": 9216,
+      "T": 4096,
+      "act_MiB": 72.0,
+      "weight_grads_MiB": 121.5,
+      "eager_tanh": {
+        "held_after_fwd_MiB": 306.0,
+        "extra_peak_MiB": 490.5,
+        "fwd_bwd_ms": 55.589
+      },
+      "eager_exact": {
+        "held_after_fwd_MiB": 306.0,
+        "extra_peak_MiB": 490.5,
+        "fwd_bwd_ms": 55.612
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 234.0,
+        "extra_peak_MiB": 418.5,
+        "fwd_bwd_ms": 53.444
+      },
+      "liger": {
+        "held_after_fwd_MiB": 234.0,
+        "extra_peak_MiB": 346.5,
+        "fwd_bwd_ms": 53.695
+      },
+      "liger_oop": {
+        "held_after_fwd_MiB": 234.0,
+        "extra_peak_MiB": 418.5,
+        "fwd_bwd_ms": 53.719
+      }
+    },
+    {
+      "shape": "Gemma-2-2B",
+      "H": 2304,
+      "I": 9216,
+      "T": 8192,
+      "act_MiB": 144.0,
+      "weight_grads_MiB": 121.5,
+      "eager_tanh": {
+        "held_after_fwd_MiB": 612.0,
+        "extra_peak_MiB": 940.5,
+        "fwd_bwd_ms": 111.901
+      },
+      "eager_exact": {
+        "held_after_fwd_MiB": 612.0,
+        "extra_peak_MiB": 940.5,
+        "fwd_bwd_ms": 111.912
+      },
+      "torch_compile": {
+        "held_after_fwd_MiB": 468.0,
+        "extra_peak_MiB": 796.5,
+        "fwd_bwd_ms": 107.578
+      },
+      "liger": {
+        "held_after_fwd_MiB": 468.0,
+        "extra_peak_MiB": 652.5,
+        "fwd_bwd_ms": 108.179
+      },
+      "liger_oop": {
+        "held_after_fwd_MiB": 468.0,
+        "extra_peak_MiB": 796.5,
+        "fwd_bwd_ms": 108.116
+      }
+    }
+  ],
+  "bandwidth": [
+    {
+      "T": 4096,
+      "I": 2048,
+      "BLOCK_SIZE": 2048,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 16.0,
+      "copy_ms": 0.1536,
+      "copy_gbps": 218.5,
+      "fwd_liger_ms": 0.2304,
+      "fwd_liger_gbps": 218.5,
+      "fwd_fp32_mul_ms": 0.2304,
+      "fwd_fp32_mul_gbps": 218.5,
+      "fwd_eager_tanh_ms": 0.3215,
+      "fwd_eager_tanh_gbps": 156.5,
+      "fwd_eager_exact_ms": 0.3205,
+      "fwd_eager_exact_gbps": 157.0,
+      "fwd_compile_ms": 0.2299,
+      "fwd_compile_gbps": 218.9,
+      "bwd_liger_ms": 0.3768,
+      "bwd_liger_gbps": 222.6,
+      "bwd_liger_oop_ms": 0.383,
+      "bwd_liger_oop_gbps": 219.0,
+      "bwd_eager_ms": 0.6257,
+      "bwd_eager_gbps": 134.1,
+      "bwd_compile_ms": 0.382,
+      "bwd_compile_gbps": 219.6,
+      "fwd_liger_vs_eager": 1.4,
+      "fwd_fp32_mul_vs_eager": 1.4,
+      "fwd_compile_vs_eager": 1.4,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.66,
+      "bwd_liger_oop_vs_eager": 1.63,
+      "bwd_compile_vs_eager": 1.64
+    },
+    {
+      "T": 4096,
+      "I": 3072,
+      "BLOCK_SIZE": 4096,
+      "lane_util": 0.75,
+      "MiB_per_tensor": 24.0,
+      "copy_ms": 0.2263,
+      "copy_gbps": 222.4,
+      "fwd_liger_ms": 0.3389,
+      "fwd_liger_gbps": 222.7,
+      "fwd_fp32_mul_ms": 0.3379,
+      "fwd_fp32_mul_gbps": 223.4,
+      "fwd_eager_tanh_ms": 0.5504,
+      "fwd_eager_tanh_gbps": 137.2,
+      "fwd_eager_exact_ms": 0.5499,
+      "fwd_eager_exact_gbps": 137.3,
+      "fwd_compile_ms": 0.341,
+      "fwd_compile_gbps": 221.4,
+      "bwd_liger_ms": 0.5612,
+      "bwd_liger_gbps": 224.2,
+      "bwd_liger_oop_ms": 0.5617,
+      "bwd_liger_oop_gbps": 224.0,
+      "bwd_eager_ms": 0.9892,
+      "bwd_eager_gbps": 127.2,
+      "bwd_compile_ms": 0.5622,
+      "bwd_compile_gbps": 223.8,
+      "fwd_liger_vs_eager": 1.62,
+      "fwd_fp32_mul_vs_eager": 1.63,
+      "fwd_compile_vs_eager": 1.61,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.76,
+      "bwd_liger_oop_vs_eager": 1.76,
+      "bwd_compile_vs_eager": 1.76
+    },
+    {
+      "T": 4096,
+      "I": 4096,
+      "BLOCK_SIZE": 4096,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 32.0,
+      "copy_ms": 0.299,
+      "copy_gbps": 224.4,
+      "fwd_liger_ms": 0.4485,
+      "fwd_liger_gbps": 224.4,
+      "fwd_fp32_mul_ms": 0.4475,
+      "fwd_fp32_mul_gbps": 225.0,
+      "fwd_eager_tanh_ms": 0.7373,
+      "fwd_eager_tanh_gbps": 136.5,
+      "fwd_eager_exact_ms": 0.7383,
+      "fwd_eager_exact_gbps": 136.3,
+      "fwd_compile_ms": 0.4495,
+      "fwd_compile_gbps": 223.9,
+      "bwd_liger_ms": 0.7393,
+      "bwd_liger_gbps": 226.9,
+      "bwd_liger_oop_ms": 0.7455,
+      "bwd_liger_oop_gbps": 225.1,
+      "bwd_eager_ms": 1.3158,
+      "bwd_eager_gbps": 127.5,
+      "bwd_compile_ms": 0.7557,
+      "bwd_compile_gbps": 222.0,
+      "fwd_liger_vs_eager": 1.64,
+      "fwd_fp32_mul_vs_eager": 1.65,
+      "fwd_compile_vs_eager": 1.64,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.78,
+      "bwd_liger_oop_vs_eager": 1.76,
+      "bwd_compile_vs_eager": 1.74
+    },
+    {
+      "T": 4096,
+      "I": 4104,
+      "BLOCK_SIZE": 8192,
+      "lane_util": 0.501,
+      "MiB_per_tensor": 32.1,
+      "copy_ms": 0.299,
+      "copy_gbps": 224.9,
+      "fwd_liger_ms": 0.4803,
+      "fwd_liger_gbps": 210.0,
+      "fwd_fp32_mul_ms": 0.4792,
+      "fwd_fp32_mul_gbps": 210.5,
+      "fwd_eager_tanh_ms": 0.7404,
+      "fwd_eager_tanh_gbps": 136.2,
+      "fwd_eager_exact_ms": 0.7404,
+      "fwd_eager_exact_gbps": 136.2,
+      "fwd_compile_ms": 0.4495,
+      "fwd_compile_gbps": 224.4,
+      "bwd_liger_ms": 0.7332,
+      "bwd_liger_gbps": 229.3,
+      "bwd_liger_oop_ms": 0.7567,
+      "bwd_liger_oop_gbps": 222.1,
+      "bwd_eager_ms": 1.3102,
+      "bwd_eager_gbps": 128.3,
+      "bwd_compile_ms": 0.7424,
+      "bwd_compile_gbps": 226.4,
+      "fwd_liger_vs_eager": 1.54,
+      "fwd_fp32_mul_vs_eager": 1.55,
+      "fwd_compile_vs_eager": 1.65,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.79,
+      "bwd_liger_oop_vs_eager": 1.73,
+      "bwd_compile_vs_eager": 1.76
+    },
+    {
+      "T": 4096,
+      "I": 5632,
+      "BLOCK_SIZE": 8192,
+      "lane_util": 0.688,
+      "MiB_per_tensor": 44.0,
+      "copy_ms": 0.4096,
+      "copy_gbps": 225.3,
+      "fwd_liger_ms": 0.6113,
+      "fwd_liger_gbps": 226.4,
+      "fwd_fp32_mul_ms": 0.6103,
+      "fwd_fp32_mul_gbps": 226.8,
+      "fwd_eager_tanh_ms": 1.0127,
+      "fwd_eager_tanh_gbps": 136.7,
+      "fwd_eager_exact_ms": 1.0127,
+      "fwd_eager_exact_gbps": 136.7,
+      "fwd_compile_ms": 0.6062,
+      "fwd_compile_gbps": 228.3,
+      "bwd_liger_ms": 1.0158,
+      "bwd_liger_gbps": 227.1,
+      "bwd_liger_oop_ms": 1.0168,
+      "bwd_liger_oop_gbps": 226.9,
+      "bwd_eager_ms": 1.7838,
+      "bwd_eager_gbps": 129.3,
+      "bwd_compile_ms": 1.0107,
+      "bwd_compile_gbps": 228.2,
+      "fwd_liger_vs_eager": 1.66,
+      "fwd_fp32_mul_vs_eager": 1.66,
+      "fwd_compile_vs_eager": 1.67,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.76,
+      "bwd_liger_oop_vs_eager": 1.75,
+      "bwd_compile_vs_eager": 1.76
+    },
+    {
+      "T": 4096,
+      "I": 8192,
+      "BLOCK_SIZE": 8192,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 64.0,
+      "copy_ms": 0.5908,
+      "copy_gbps": 227.2,
+      "fwd_liger_ms": 0.8858,
+      "fwd_liger_gbps": 227.3,
+      "fwd_fp32_mul_ms": 0.8837,
+      "fwd_fp32_mul_gbps": 227.8,
+      "fwd_eager_tanh_ms": 1.4633,
+      "fwd_eager_tanh_gbps": 137.6,
+      "fwd_eager_exact_ms": 1.4612,
+      "fwd_eager_exact_gbps": 137.8,
+      "fwd_compile_ms": 0.8858,
+      "fwd_compile_gbps": 227.3,
+      "bwd_liger_ms": 1.4776,
+      "bwd_liger_gbps": 227.1,
+      "bwd_liger_oop_ms": 1.4807,
+      "bwd_liger_oop_gbps": 226.6,
+      "bwd_eager_ms": 2.5948,
+      "bwd_eager_gbps": 129.3,
+      "bwd_compile_ms": 1.4787,
+      "bwd_compile_gbps": 226.9,
+      "fwd_liger_vs_eager": 1.65,
+      "fwd_fp32_mul_vs_eager": 1.66,
+      "fwd_compile_vs_eager": 1.65,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.76,
+      "bwd_liger_oop_vs_eager": 1.75,
+      "bwd_compile_vs_eager": 1.75
+    },
+    {
+      "T": 4096,
+      "I": 9216,
+      "BLOCK_SIZE": 16384,
+      "lane_util": 0.562,
+      "MiB_per_tensor": 72.0,
+      "copy_ms": 0.6656,
+      "copy_gbps": 226.9,
+      "fwd_liger_ms": 1.0056,
+      "fwd_liger_gbps": 225.2,
+      "fwd_fp32_mul_ms": 1.0045,
+      "fwd_fp32_mul_gbps": 225.5,
+      "fwd_eager_tanh_ms": 1.6435,
+      "fwd_eager_tanh_gbps": 137.8,
+      "fwd_eager_exact_ms": 1.6425,
+      "fwd_eager_exact_gbps": 137.9,
+      "fwd_compile_ms": 0.9943,
+      "fwd_compile_gbps": 227.8,
+      "bwd_liger_ms": 1.6732,
+      "bwd_liger_gbps": 225.6,
+      "bwd_liger_oop_ms": 1.6686,
+      "bwd_liger_oop_gbps": 226.2,
+      "bwd_eager_ms": 2.9143,
+      "bwd_eager_gbps": 129.5,
+      "bwd_compile_ms": 1.663,
+      "bwd_compile_gbps": 227.0,
+      "fwd_liger_vs_eager": 1.63,
+      "fwd_fp32_mul_vs_eager": 1.64,
+      "fwd_compile_vs_eager": 1.65,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.74,
+      "bwd_liger_oop_vs_eager": 1.75,
+      "bwd_compile_vs_eager": 1.75
+    },
+    {
+      "T": 4096,
+      "I": 11008,
+      "BLOCK_SIZE": 16384,
+      "lane_util": 0.672,
+      "MiB_per_tensor": 86.0,
+      "copy_ms": 0.7905,
+      "copy_gbps": 228.1,
+      "fwd_liger_ms": 1.195,
+      "fwd_liger_gbps": 226.4,
+      "fwd_fp32_mul_ms": 1.194,
+      "fwd_fp32_mul_gbps": 226.6,
+      "fwd_eager_tanh_ms": 1.963,
+      "fwd_eager_tanh_gbps": 137.8,
+      "fwd_eager_exact_ms": 1.961,
+      "fwd_eager_exact_gbps": 138.0,
+      "fwd_compile_ms": 1.1796,
+      "fwd_compile_gbps": 229.3,
+      "bwd_liger_ms": 1.9917,
+      "bwd_liger_gbps": 226.4,
+      "bwd_liger_oop_ms": 1.9794,
+      "bwd_liger_oop_gbps": 227.8,
+      "bwd_eager_ms": 3.4908,
+      "bwd_eager_gbps": 129.2,
+      "bwd_compile_ms": 1.9784,
+      "bwd_compile_gbps": 227.9,
+      "fwd_liger_vs_eager": 1.64,
+      "fwd_fp32_mul_vs_eager": 1.64,
+      "fwd_compile_vs_eager": 1.66,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.75,
+      "bwd_liger_oop_vs_eager": 1.76,
+      "bwd_compile_vs_eager": 1.76
+    },
+    {
+      "T": 4096,
+      "I": 16384,
+      "BLOCK_SIZE": 16384,
+      "lane_util": 1.0,
+      "MiB_per_tensor": 128.0,
+      "copy_ms": 1.1735,
+      "copy_gbps": 228.7,
+      "fwd_liger_ms": 1.748,
+      "fwd_liger_gbps": 230.4,
+      "fwd_fp32_mul_ms": 1.75,
+      "fwd_fp32_mul_gbps": 230.1,
+      "fwd_eager_tanh_ms": 2.901,
+      "fwd_eager_tanh_gbps": 138.8,
+      "fwd_eager_exact_ms": 2.9051,
+      "fwd_eager_exact_gbps": 138.6,
+      "fwd_compile_ms": 1.7418,
+      "fwd_compile_gbps": 231.2,
+      "bwd_liger_ms": 2.945,
+      "bwd_liger_gbps": 227.9,
+      "bwd_liger_oop_ms": 2.9338,
+      "bwd_liger_oop_gbps": 228.7,
+      "bwd_eager_ms": 5.0744,
+      "bwd_eager_gbps": 132.2,
+      "bwd_compile_ms": 2.8088,
+      "bwd_compile_gbps": 238.9,
+      "fwd_liger_vs_eager": 1.66,
+      "fwd_fp32_mul_vs_eager": 1.66,
+      "fwd_compile_vs_eager": 1.67,
+      "fwd_eager_exact_vs_eager": 1.0,
+      "bwd_liger_vs_eager": 1.72,
+      "bwd_liger_oop_vs_eager": 1.73,
+      "bwd_compile_vs_eager": 1.81
+    }
+  ],
+  "kernels": [
+    {
+      "I": 2048,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 2048,
+      "num_warps": 8,
+      "n_regs": 40,
+      "n_spills": 0
+    },
+    {
+      "I": 2048,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 2048,
+      "num_warps": 8,
+      "n_regs": 40,
+      "n_spills": 0
+    },
+    {
+      "I": 2048,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 2048,
+      "num_warps": 8,
+      "n_regs": 39,
+      "n_spills": 0
+    },
+    {
+      "I": 3072,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 48,
+      "n_spills": 0
+    },
+    {
+      "I": 3072,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 68,
+      "n_spills": 0
+    },
+    {
+      "I": 3072,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 58,
+      "n_spills": 0
+    },
+    {
+      "I": 4096,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 48,
+      "n_spills": 0
+    },
+    {
+      "I": 4096,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 64,
+      "n_spills": 0
+    },
+    {
+      "I": 4096,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 4096,
+      "num_warps": 8,
+      "n_regs": 60,
+      "n_spills": 0
+    },
+    {
+      "I": 4104,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 38,
+      "n_spills": 0
+    },
+    {
+      "I": 4104,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 64,
+      "n_spills": 0
+    },
+    {
+      "I": 4104,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 54,
+      "n_spills": 0
+    },
+    {
+      "I": 5632,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 50,
+      "n_spills": 0
+    },
+    {
+      "I": 5632,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 64,
+      "n_spills": 0
+    },
+    {
+      "I": 5632,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 76,
+      "n_spills": 0
+    },
+    {
+      "I": 8192,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 49,
+      "n_spills": 0
+    },
+    {
+      "I": 8192,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 64,
+      "n_spills": 0
+    },
+    {
+      "I": 8192,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 8192,
+      "num_warps": 16,
+      "n_regs": 64,
+      "n_spills": 0
+    },
+    {
+      "I": 9216,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 70,
+      "n_spills": 0
+    },
+    {
+      "I": 9216,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 102,
+      "n_spills": 0
+    },
+    {
+      "I": 9216,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 103,
+      "n_spills": 0
+    },
+    {
+      "I": 11008,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 70,
+      "n_spills": 0
+    },
+    {
+      "I": 11008,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 102,
+      "n_spills": 0
+    },
+    {
+      "I": 11008,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 103,
+      "n_spills": 0
+    },
+    {
+      "I": 16384,
+      "kernel": "fwd",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 94,
+      "n_spills": 0
+    },
+    {
+      "I": 16384,
+      "kernel": "bwd",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 128,
+      "n_spills": 12
+    },
+    {
+      "I": 16384,
+      "kernel": "bwd_oop",
+      "BLOCK_SIZE": 16384,
+      "num_warps": 16,
+      "n_regs": 128,
+      "n_spills": 8
+    }
+  ],
+  "peak_memory_mib": 2704.2,
+  "runtime_s": 166.7
+}
