@@ -279,6 +279,16 @@
       "device": "cuda",
       "date": "2026-11-21",
       "status": "done"
+    },
+    {
+      "id": "0029",
+      "slug": "liger-geglu",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/geglu.py (LigerGELUMulFunction)",
+      "topic": "GeGLU tanh-approx in-place da/db overwrite: aliasing (stash / leaves / aux-before / retain_graph), error vs fp64 tanh and exact-erf vs F.gelu(approximate='tanh'|'none') / torch.compile / oop / fp32-mul fwd, held/peak memory and latency at Gemma-2B / Gemma-2-2B shapes, elementwise bandwidth and spills vs I",
+      "device": "cuda",
+      "date": "2026-11-22",
+      "status": "done"
     }
   ]
 }
