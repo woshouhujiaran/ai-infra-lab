@@ -289,6 +289,16 @@
       "device": "cuda",
       "date": "2026-11-22",
       "status": "done"
+    },
+    {
+      "id": "0030",
+      "slug": "liger-tvd",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/tvd.py (LigerTVDLossFunction / tv_distance_forward_triton / tvd_backward_triton) + transformers/tvd.py (LigerTVDLoss)",
+      "topic": "Triton TVD 0.5*|p-q| on probs / raw inputs: always-fp32 loss vs eager half-precision floor and fp16 raw overflow, exact ±0.5 subgradient and p==q ties (incl. bf16 near-ties), ignore_index all-ignored ZeroDivisionError, no q gradient, fused forward grad tile peak/latency vs eager / torch.compile at 32k–152k vocab, reduction=none fp32 (BT,V) tile",
+      "device": "cuda",
+      "date": "2026-11-23",
+      "status": "done"
     }
   ]
 }
