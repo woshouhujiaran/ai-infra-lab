@@ -299,6 +299,16 @@
       "device": "cuda",
       "date": "2026-11-23",
       "status": "done"
+    },
+    {
+      "id": "0031",
+      "slug": "liger-layer-norm",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/layer_norm.py (LigerLayerNormFunction / layer_norm_forward / layer_norm_backward)",
+      "topic": "Triton LayerNorm: error vs F.layer_norm / nn.LayerNorm / torch.compile / fp64 with and without bias; ensure_contiguous vs row-strided / transposed / stride-0 dy (tutorial 0020 footguns); 65536-column limit; Module bias=False zero Parameter; SM-partitioned fp32 dW/db reduction bit-determinism vs T and SM count; held/peak memory and elementwise bandwidth vs H at GPT-2 / BERT / Llama-ish shapes",
+      "device": "cuda",
+      "date": "2026-11-24",
+      "status": "done"
     }
   ]
 }
