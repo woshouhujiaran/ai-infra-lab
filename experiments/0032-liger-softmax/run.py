@@ -282,23 +282,17 @@ def sec_edges():
             cell["y_has_nan"] = bool(torch.isnan(yl).any())
             cell["F_has_nan"] = bool(torch.isnan(yf).any())
             cell["y_sum_max_abs_err"] = float((yl.double().sum(-1) - 1.0).abs().max())
-            # backward where finite
-            if not (torch.isnan(x).any() or torch.isinf(x).any() and name != "half_row_neg_inf"):
-                dy = torch.randn_like(x)
-                # for half_row_neg_inf, still run backward
             dy = 0.1 * torch.randn_like(x)
             xl = x.detach().clone().requires_grad_(True)
             xf = x.detach().clone().requires_grad_(True)
             yl2 = liger(xl)
             yf2 = eager_softmax(xf)
-            # skip backward if y has nan (all -inf)
             if torch.isnan(yl2).any() or torch.isnan(yf2).any():
                 cell["bwd"] = "skipped_nan_y"
             else:
                 torch.autograd.backward(yl2, dy)
                 torch.autograd.backward(yf2, dy)
                 cell["dx_liger_vs_F"] = rel(xl.grad, xf.grad)
-                # masked positions should get ~0 grad for -inf inputs
                 if name == "half_row_neg_inf":
                     cell["dx_masked_abs_max"] = float(xl.grad[:, keep:].double().abs().max())
                     cell["dx_F_masked_abs_max"] = float(xf.grad[:, keep:].double().abs().max())
@@ -353,45 +347,54 @@ def sec_limits():
         print("limit", cell, flush=True)
         cleanup()
 
-    # Force multi-block vs public single-block vs F.softmax
+    # Force multi-block vs public single-block vs F.softmax.
+    # On current triton-windows the multi-block kernels may fail to compile
+    # (tl.float32(-inf) TypeError) — record that as a finding.
     for V in [2048, 4096, 8192, 16384]:
         assert V > FORCE_BLOCK
         x, dy = make_inputs(128, V, torch.bfloat16, seed=SEED + V)
         y_pub, bs, nw, multi = _softmax_forward(x)
         dx_pub = _softmax_backward(dy, y_pub, bs, nw, multi)
-        y_f = force_multi_block_forward(x, FORCE_BLOCK, 8)
-        dx_f = force_multi_block_backward(dy, y_f, FORCE_BLOCK, 8)
         y_torch = eager_softmax(x)
-        # torch backward
         xt = x.detach().clone().requires_grad_(True)
         yt = eager_softmax(xt)
         torch.autograd.backward(yt, dy)
 
-        # latency compare single vs forced multi
-        def bench_single():
-            _softmax_single_block_forward_kernel[(x.shape[0],)](
-                torch.empty_like(x), x.stride(0), x, x.stride(0), V,
-                BLOCK_SIZE=bs, num_warps=nw,
-            )
-
-        def bench_multi():
-            force_multi_block_forward(x, FORCE_BLOCK, 8)
-
-        t_single = do_bench(bench_single, warmup=5, rep=20)
-        t_multi = do_bench(bench_multi, warmup=5, rep=20)
         cell = {
             "V": V,
             "public_multi": multi,
             "public_BLOCK": bs,
             "force_BLOCK": FORCE_BLOCK,
-            "y_force_vs_public": rel(y_f, y_pub),
-            "y_force_vs_F": rel(y_f, y_torch),
-            "dx_force_vs_public": rel(dx_f, dx_pub),
-            "dx_force_vs_F": rel(dx_f, xt.grad),
-            "fwd_ms_single": t_single,
-            "fwd_ms_forced_multi": t_multi,
-            "multi_vs_single": t_multi / t_single if t_single > 0 else None,
         }
+        try:
+            y_f = force_multi_block_forward(x, FORCE_BLOCK, 8)
+            dx_f = force_multi_block_backward(dy, y_f, FORCE_BLOCK, 8)
+
+            def bench_single():
+                _softmax_single_block_forward_kernel[(x.shape[0],)](
+                    torch.empty_like(x), x.stride(0), x, x.stride(0), V,
+                    BLOCK_SIZE=bs, num_warps=nw,
+                )
+
+            def bench_multi():
+                force_multi_block_forward(x, FORCE_BLOCK, 8)
+
+            t_single = do_bench(bench_single, warmup=5, rep=20)
+            t_multi = do_bench(bench_multi, warmup=5, rep=20)
+            cell.update({
+                "y_force_vs_public": rel(y_f, y_pub),
+                "y_force_vs_F": rel(y_f, y_torch),
+                "dx_force_vs_public": rel(dx_f, dx_pub),
+                "dx_force_vs_F": rel(dx_f, xt.grad),
+                "fwd_ms_single": t_single,
+                "fwd_ms_forced_multi": t_multi,
+                "multi_vs_single": t_multi / t_single if t_single > 0 else None,
+            })
+        except Exception as e:
+            # Capture first line of triton CompilationError body
+            msg = f"{type(e).__name__}: {e}"
+            cell["force_error"] = msg.splitlines()[0][:200]
+            cell["force_error_detail"] = "\n".join(msg.splitlines()[:12])[:800]
         out["forced_multi"].append(cell)
         print("forced_multi", cell, flush=True)
         cleanup()
@@ -692,13 +695,14 @@ def write_results(data):
     for r in data["limits"]["forced_multi"]:
         frows.append([
             r["V"], r["public_BLOCK"], r["force_BLOCK"],
-            r["y_force_vs_public"], r["y_force_vs_F"],
-            r["dx_force_vs_public"], r["dx_force_vs_F"],
-            r["fwd_ms_single"], r["fwd_ms_forced_multi"], r["multi_vs_single"],
+            r.get("y_force_vs_public"), r.get("y_force_vs_F"),
+            r.get("dx_force_vs_public"), r.get("dx_force_vs_F"),
+            r.get("fwd_ms_single"), r.get("fwd_ms_forced_multi"),
+            r.get("multi_vs_single"), r.get("force_error"),
         ])
     lines.append(table(
         ["V", "pub_B", "force_B", "y_vs_pub", "y_vs_F", "dx_vs_pub", "dx_vs_F",
-         "ms_single", "ms_multi", "multi/single"],
+         "ms_single", "ms_multi", "multi/single", "err"],
         frows,
     ))
 
