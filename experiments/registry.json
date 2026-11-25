@@ -309,6 +309,16 @@
       "device": "cuda",
       "date": "2026-11-24",
       "status": "done"
+    },
+    {
+      "id": "0032",
+      "slug": "liger-softmax",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/softmax.py (LigerSoftmaxFunction / _softmax_forward / _softmax_backward single- and multi-block kernels)",
+      "topic": "Triton Softmax: multi_block_launch always False behind calculate_settings (next_power_of_2) and multi-block kernels fail to compile (tl.float32(-inf)); 65536-column hard limit vs long-context / 128k vocab; numerics vs F.softmax / torch.compile / fp64 for fp32/fp16/bf16; -inf mask / all -inf / NaN / large logits; ensure_contiguous layouts; held/peak memory and GB/s vs V at attention and vocab-ish shapes",
+      "device": "cuda",
+      "date": "2026-11-25",
+      "status": "done"
     }
   ]
 }
