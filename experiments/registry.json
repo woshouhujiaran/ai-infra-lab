@@ -319,6 +319,16 @@
       "device": "cuda",
       "date": "2026-11-25",
       "status": "done"
+    },
+    {
+      "id": "0033",
+      "slug": "liger-dyt",
+      "upstream": "linkedin/Liger-Kernel",
+      "component": "src/liger_kernel/ops/dyt.py (LigerDyTFunction / liger_dyt_fwd / liger_dyt_bwd) + transformers/dyt.py (LigerDyT)",
+      "topic": "Dynamic Tanh (γ·tanh(α·x)+β) as LayerNorm replacement: numerics vs fp64/eager/torch.compile for fp32/fp16/bf16 with/without beta; saturation / ±Inf / NaN edges; per-H autotune cold cost and DA buffer (cdiv(H,512)) waste vs BLOCK_N; bitwise grad determinism; ensure_contiguous layouts; held/peak memory and GB/s vs eager DyT / F.layer_norm / torch.compile at GPT-2–Llama-3-8B hidden sizes",
+      "device": "cuda",
+      "date": "2026-11-26",
+      "status": "done"
     }
   ]
 }
